@@ -36,7 +36,6 @@ RUN \
     libmysqlclient-dev \
     libssl-dev \
     libtbb-dev \
-    openssl \
     p7zip-full \
     zlib1g-dev
 
@@ -48,7 +47,6 @@ RUN \
 
 RUN \
   export ACE_ROOT=/usr/include/ace && \
-  export TBB_ROOT_DIR=/usr/include/tbb
 
 COPY ./src/core/ /opt/core
 
