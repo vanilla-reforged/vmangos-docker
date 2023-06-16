@@ -47,7 +47,8 @@ RUN \
   ln -s /usr/bin/ccache /usr/local/bin/c++
 
 RUN \
-  export ACE_ROOT=/usr/include/ace
+  export ACE_ROOT=/usr/include/ace && \
+  export OPENSSL_ROOT_DIR=/usr/local/ssl
 
 COPY ./src/core/ /opt/core
 
