@@ -26,7 +26,7 @@ client_version=5875
 
 # Replace with a different world database import name in case there is an
 # update
-world_database_import_name=world_full_14_june_2021
+world_database_import_name=mangos
 
 get_script_path() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
