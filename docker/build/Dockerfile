@@ -48,7 +48,7 @@ RUN \
 
 RUN \
   export ACE_ROOT=/usr/include/ace && \
-  export TBB_ROOT_DIR=/usr/include/tbb
+  export TBB_ROOT_DIR=/usr/include/tbb && \
 
 COPY ./src/core/ /opt/core
 
@@ -74,7 +74,7 @@ ENV \
   VMANGOS_ANTICHEAT=0 \
   VMANGOS_SCRIPTS=1 \
   VMANGOS_LIBCURL=0 \
-  VMANGOS_WORLD=world_full_14_june_2021
+  VMANGOS_WORLD=mangos
 
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
