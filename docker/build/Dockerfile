@@ -36,6 +36,7 @@ RUN \
     libmysqlclient-dev \
     libssl-dev \
     libtbb-dev \
+    openssl \
     p7zip-full \
     zlib1g-dev
 
@@ -46,7 +47,7 @@ RUN \
   ln -s /usr/bin/ccache /usr/local/bin/c++
 
 RUN \
-  export ACE_ROOT=/usr/include/ace && \
+  export ACE_ROOT=/usr/include/ace
 
 COPY ./src/core/ /opt/core
 
