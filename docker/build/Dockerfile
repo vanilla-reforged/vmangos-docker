@@ -48,7 +48,7 @@ RUN \
 
 RUN \
   export ACE_ROOT=/usr/include/ace && \
-  export OPENSSL_ROOT_DIR=/usr/include/ssl
+  export OPENSSL_ROOT_DIR=/usr/include/openssl
 
 COPY ./src/core/ /opt/core
 
