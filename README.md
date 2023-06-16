@@ -42,7 +42,7 @@ First, clone the repository, initialize the submodules and generate the config
 files:
 
 ```sh
-user@local:~$ git clone https://git.sr.ht/~mser/vmangos-docker
+user@local:~$ git clone https://github.com/flyingfrog23/classic-reforged-docker
 user@local:~$ cd vmangos-docker
 user@local:vmangos-docker$ git submodule update --init --remote --recursive
 user@local:vmangos-docker$ ./00-create-or-reset-config-files.sh
