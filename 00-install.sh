@@ -58,6 +58,7 @@ docker run \
   -e VMANGOS_CLIENT=$client_version \
   -e VMANGOS_WORLD=$world_database_import_name \
   -e VMANGOS_THREADS=$((`nproc` > 1 ? `nproc` - 1 : 1)) \
+  -user=root \
   --rm \
   vmangos_build
 
