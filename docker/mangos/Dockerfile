@@ -31,7 +31,6 @@ RUN \
     libcurl4-openssl-dev \
     libmysqlclient-dev \
     libssl-dev \
-    libtbb-dev \
     openssl \
     zlib1g-dev
 
