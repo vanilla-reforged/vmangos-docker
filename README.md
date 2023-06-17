@@ -38,13 +38,12 @@ modifying these values as well as adjusting the environment variables
 
 ### Instructions
 
-First, clone the repository, initialize the submodules and generate the config
+First, clone the repository and generate the config
 files:
 
 ```sh
 user@local:~$ git clone https://github.com/flyingfrog23/classic-reforged-docker
 user@local:~$ cd classic-reforged-docker
-user@local:vmangos-docker$ git submodule update --init --remote --recursive
 user@local:vmangos-docker$ ./00-create-or-reset-config-files.sh
 ```
 
