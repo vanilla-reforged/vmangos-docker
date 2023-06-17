@@ -1,8 +1,1 @@
-[submodule "src/core"]
-	path = src/core
-	url = https://github.com/flyingfrog23/classic-reforged-core
-	branch = development
-[submodule "src/database"]
-	path = src/database
-	url = https://github.com/flyingfrog23/classic-reforged-db
-	branch = master
+
