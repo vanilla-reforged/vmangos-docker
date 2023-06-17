@@ -35,6 +35,7 @@ RUN \
     libcurl4-openssl-dev \
     libmysqlclient-dev \
     libssl-dev \
+    openssl \
     p7zip-full \
     zlib1g-dev
 
@@ -45,8 +46,7 @@ RUN \
   ln -s /usr/bin/ccache /usr/local/bin/c++
 
 RUN \
-  export ACE_ROOT=/usr/include/ace && \
-  export OPENSSL_ROOT=/usr/include/openssl
+  export ACE_ROOT=/usr/include/ace
 
 COPY ./src/core/ /opt/core
 
@@ -63,30 +63,12 @@ RUN \
   mkdir -p /world_database && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /world_database
 
-#ENV \
-#  VMANGOS_THREADS=2 \
-#  VMANGOS_DEBUG=0 \
-#  VMANGOS_MALLOC=1 \
-#  VMANGOS_CLIENT=5875 \
-#  VMANGOS_EXTRACTORS=1 \
-#  VMANGOS_ANTICHEAT=0 \
-#  VMANGOS_SCRIPTS=1 \
-#  VMANGOS_LIBCURL=0 \
-#  VMANGOS_WORLD=mangos
-
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 CMD \
   mkdir /opt/core/build && \
   cd /opt/core/build && \
   cmake \
-#    -DDEBUG=$VMANGOS_DEBUG \
-#    -DUSE_STD_MALLOC=$VMANGOS_MALLOC \
-#    -DSUPPORTED_CLIENT_BUILD=$VMANGOS_CLIENT \
-#    -DUSE_EXTRACTORS=$VMANGOS_EXTRACTORS \
-#    -DUSE_ANTICHEAT=$VMANGOS_ANTICHEAT \
-#    -DSCRIPTS=$VMANGOS_SCRIPTS \
-#    -DUSE_LIBCURL=$VMANGOS_LIBCURL \
     -DCMAKE_INSTALL_PREFIX=/opt/vmangos ../ && \
   make -j $VMANGOS_THREADS && \
   make install && \
