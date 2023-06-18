@@ -36,10 +36,6 @@ repository_path=$(dirname "$(get_script_path "$0")")
 
 cd "$repository_path"
 
-echo "[VMaNGOS]: Updating submodules..."
-
-git submodule update --init --remote --recursive
-
 echo "[VMaNGOS]: Building VMaNGOS..."
 
 docker build \
