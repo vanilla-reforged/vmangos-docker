@@ -4,6 +4,7 @@ services:
   vmangos_database:
     container_name: vmangos_database
     build:
+      command: --max_allowed_packet=32505856
       context: .
       dockerfile: docker/database/Dockerfile
     restart: unless-stopped
