@@ -1,18 +1,14 @@
-# vmangos-docker
+Heavily inspired by Michael Serajnik @ repository https://sr.ht/~mser/vmangos-docker/ wouldn't have been possible without help from discord @ user 0x539.
 
-> A Docker setup for VMaNGOS
+---
 
-This is a simple Docker setup for [VMaNGOS][vmangos]. It is heavily inspired by
-[tonymmm1/vmangos-docker][tonymmm1-vmangos-docker], which has some good ideas,
-but, in my opinion, falls a bit flat in execution.
+# classic-reforged-docker
 
-In particular, I did not like the convoluted Python script used to control
-everything, the lack of an easy way to back up the databases, a missing
-built-in solution to extract client data and the fact that all the containers
-are executed as root, causing potential security issues and permission
-headaches on the host; among other, more minor things.
+## Whats different from original
 
-## Install
+1. Git clone for core and database is executed inside the command section of the build\Dockerfile. Change to fit your needs.
+2. World DB latest release was downloaded from https://github.com/vmangos/core/releases/tag/db_latest repacked as "mangos.7z" contents: \characters.sql \logon.sql \logs.sql \mangos.sql if an alternative name should be used for the DB, be aware you will have to change the reference to it in multiple Dockerfiles.
+3. CMakeList.txt arguments were removed from build\Dockerfile. Changes were made directly in the provided core.
 
 ### Dependencies
 
@@ -38,8 +34,7 @@ modifying these values as well as adjusting the environment variables
 
 ### Instructions
 
-First, clone the repository and generate the config
-files:
+First, clone the repository and generate the config files:
 
 ```sh
 user@local:~$ git clone https://github.com/flyingfrog23/classic-reforged-docker
@@ -153,25 +148,14 @@ user@local:vmangos-docker$ ./00-extract-client-data.sh
 Note that this will also remove any existing data in `./src/data`, so make sure
 to create a backup of that in case you want to save it.
 
-## Maintainer
-
-[Michael Serajnik][maintainer]
-
-## Contribute
-
-You are welcome to help out!
-
-[Open a ticket][tickets] or [send a patch][patches].
-
 ## License
 
 [AGPL-3.0-or-later](LICENSE) © Michael Serajnik
 
 [vmangos]: https://github.com/vmangos/core
 [tonymmm1-vmangos-docker]: https://github.com/tonymmm1/vmangos-docker
+[Michael Serajnik vmangos-docker]: https://sr.ht/~mser/
 [docker]: https://docs.docker.com/get-docker/
 [docker-compose]: https://docs.docker.com/compose/install/
 
-[maintainer]: https://sr.ht/~mser/
-[tickets]: https://todo.sr.ht/~mser/vmangos-docker
-[patches]: https://lists.sr.ht/~mser/public-inbox
+
