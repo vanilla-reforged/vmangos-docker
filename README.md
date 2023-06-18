@@ -9,6 +9,8 @@ Heavily inspired by Michael Serajnik @ repository https://sr.ht/~mser/vmangos-do
 1. Git clone for core and database is executed inside the command section of the build\Dockerfile. Change to fit your needs.
 2. World DB latest release was downloaded from https://github.com/vmangos/core/releases/tag/db_latest repacked as "mangos.7z" contents: \characters.sql \logon.sql \logs.sql \mangos.sql if an alternative name should be used for the DB, be aware you will have to change the reference to it in multiple Dockerfiles.
 3. CMakeList.txt arguments were removed from build\Dockerfile. Changes were made directly in the provided core.
+4. Host paths to volumes differ.
+5. Build\Dockerfile and Extractor get executed with the --user=root command (issues finding filepaths).
 
 ### Dependencies
 
