@@ -51,9 +51,9 @@ docker build \
 
 docker run \
   -v "$repository_path/vmangos:/vmangos" \
-  -v "$repository_path/src/database:/database" \
-  -v "$repository_path/src/world_database:/world_database" \
-  -v "$repository_path/src/ccache:/ccache" \
+  -v "$repository_path/database:/database" \
+  -v "$repository_path/world_database:/world_database" \
+  -v "$repository_path/ccache:/ccache" \
   -e CCACHE_DIR=/ccache \
   -e VMANGOS_CLIENT=$client_version \
   -e VMANGOS_WORLD=$world_database_import_name \
