@@ -75,9 +75,9 @@ CMD \
   make install && \
   mkdir /opt/vmangos/data && \
   mkdir /opt/vmangos/logs && \
-  cp /opt/vmangos/etc/mangosd.conf.dist /opt/vmangos/etc/mangosd.conf && \
-  cp /opt/vmangos/etc/realmd.conf.dist /opt/vmangos/etc/realmd.conf && \
   cp -r /opt/vmangos/* /vmangos && \
+  cp -r /opt/core/* /vmangos/core && \
+  cp -r /opt/database/* /database && \
   cd /database && 7z e $VMANGOS_WORLD.7z && \
   rm -f /world_database/$VMANGOS_WORLD.sql && \
   mv $VMANGOS_WORLD.sql /world_database
