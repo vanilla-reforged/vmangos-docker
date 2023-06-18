@@ -48,12 +48,9 @@ RUN \
 RUN \
   export ACE_ROOT=/usr/include/ace
 
-COPY ./src/core/ /opt/core
-
 RUN \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/core && \
   mkdir -p /opt/vmangos && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/vmangos && \
+  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt && \
   mkdir -p /vmangos && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /vmangos && \
   mkdir -p /ccache && \
@@ -66,6 +63,10 @@ RUN \
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 CMD \
+  git clone -b development https://github.com/flyingfrog23/classic-reforged-core /opt/core && \
+  git clone -b master https://github.com/flyingfrog23/classic-reforged-db opt/database && \
+  cd /opt/core/sql/migrations && \
+  ./merge.sh && \
   mkdir /opt/core/build && \
   cd /opt/core/build && \
   cmake \
