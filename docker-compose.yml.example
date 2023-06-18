@@ -4,10 +4,10 @@ services:
   vmangos_database:
     container_name: vmangos_database
     build:
-      command: --max_allowed_packet=32505856
       context: .
       dockerfile: docker/database/Dockerfile
     restart: unless-stopped
+    command: --max_allowed_packet=32505856
     volumes:
       - vmangos_database:/var/lib/mysql
       - ./src/core/sql:/opt/vmangos/sql
