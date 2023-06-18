@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM mariadb:10
+FROM mysql:5.5.60
 
 ARG VMANGOS_USER_ID=1000
 ARG VMANGOS_GROUP_ID=1000
