@@ -78,18 +78,21 @@ if [ $(ls -l ./src/data | wc -l) -eq 1 ]; then
 
   docker run \
     -v "$repository_path/src/client_data:/client_data" \
+    --user=root \
     --rm \
     vmangos_extractors \
     /opt/vmangos/bin/mapextractor
 
   docker run \
     -v "$repository_path/src/client_data:/client_data" \
+    --user=root \
     --rm \
     vmangos_extractors \
     /opt/vmangos/bin/vmapextractor
 
   docker run \
     -v "$repository_path/src/client_data:/client_data" \
+    --user=root \
     --rm \
     vmangos_extractors \
     /opt/vmangos/bin/vmap_assembler
@@ -97,6 +100,7 @@ if [ $(ls -l ./src/data | wc -l) -eq 1 ]; then
   docker run \
     -v "$repository_path/src/client_data:/client_data" \
     -v "$repository_path/src/core/contrib/mmap:/mmap_contrib" \
+    --user=root \
     --rm \
     vmangos_extractors \
     /opt/vmangos/bin/MoveMapGen --offMeshInput /mmap_contrib/offmesh.txt
