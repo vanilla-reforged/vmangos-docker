@@ -64,7 +64,7 @@ USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 CMD \
   git clone -b development https://github.com/flyingfrog23/classic-reforged-core /opt/core && \
-  git clone -b master https://github.com/flyingfrog23/classic-reforged-db opt/database && \
+  git clone -b master https://github.com/flyingfrog23/classic-reforged-db /opt/database && \
   cd /opt/core/sql/migrations && \
   ./merge.sh && \
   mkdir /opt/core/build && \
