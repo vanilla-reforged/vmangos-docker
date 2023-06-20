@@ -114,12 +114,6 @@ if [ $(ls -l ./src/data | wc -l) -eq 1 ]; then
   mv ./src/client_data/vmaps ./src/data/
 fi
 
-echo "[VMaNGOS]: Merging database migrations..."
-
-cd ./src/core/sql/migrations
-./merge.sh
-cd "$repository_path"
-
 echo "[VMaNGOS]: Creating containers..."
 
 docker-compose build --no-cache
