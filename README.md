@@ -11,6 +11,7 @@ Heavily inspired by Michael Serajnik @ repository https://sr.ht/~mser/vmangos-do
 3. CMakeList.txt arguments were removed from build\Dockerfile. Changes were made directly in the provided core.
 4. Host paths to volumes differ.
 5. Build\Dockerfile and Extractor get executed with the --user=root command (issues finding filepaths).
+6. Database migrations happen in Build\Dockerfile not in install script
 
 ### Dependencies
 
