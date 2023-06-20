@@ -76,7 +76,7 @@ CMD \
   mkdir /opt/vmangos/data && \
   mkdir /opt/vmangos/logs && \
   cp -r /opt/vmangos/* /vmangos && \
-  cp -r /opt/core/* /vmangos/ && \
+  cp -r /opt/core/* /vmangos && \
   cp -r /opt/database/* /database && \
   cd /database && 7z e $VMANGOS_WORLD.7z && \
   rm -f /world_database/$VMANGOS_WORLD.sql && \
