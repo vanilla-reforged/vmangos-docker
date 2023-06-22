@@ -91,4 +91,4 @@ CMD \
   mkdir /opt/compiled_core/logs && \
   cp -r /opt/compiled_core/* /compiled_core && \
   cp -r /opt/database/* /database && \
-  cd /database && 7z e $VMANGOS_WORLD.7z && \
+  cd /database && 7z e $VMANGOS_WORLD.7z
