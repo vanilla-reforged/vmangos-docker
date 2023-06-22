@@ -11,7 +11,7 @@ services:
     volumes:
       - vmangos_database:/var/lib/mysql
       - ./vmangos/sql:/opt/vmangos/sql
-      - ./world_database:/opt/vmangos/sql/world_database
+      - ./world_database:/opt/world_database
       - ./backup:/backup
     environment:
       - TZ=Etc/UTC
