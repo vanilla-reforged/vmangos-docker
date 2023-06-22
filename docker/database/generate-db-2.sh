@@ -28,7 +28,7 @@ echo "[VMaNGOS]: Importing characters..."
 mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/characters.sql
 
 echo "[VMaNGOS]: Importing world..."
-mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/world_database/$VMANGOS_WORLD.sql
+mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/world_database/$VMANGOS_WORLD.sql
 
 echo "[VMaNGOS]: Importing database updates..."
 [ -e /opt/vmangos/sql/migrations/world_db_updates.sql ] && \
