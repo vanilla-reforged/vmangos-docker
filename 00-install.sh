@@ -46,7 +46,7 @@ docker build \
   -f ./docker/build/Dockerfile .
 
 docker run \
-  -v "$repository_path/vmangos:/vmangos" \
+  -v "$repository_path/core:/vmangos" \
   -v "$repository_path/database:/database" \
   -v "$repository_path/world_database:/world_database" \
   -v "$repository_path/ccache:/ccache" \
