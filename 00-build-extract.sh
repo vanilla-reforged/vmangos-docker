@@ -20,34 +20,34 @@
 
 source ./.env
 
-
-
+# Handle script call from other directory
 
 get_script_path() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
-
 repository_path=$(dirname "$(get_script_path "$0")")
-
 cd "$repository_path"
 
 echo "[VMaNGOS]: Building VMaNGOS..."
 
+# Build compiler image
+
 docker build \
-  --build-arg VMANGOS_USER_ID=$user_id \
-  --build-arg VMANGOS_GROUP_ID=$group_id \
+  --build-arg VMANGOS_USER_ID=$VMANGOS_USER_ID \
+  --build-arg VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID \
   --no-cache \
   -t vmangos_build \
   -f ./docker/build/Dockerfile .
 
+# Run compiler image
+
 docker run \
-  -v "$repository_path/vmangos:/vmangos" \
-  -v "$repository_path/database:/database" \
-  -v "$repository_path/world_database:/world_database" \
-  -v "$repository_path/ccache:/ccache" \
+  -v "$repository_path/volume/compiled_core:/compiled_core" \
+  -v "$repository_path/volume/database:/database" \
+  -v "$repository_path/volume/ccache:/ccache" \
   -e CCACHE_DIR=/ccache \
-  -e VMANGOS_CLIENT=$client_version \
-  -e VMANGOS_WORLD=$world_database_import_name \
+  -e VMANGOS_CLIENT=$VMANGOS_CLIENT_VERSIONn \
+  -e VMANGOS_WORLD=$VMANGOS_WORLD_DATABASE \
   -e VMANGOS_THREADS=$((`nproc` > 1 ? `nproc` - 1 : 1)) \
   --user=root \
   --rm \
