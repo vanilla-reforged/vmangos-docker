@@ -9,11 +9,9 @@ services:
     restart: unless-stopped
     command: --max_allowed_packet=32505856
     volumes:
-      - vmangos_database:/var/lib/mysql
-      - ./vmangos/sql:/opt/vmangos/sql
-      - ./database:/opt/database
-      - ./world_database:/opt/world_database
-      - ./backup:/backup
+      - ./volume/backup:/backup
+      - ./volume/compiled_core/sql:/opt/vmangos/sql
+      - ./volume/database:/opt/database
     environment:
       - TZ=${TZ}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
@@ -41,9 +39,9 @@ services:
     ports:
       - 3724:3724
     volumes:
-      - ./config/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
+      - ./volume/configuration/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
     environment:
-      - TZ=Etc/UTC
+      - TZ=${TZ}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
       - VMANGOS_USER_ID=${VMANGOS_USER_ID}
@@ -62,13 +60,13 @@ services:
       - vmangos_database
     restart: unless-stopped
     volumes:
-      - ./config/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro
-      - ./src/data/5875:/opt/vmangos/bin/5875:ro
-      - ./src/data/maps:/opt/vmangos/bin/maps:ro
-      - ./src/data/mmaps:/opt/vmangos/bin/mmaps:ro
-      - ./src/data/vmaps:/opt/vmangos/bin/vmaps:ro
+      - ./volume/configuration/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro
+      - ./volume/client_data_extracted/5875:/opt/vmangos/bin/5875:ro
+      - ./volume/client_data_extracted/maps:/opt/vmangos/bin/maps:ro
+      - ./volume/client_data_extracted/mmaps:/opt/vmangos/bin/mmaps:ro
+      - ./volume/client_data_extracted/vmaps:/opt/vmangos/bin/vmaps:ro
     environment:
-      - TZ=Etc/UTC
+      - TZ=${TZ}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
       - VMANGOS_USER_ID=${VMANGOS_USER_ID}
