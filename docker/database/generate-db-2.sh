@@ -19,32 +19,32 @@
 echo "[VMaNGOS]: Importing databases..."
 
 echo "[VMaNGOS]: Importing logon..."
-mariadb -u root -p$MYSQL_ROOT_PASSWORD realmd < /opt/database/logon.sql
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD realmd < /opt/database/logon.sql
 
 echo "[VMaNGOS]: Importing logs..."
-mariadb -u root -p$MYSQL_ROOT_PASSWORD logs < /opt/database/logs.sql
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD logs < /opt/database/logs.sql
 
 echo "[VMaNGOS]: Importing characters..."
-mariadb -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/database/characters.sql
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD characters < /opt/database/characters.sql
 
 echo "[VMaNGOS]: Importing world..."
-mariadb -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/world_database/$VMANGOS_WORLD.sql
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos < /opt/world_database/$VMANGOS_WORLD.sql
 
 echo "[VMaNGOS]: Importing database updates..."
 [ -e /opt/vmangos/sql/migrations/world_db_updates.sql ] && \
-  mariadb -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql
+  mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql
 [ -e /opt/vmangos/sql/migrations/characters_db_updates.sql ] && \
-  mariadb -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql
+  mariadb -u mangos -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql
 [ -e /opt/vmangos/sql/migrations/logon_db_updates.sql ] && \
-  mariadb -u root -p$MYSQL_ROOT_PASSWORD realmd < /opt/vmangos/sql/migrations/logon_db_updates.sql
+  mariadb -u mangos -p$MYSQL_ROOT_PASSWORD realmd < /opt/vmangos/sql/migrations/logon_db_updates.sql
 [ -e /opt/vmangos/sql/migrations/logs_db_updates.sql ] && \
-  mariadb -u root -p$MYSQL_ROOT_PASSWORD logs < /opt/vmangos/sql/migrations/logs_db_updates.sql
+  mariadb -u mangos -p$MYSQL_ROOT_PASSWORD logs < /opt/vmangos/sql/migrations/logs_db_updates.sql
 
 echo "[VMaNGOS]: Upgrading mysql..."
-mariadb_upgrade -u root -p$MYSQL_ROOT_PASSWORD
+mariadb_upgrade -u mangos -p$MYSQL_ROOT_PASSWORD
 
 echo "[VMaNGOS]: Configuring default realm..."
-mariadb -u root -p$MYSQL_ROOT_PASSWORD -e \
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD -e \
   "INSERT INTO realmd.realmlist (name, address, port, icon, realmflags, timezone, allowedSecurityLevel, population, gamebuild_min, gamebuild_max, flag, realmbuilds) VALUES ('$VMANGOS_REALM_NAME', '$VMANGOS_REALM_IP', '$VMANGOS_REALM_PORT', '$VMANGOS_REALM_ICON', '$VMANGOS_REALM_FLAGS', '$VMANGOS_TIMEZONE', '$VMANGOS_ALLOWED_SECURITY_LEVEL', '$VMANGOS_POPULATION', '$VMANGOS_GAMEBUILD_MIN', '$VMANGOS_GAMEBUILD_MAX', '$VMANGOS_FLAG', '');"
 
 echo "[VMaNGOS]: Database creation complete!"
