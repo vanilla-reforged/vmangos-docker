@@ -1,5 +1,5 @@
 # vmangos-docker
-# Copyright (C) 2021-present  Michael Serajnik  https://sr.ht/~mser/
+# Based on Michael Serajnik's work https://sr.ht/~mser/
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,8 @@
 
 FROM ubuntu:20.04
 
-ARG VMANGOS_USER_ID=1000
-ARG VMANGOS_GROUP_ID=1000
+ARG VMANGOS_USER_ID
+ARG VMANGOS_GROUP_ID
 ARG DEBIAN_FRONTEND=noninteractive
 
 ENV \
@@ -38,7 +38,7 @@ RUN \
   mkdir -p /opt/vmangos && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/vmangos
 
-COPY ./vmangos/bin/mangosd /opt/vmangos/bin/mangosd
+COPY ./compiled_core/bin/mangosd /opt/vmangos/bin/mangosd
 RUN chmod +x /opt/vmangos/bin
 
 ADD \
