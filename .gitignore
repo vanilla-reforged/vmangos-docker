@@ -1,6 +1,5 @@
 /backup/*
 /volume/*
 /.ENV
-/docker-compose.yml
 *.bak
 !/**/.gitkeep
