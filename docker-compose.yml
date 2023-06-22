@@ -15,20 +15,20 @@ services:
       - ./world_database:/opt/world_database
       - ./backup:/backup
     environment:
-      - TZ=Etc/UTC
-      - MYSQL_ROOT_PASSWORD=mangos
-      - VMANGOS_WORLD=mangos
-      - VMANGOS_REALM_NAME=vmangos
-      - VMANGOS_REALM_IP=127.0.0.1
-      - VMANGOS_REALM_PORT=8085
-      - VMANGOS_REALM_ICON= 1
-      - VMANGOS_REALM_FLAGS=0
-      - VMANGOS_TIMEZONE=1
-      - VMANGOS_ALLOWED_SECURITY_LEVEL=0
-      - VMANGOS_POPULATION=0
-      - VMANGOS_GAMEBUILD_MIN=0
-      - VMANGOS_GAMEBUILD_MAX=0
-      - VMANGOS_FLAG=2
+      - TZ=${TZ}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - VMANGOS_WORLD=${VMANGOS_WORLD}
+      - VMANGOS_REALM_NAME=${VMANGOS_REALM_NAME}
+      - VMANGOS_REALM_IP=${VMANGOS_REALM_IP}
+      - VMANGOS_REALM_PORT=${VMANGOS_REALM_PORT}
+      - VMANGOS_REALM_ICON=${VMANGOS_REALM_ICON}
+      - VMANGOS_REALM_FLAGS=${VMANGOS_REALM_FLAGS}
+      - VMANGOS_TIMEZONE=${VMANGOS_TIMEZONE}
+      - VMANGOS_ALLOWED_SECURITY_LEVEL=${VMANGOS_ALLOWED_SECURITY_LEVEL}
+      - VMANGOS_POPULATION=${VMANGOS_POPULATION}
+      - VMANGOS_GAMEBUILD_MIN=${VMANGOS_GAMEBUILD_MIN}
+      - VMANGOS_GAMEBUILD_MAX=${MANGOS_GAMEBUILD_MAX}
+      - VMANGOS_FLAG=${VMANGOS_FLAG}
 
   vmangos_realmd:
     container_name: vmangos_realmd
@@ -46,8 +46,8 @@ services:
       - TZ=Etc/UTC
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
-      - VMANGOS_USER_ID=1000
-      - VMANGOS_GROUP_ID=1000
+      - VMANGOS_USER_ID=${VMANGOS_USER_ID}
+      - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
 
   vmangos_mangos:
     container_name: vmangos_mangos
@@ -71,8 +71,5 @@ services:
       - TZ=Etc/UTC
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
-      - VMANGOS_USER_ID=1000
-      - VMANGOS_GROUP_ID=1000
-
-volumes:
-  vmangos_database:
+      - VMANGOS_USER_ID=${VMANGOS_USER_ID}
+      - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
