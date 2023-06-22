@@ -16,6 +16,8 @@
 
 ARG VMANGOS_GROUP_ID
 ARG VMANGOS_USER_ID
+ARG VMANGOS_GIT_SOURCE_CORE
+ARG VMANGOS_GIT_SOURCE_DATABASE
 ARG DEBIAN_FRONTEND=noninteractive
 
 FROM ubuntu:20.04
@@ -61,21 +63,18 @@ RUN \
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 CMD \
-  git clone -b development https://github.com/flyingfrog23/classic-reforged-core /opt/core && \
-  git clone -b master https://github.com/flyingfrog23/classic-reforged-db /opt/database && \
+  git clone -b development $VMANGOS_GIT_SOURCE_CORE /opt/core && \
+  git clone -b master $VMANGOS_GIT_SOURCE_DATABASE /opt/database && \
   cd /opt/core/sql/migrations && \
   ./merge.sh && \
   mkdir /opt/core/build && \
   cd /opt/core/build && \
   cmake \
-    -DCMAKE_INSTALL_PREFIX=/opt/vmangos ../ && \
+    -DCMAKE_INSTALL_PREFIX=/compiled_core ../ && \
   make -j $VMANGOS_THREADS && \
   make install && \
-  mkdir /opt/vmangos/data && \
-  mkdir /opt/vmangos/logs && \
-  cp -r /opt/vmangos/* /vmangos && \
-  cp -r /opt/core/* /vmangos && \
+  mkdir /opt/compiled_core/data && \
+  mkdir /opt/compiled_core/logs && \
+  cp -r /opt/compiled_core/* /compiled_core && \
   cp -r /opt/database/* /database && \
   cd /database && 7z e $VMANGOS_WORLD.7z && \
-  rm -f /world_database/$VMANGOS_WORLD.sql && \
-  mv $VMANGOS_WORLD.sql /world_database
