@@ -1,8 +1,8 @@
-version: '3.7'
-
 services:
   vmangos_database:
     container_name: vmangos_database
+#    ports:
+#      - 3306:3306
     build:
       context: .
       dockerfile: docker/database/Dockerfile
