@@ -10,8 +10,8 @@ services:
     command: --max_allowed_packet=32505856
     volumes:
       - vmangos_database:/var/lib/mysql
-      - ./src/core/sql:/opt/vmangos/sql
-      - ./src/world_database:/opt/vmangos/sql/world_database
+      - ./vmangos/core/sql:/opt/vmangos/sql
+      - ./world_database:/opt/vmangos/sql/world_database
       - ./backup:/backup
     environment:
       - TZ=Etc/UTC
