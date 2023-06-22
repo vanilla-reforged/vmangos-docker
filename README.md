@@ -40,9 +40,9 @@ modifying these values as well as adjusting the environment variables
 First, clone the repository and generate the config files:
 
 ```sh
-user@local:~$ git clone https://github.com/flyingfrog23/classic-reforged-docker
-user@local:~$ cd classic-reforged-docker
-user@local:vmangos-docker$ ./00-create-or-reset-config-files.sh
+user@local:~$ git clone https://github.com/flyingfrog23/vmangos-docker
+user@local:~$ cd vmangos-docker
+
 ```
 
 At this point, you have to adjust the two configuration files in `./config` as
