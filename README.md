@@ -2,7 +2,7 @@ Heavily inspired by Michael Serajnik @ repository https://sr.ht/~mser/vmangos-do
 
 ---
 
-# classic-reforged-docker
+# vmangos-docker
 
 ## Whats different from original
 
