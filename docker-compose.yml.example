@@ -15,7 +15,7 @@ services:
       - ./backup:/backup
     environment:
       - TZ=Etc/UTC
-      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=mangos
       - VMANGOS_WORLD=mangos
       - VMANGOS_REALM_NAME=vmangos
       - VMANGOS_REALM_IP=127.0.0.1
