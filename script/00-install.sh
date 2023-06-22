@@ -16,18 +16,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Replace if needed; e.g., to match your host user/group ID
-user_id=1000
-group_id=1000
+# source variables from .ENV
 
-# Replace with different client version, if required
-# See https://github.com/vmangos/core#currently-supported-builds
-client_version=5875
+source=".ENV"
 
-# Replace with a different world database import name in case there is an
-# update
-world_database_import_name=mangos
-
+#find current directory
 get_script_path() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
