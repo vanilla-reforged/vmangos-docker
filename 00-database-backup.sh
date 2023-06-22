@@ -25,9 +25,7 @@ source ./.env
 get_script_path() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
-
 repository_path=$(dirname "$(get_script_path "$0")")
-
 cd "$repository_path"
 
 echo "[VMaNGOS]: Stopping potentially running containers..."
@@ -42,10 +40,10 @@ echo "[VMaNGOS]: Waiting a minute for the database to settle..."
 
 sleep 60
 
+#TODO: Automatic Timestamps + VMANGOS_DATABASE_ENGINE variable
+
 echo "[VMaNGOS]: Backing up databases..."
 
-docker-compose exec -T vmangos_database sh -c \
-  'rm -rf /backup/*'
 docker-compose exec -T vmangos_database sh -c \
   'mysqldump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD mangos > /backup/mangos.sql'
 docker-compose exec -T vmangos_database sh -c \
