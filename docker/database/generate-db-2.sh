@@ -19,13 +19,13 @@
 echo "[VMaNGOS]: Importing databases..."
 
 echo "[VMaNGOS]: Importing logon..."
-mysql -u root -p$MYSQL_ROOT_PASSWORD realmd < /opt/vmangos/sql/logon.sql
+mysql -u root -p$MYSQL_ROOT_PASSWORD realmd < /opt/database/logon.sql
 
 echo "[VMaNGOS]: Importing logs..."
-mysql -u root -p$MYSQL_ROOT_PASSWORD logs < /opt/vmangos/sql/logs.sql
+mysql -u root -p$MYSQL_ROOT_PASSWORD logs < /opt/database/logs.sql
 
 echo "[VMaNGOS]: Importing characters..."
-mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/characters.sql
+mysql -u root -p$MYSQL_ROOT_PASSWORD characters < /opt/database/characters.sql
 
 echo "[VMaNGOS]: Importing world..."
 mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < /opt/world_database/$VMANGOS_WORLD.sql
