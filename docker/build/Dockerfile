@@ -58,7 +58,7 @@ RUN \
   mkdir -p /ccache && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /ccache && \
   mkdir -p /database && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /database && \
+  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /database
 
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
