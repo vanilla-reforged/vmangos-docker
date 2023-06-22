@@ -50,7 +50,6 @@ RUN \
   export ACE_ROOT=/usr/include/ace
 
 RUN \
-  mkdir -p /opt/core && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt && \
   mkdir -p /compiled_core && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /compiled_core && \
