@@ -41,7 +41,7 @@ echo "[VMaNGOS]: Importing database updates..."
   mariadb -u mangos -p$MYSQL_ROOT_PASSWORD logs < /opt/vmangos/sql/migrations/logs_db_updates.sql
 
 echo "[VMaNGOS]: Upgrading mysql..."
-mariadb_upgrade -u mangos -p$MYSQL_ROOT_PASSWORD
+mariadb-upgrade -u mangos -p$MYSQL_ROOT_PASSWORD
 
 echo "[VMaNGOS]: Configuring default realm..."
 mariadb -u mangos -p$MYSQL_ROOT_PASSWORD -e \
