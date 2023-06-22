@@ -35,21 +35,21 @@ RUN \
     zlib1g-dev
 
 RUN \
-  mkdir -p /opt/vmangos && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/vmangos && \
+  mkdir -p /opt/extract && \
+  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/extract && \
   mkdir -p /client_data && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /client_data && \
   mkdir -p /mmap_contrib && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /mmap_contrib
 
-COPY ./vmangos/bin/mapextractor /opt/vmangos/bin/mapextractor
-COPY ./vmangos/bin/vmapextractor /opt/vmangos/bin/vmapextractor
-COPY ./vmangos/bin/vmap_assembler /opt/vmangos/bin/vmap_assembler
-COPY ./vmangos/bin/MoveMapGen /opt/vmangos/bin/MoveMapGen
-RUN chmod +x /opt/vmangos/bin
+COPY ./volume/compiled_core/bin/mapextractor /opt/extract/bin/mapextractor
+COPY ./volume/compiled_core/bin/vmapextractor /opt/extract/bin/vmapextractor
+COPY ./volume/compiled_core/bin/vmap_assembler /opt/extract/bin/vmap_assembler
+COPY ./volume/compiled_core/bin/MoveMapGen /opt/extract/bin/MoveMapGen
+RUN chmod +x /opt/extract/bin
 
 WORKDIR /client_data
 
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
-CMD /opt/vmangos/bin/mapextractor /client_data
+CMD /opt/extract/bin/mapextractor /client_data
