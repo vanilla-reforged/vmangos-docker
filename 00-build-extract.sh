@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # vmangos-docker
 # Based on Michael Serajnik's work https://sr.ht/~mser/
@@ -18,7 +18,7 @@
 
 # Get .ENV Variables
 
-source ".env"
+source .env
 
 # Handle script call from other directory
 
