@@ -104,13 +104,13 @@ docker run \
   rm -rf ./volume/client_data/Buildings
 
   # Remove potentially existing partial data
-  # rm -rf ./volume/data/*
-  # mkdir -p "./volume/data/$VMANGOS_CLIENT_VERSION"
+  rm -rf ./volume/client_data_extracted/*
+  mkdir -p "./volume/client_data_extracted/$VMANGOS_CLIENT_VERSION"
 
-  mv ./volume/client_data/dbc "./volume/client_data_extracted/data/$VMANGOS_CLIENT_VERSION/"
-  mv ./volume/client_data/maps ./volume/client_data_extracted/data/
-  mv ./volume/client_data/mmaps ./volume/client_data_extracted/data/
-  mv ./volume/client_data/vmaps ./volume/client_data_extracted/data/
+  mv ./volume/client_data/dbc "./volume/client_data_extracted/$VMANGOS_CLIENT_VERSION/"
+  mv ./volume/client_data/maps ./volume/client_data_extracted/
+  mv ./volume/client_data/mmaps ./volume/client_data_extracted/
+  mv ./volume/client_data/vmaps ./volume/client_data_extracted/
 fi
 
 echo "[VMaNGOS]: Creating containers..."
