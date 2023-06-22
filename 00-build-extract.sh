@@ -55,9 +55,9 @@ docker run \
   --rm \
   vmangos_build
 
-if [ $(ls -l ./volume/client_data_extracted | wc -l) -eq 1 ]; then
-  echo "[VMaNGOS]: Extracted client data missing, running extractors."
-  echo "[VMaNGOS]: This will take a long time..."
+  if [ $(ls -l ./volume/client_data_extracted | wc -l) -eq 1 ]; then
+    echo "[VMaNGOS]: Extracted client data missing, running extractors."
+    echo "[VMaNGOS]: This will take a long time..."
 
   if [ ! -d "./volume/client_data/Data" ]; then
     echo "[VMaNGOS]: Client data missing, aborting installation."
