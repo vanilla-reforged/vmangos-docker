@@ -14,13 +14,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+FROM ubuntu:20.04
+
 ARG VMANGOS_GROUP_ID
 ARG VMANGOS_USER_ID
 ARG VMANGOS_GIT_SOURCE_CORE
 ARG VMANGOS_GIT_SOURCE_DATABASE
 ARG DEBIAN_FRONTEND=noninteractive
-
-FROM ubuntu:20.04
 
 ENV \
   VMANGOS_USER_ID=$VMANGOS_USER_ID \
