@@ -33,5 +33,6 @@ COPY ./docker/database/generate-db-2.sh /docker-entrypoint-initdb.d
 COPY ./docker/database/regenerate-world-db.sql /sql/regenerate-world-db.sql
 
 RUN \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /docker-entrypoint-initdb.d
+  chmod +x /docker-entrypoint-initdb.d/generate-db-1.sql \
+  chmod +x /docker/database/generate-db-2.sh
 
