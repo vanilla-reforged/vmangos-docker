@@ -11,6 +11,7 @@ services:
     volumes:
       - vmangos_database:/var/lib/mysql
       - ./vmangos/sql:/opt/vmangos/sql
+      - ./database:/opt/database
       - ./world_database:/opt/world_database
       - ./backup:/backup
     environment:
