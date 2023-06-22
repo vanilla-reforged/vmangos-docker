@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-version: "3.7"
-
 FROM ubuntu:20.04
 
 ARG TZ
