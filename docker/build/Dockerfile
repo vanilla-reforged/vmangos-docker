@@ -50,16 +50,14 @@ RUN \
   export ACE_ROOT=/usr/include/ace
 
 RUN \
-  mkdir -p /opt/vmangos && \
+  mkdir -p /opt/core && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt && \
-  mkdir -p /vmangos && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /vmangos && \
+  mkdir -p /compiled_core && \
+  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /compiled_core && \
   mkdir -p /ccache && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /ccache && \
   mkdir -p /database && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /database && \
-  mkdir -p /world_database && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /world_database
 
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
