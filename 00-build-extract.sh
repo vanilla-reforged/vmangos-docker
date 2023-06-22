@@ -18,7 +18,7 @@
 
 # Get .ENV Variables
 
-source ./.env
+source .env
 
 # Handle script call from other directory
 
