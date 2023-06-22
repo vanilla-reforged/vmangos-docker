@@ -66,49 +66,51 @@ if [ $(ls -l ./volume/client_data_extracted | wc -l) -eq 1 ]; then
 
   docker build \
     --no-cache \
+    --build-arg VMANGOS_USER_ID=$VMANGOS_USER_ID \
+    --build-arg VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID \
     -t vmangos_extractors \
     -f ./docker/extractors/Dockerfile .
 
   docker run \
-    -v "$repository_path/src/client_data:/client_data" \
+    -v "$repository_path/volume/client_data:/client_data" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /opt/vmangos/bin/mapextractor
+    /opt/extract/bin/mapextractor
 
   docker run \
-    -v "$repository_path/src/client_data:/client_data" \
+    -v "$repository_path/volume/client_data:/client_data" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /opt/vmangos/bin/vmapextractor
+    /opt/extract/bin/vmapextractor
 
   docker run \
-    -v "$repository_path/src/client_data:/client_data" \
+    -v "$repository_path/volume/client_data:/client_data" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /opt/vmangos/bin/vmap_assembler
+    /opt/extract/bin/vmap_assembler
 
   docker run \
-    -v "$repository_path/src/client_data:/client_data" \
-    -v "$repository_path/src/core/contrib/mmap:/mmap_contrib" \
+    -v "$repository_path/volume/client_data:/client_data" \
+    -v "$repository_path/volume/compiled_core/contrib/mmap:/mmap_contrib" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /opt/vmangos/bin/MoveMapGen --offMeshInput /mmap_contrib/offmesh.txt
+    /opt/extract/bin/MoveMapGen --offMeshInput /mmap_contrib/offmesh.txt
 
   # This data isn't used. delete it to avoid confusion
-  rm -rf ./src/client_data/Buildings
+  rm -rf ./volume/client_data/Buildings
 
   # Remove potentially existing partial data
-  rm -rf ./src/data/*
-  mkdir -p "./src/data/$client_version"
+  # rm -rf ./volume/data/*
+  # mkdir -p "./volume/data/$VMANGOS_CLIENT_VERSION"
 
-  mv ./src/client_data/dbc "./src/data/$client_version/"
-  mv ./src/client_data/maps ./src/data/
-  mv ./src/client_data/mmaps ./src/data/
-  mv ./src/client_data/vmaps ./src/data/
+  mv ./volume/client_data/dbc "./volume/client_data_extracted/data/$VMANGOS_CLIENT_VERSION/"
+  mv ./volume/client_data/maps ./volume/client_data_extracted/data/
+  mv ./volume/client_data/mmaps ./volume/client_data_extracted/data/
+  mv ./volume/client_data/vmaps ./volume/client_data_extracted/data/
 fi
 
 echo "[VMaNGOS]: Creating containers..."
