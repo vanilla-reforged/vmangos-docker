@@ -35,6 +35,8 @@ echo "[VMaNGOS]: Building VMaNGOS..."
 docker build \
   --build-arg VMANGOS_USER_ID=$VMANGOS_USER_ID \
   --build-arg VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID \
+  --build-arg VMANGOS_GIT_SOURCE_CORE=$VMANGOS_GIT_SOURCE_CORE \
+  --build-arg VMANGOS_GIT_SOURCE_DATABAS=$VMANGOS_GIT_SOURCE_DATABASE \
   --no-cache \
   -t vmangos_build \
   -f ./docker/build/Dockerfile .
