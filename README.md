@@ -4,14 +4,10 @@ Heavily inspired by Michael Serajnik @ repository https://sr.ht/~mser/vmangos-do
 
 # vmangos-docker
 
-## Whats different from original
+### Whats different
 
-1. Git clone for core and database is executed inside the command section of the build\Dockerfile. Change to fit your needs.
-2. World DB latest release was downloaded from https://github.com/vmangos/core/releases/tag/db_latest repacked as "mangos.7z" contents: \characters.sql \logon.sql \logs.sql \mangos.sql if an alternative name should be used for the DB, be aware you will have to change the reference to it in multiple Dockerfiles.
-3. CMakeList.txt arguments were removed from build\Dockerfile. Changes were made directly in the provided core.
-4. Host paths to volumes differ.
-5. Build\Dockerfile and Extractor get executed with the --user=root command (issues finding filepaths).
-6. Database migrations happen in Build\Dockerfile not in install script
+All variables can now be given in the .env file of the root directory, and are then passed either through the 00-build-extract.sh script or the docker-compose file to the corresponding commands and Dockerfiles.
+Also Volumes now have their own directory for a better overview. Instructions below have been edited to reflect the changes to the process.
 
 ### Dependencies
 
@@ -24,20 +20,15 @@ Heavily inspired by Michael Serajnik @ repository https://sr.ht/~mser/vmangos-do
 ### Preface
 
 This assumed client version is `5875` (patch `1.12.1`); if you want to set up
-VMaNGOS to use a different version, search the provided `00`-prefixed scripts
-for occurrences of `client_version=5875` and modify them accordingly. You will
-also have to adjust the `./src/data/5875:/opt/vmangos/bin/5875:ro` bind mount
-for the `vmangos_mangos` service in `./docker-compose.yml` accordingly.
+VMaNGOS to use a different version, modify the VMANGOS_CLIENT_VERSION entry in the .env file accordingly.
 
-The user that is used inside the containers has UID `1000` and GID `1000` by
-default. You can adjust this, if needed; e.g., to match your host UID/GID. This
-requires searching the scripts for `user_id=1000` and `group_id=1000` and
-modifying these values as well as adjusting the environment variables
-`VMANGOS_USER_ID` and `VMANGOS_GROUP_ID` in `./docker-compose.yml`.
+The user that is used inside the persistent containers (VMANGOS_DATABASE, VMANGOS_REALMD, VMANGOS_MANGOS) has UID `1000` and GID `1000` by
+default. You can adjust this, if needed; e.g., to match your host UID/GID.
+This requires editing the entries VMANGOS_USER_ID and VMANGOS_GROUP_ID in the .env file.
 
 ### Instructions
 
-First, clone the repository and generate the config files:
+First, clone the repository and move into it.
 
 ```sh
 user@local:~$ git clone https://github.com/flyingfrog23/vmangos-docker
@@ -45,8 +36,8 @@ user@local:~$ cd vmangos-docker
 
 ```
 
-At this point, you have to adjust the two configuration files in `./config` as
-well as `./docker-compose.yml` for your desired setup. The default setup will
+At this point, you have to adjust the two configuration files in `./volume/configuration` as
+well as `./.env` for your desired setup. The default setup will
 only allow local connections (from the same machine). To make the server
 public, it is required to change the `VMANGOS_REALM_IP` environment variable
 for the `vmangos_database` service in `./docker-compose.yml`. Simply replace
@@ -56,12 +47,12 @@ accessible over the Internet).
 VMaNGOS also requires some data generated/extracted from the client to work
 correctly. To generate that data automatically during the installation, copy
 the contents of your World of Warcraft client directory into
-`./src/client_data`.
+`./volume/client_data`.
 
-After that, simply execute the installer:
+After that, simply execute the script:
 
 ```sh
-user@local:vmangos-docker$ ./00-install.sh
+user@local:vmangos-docker$ ./00-build-extract.sh
 ```
 
 Note that generating the required data will take many hours (depending on your
@@ -69,7 +60,7 @@ hardware). Some notices/errors during the generation are normal and nothing to
 worry about.
 
 Alternatively, if you have acquired the extracted/generated data previously,
-you can place it directly into `./src/data`, in which case the installer will
+you can place it directly into `./volume/client_data_extracted`, in which case the installer will
 skip extracting/generating the data.
 
 After the installer has finished, you should have a running installation and
@@ -91,53 +82,24 @@ When you are done, detach from the Docker container by pressing
 
 ## Usage
 
-For your convenience, a number of shell scripts are provided to keep managing
-your VMaNGOS installation simple, without requiring detailed knowledge about
-how VMaNGOS or Docker work.
-
-These scripts are all in the root directory of this repository and prefixed
-with `00` (so they are grouped together when viewing the directory).
-
-I recommend taking a look at them to understand how they work and, if needed,
-modifying them to better suit your needs.
-
 ### Starting and stopping VMaNGOS
 
 VMaNGOS can be started and stopped using the following scripts:
 
 ```sh
-user@local:vmangos-docker$ ./00-start.sh
-user@local:vmangos-docker$ ./00-stop.sh
+user@local:vmangos-docker$ docker-compose -d up
+user@local:vmangos-docker$ docker-compose down
 ```
 
-### Updating
+### REBUILDING - TODO
 
-Updating can be done via the provided update script. This will update the
-submodules, rebuild the Docker images and run databases migrations:
+### Updating CORE - TODO
 
-```sh
-user@local:vmangos-docker$ ./00-update.sh
-```
+### Updating DATABASE without WORLD DB - TODO
 
-If the update script fails with the notice that there is new world database
-import, simply follow the instructions that are also printed in such a case.
+### Updating DATABASE with WORLD DB - TODO
 
-At times, this repository might also get updated. Please do not blindly run
-`git pull` without looking at the commits to see what (potentially breaking)
-changes have been introduced.
-
-### Creating a database backup
-
-The three important databases VMaNGOS uses, `mangos`, `characters` and
-`realmd`, can be exported as SQL dumps with the following script:
-
-```sh
-user@local:vmangos-docker$ ./00-create-database-backup.sh
-```
-
-The dumped databases can, by default, be found in `./backup`. If you want to
-change that path, adjust the `./backup:/backup` bind mount for the
-`vmangos_database` service in `./docker-compose.yml` accordingly.
+### Creating a database backup - TODO
 
 ### Extracting client data
 
@@ -145,10 +107,10 @@ If at any point after the initial installation you need to re-extract the
 client data, you can do so by running the following script:
 
 ```sh
-user@local:vmangos-docker$ ./00-extract-client-data.sh
+user@local:vmangos-docker$ ./00-extract-client.sh
 ```
 
-Note that this will also remove any existing data in `./src/data`, so make sure
+Note that this will also remove any existing data in `./volume/client_data_extracted`, so make sure
 to create a backup of that in case you want to save it.
 
 ## License
