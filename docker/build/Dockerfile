@@ -64,7 +64,7 @@ CMD \
     -DUSE_ANTICHEAT=${VMANGOS_ANTICHEAT} \
     -DSCRIPTS=${VMANGOS_SCRIPTS} \
     -DUSE_LIBCURL=${VMANGOS_LIBCURL} \
-    -DCMAKE_INSTALL_PREFIX=/opt/vmangos ../ && \
+    -DCMAKE_INSTALL_PREFIX=/opt/compiled_core ../ && \
   make -j ${VMANGOS_THREADS} && \
   make install && \
   make -j ${VMANGOS_THREADS} && \
