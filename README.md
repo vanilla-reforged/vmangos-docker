@@ -6,9 +6,11 @@ Heavily inspired by Michael Serajnik @ repository https://sr.ht/~mser/vmangos-do
 
 ### Whats different
 
-All variables can now be given in the .env file of the root directory, and are then passed either through the 00-build-extract.sh script or the docker-compose file to the corresponding commands and Dockerfiles.
+- All variables can now be given in the .env file of the root directory, and are then passed either through the 00-build-extract.sh script or the docker-compose file to the corresponding commands and Dockerfiles.
+- .sql and .sh scripts have been eliminated where possible.
+- Volumes now have their own directory for a better overview.
 
-Also Volumes now have their own directory for a better overview. Instructions below have been edited to reflect the changes to the process.
+The Instructions below have been edited to reflect the changes to setting up and using the project.
 
 ### Dependencies
 
