@@ -64,6 +64,7 @@ RUN \
   export ACE_ROOT=/usr/include/ace
 
 RUN \
+  mkdir -p /opt/core && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt && \
   mkdir -p /compiled_core && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /compiled_core && \
@@ -75,8 +76,8 @@ RUN \
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 CMD \
-  git clone -b ${VMANGOS_GIT_SOURCE_CORE_BRANCH} ${VMANGOS_GIT_SOURCE_CORE_URL} /opt/core && \
-  git clone -b ${VMANGOS_GIT_SOURCE_DATABASE_BRANCH} ${VMANGOS_GIT_SOURCE_DATABASE_URL} /opt/database && \
+  git clone -b "${VMANGOS_GIT_SOURCE_CORE_BRANCH} ${VMANGOS_GIT_SOURCE_CORE_URL}" /opt/core && \
+  git clone -b "${VMANGOS_GIT_SOURCE_DATABASE_BRANCH} ${VMANGOS_GIT_SOURCE_DATABASE_URL}" /opt/database && \
   cd /opt/core/sql/migrations && \
   ./merge.sh && \
   mkdir /opt/core/build && \
