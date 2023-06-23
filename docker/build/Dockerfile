@@ -16,12 +16,33 @@
 
 FROM ubuntu:20.04
 
-ARG VMANGOS_GROUP_ID
-ARG VMANGOS_USER_ID
+#compiler image settings git clone
+
 ARG VMANGOS_GIT_SOURCE_CORE_BRANCH
 ARG VMANGOS_GIT_SOURCE_CORE_URL
 ARG VMANGOS_GIT_SOURCE_DATABASE_BRANCH
 ARG VMANGOS_GIT_SOURCE_DATABASE_URL
+
+#compiler image settings cmake
+
+ARG VMANGOS_THREADS
+ARG VMANGOS_DEBUG
+ARG VMANGOS_MALLOC
+ARG VMANGOS_CLIENT
+ARG VMANGOS_EXTRACTORS
+ARG VMANGOS_ANTICHEAT
+ARG VMANGOS_SCRIPTS
+ARG VMANGOS_LIBCURL
+
+#compiler and database image settings world database name
+
+ARG VMANGOS_WORLD_DATABASE
+
+#compiler image settings
+
+ARG TZ
+ARG VMANGOS_GROUP_ID
+ARG VMANGOS_USER_ID
 ARG DEBIAN_FRONTEND=noninteractive
 
 ENV \
@@ -65,18 +86,27 @@ RUN \
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 CMD \
-  git clone -b $VMANGOS_GIT_SOURCE_CORE_BRANCH $VMANGOS_GIT_SOURCE_CORE_URL /opt/core && \
-  git clone -b $VMANGOS_GIT_SOURCE_DATABASE_BRANCH $VMANGOS_GIT_SOURCE_DATABASE_URL /opt/database && \
+  git clone -b ${VMANGOS_GIT_SOURCE_CORE_BRANCH} ${VMANGOS_GIT_SOURCE_CORE_URL} /opt/core && \
+  git clone -b ${VMANGOS_GIT_SOURCE_DATABASE_BRANCH} ${VMANGOS_GIT_SOURCE_DATABASE_URL} /opt/database && \
   cd /opt/core/sql/migrations && \
   ./merge.sh && \
   mkdir /opt/core/build && \
   cd /opt/core/build && \
   cmake \
-    -DCMAKE_INSTALL_PREFIX=/compiled_core ../ && \
-  make -j $VMANGOS_THREADS && \
+    -DDEBUG=${VMANGOS_DEBUG} \
+    -DUSE_STD_MALLOC=${VMANGOS_MALLOC} \
+    -DSUPPORTED_CLIENT_BUILD=${VMANGOS_CLIENT} \
+    -DUSE_EXTRACTORS=${VMANGOS_EXTRACTORS} \
+    -DUSE_ANTICHEAT=${VMANGOS_ANTICHEAT} \
+    -DSCRIPTS=${VMANGOS_SCRIPTS} \
+    -DUSE_LIBCURL=${VMANGOS_LIBCURL} \
+    -DCMAKE_INSTALL_PREFIX=/opt/vmangos ../ && \
+  make -j ${VMANGOS_THREADS} && \
+  make install && \
+  make -j ${VMANGOS_THREADS} && \
   make install && \
   mkdir /opt/compiled_core/data && \
   mkdir /opt/compiled_core/logs && \
   cp -r /opt/compiled_core/* /compiled_core && \
   cp -r /opt/database/* /database && \
-  cd /database && 7z e $VMANGOS_WORLD.7z
+  cd /database && 7z e ${VMANGOS_WORLD_DATABASE}.7z
