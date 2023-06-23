@@ -16,13 +16,7 @@
 
 FROM ubuntu:20.04
 
-ARG VMANGOS_GROUP_ID
-ARG VMANGOS_USER_ID
 ARG DEBIAN_FRONTEND=noninteractive
-
-ENV \
-  VMANGOS_USER_ID=$VMANGOS_USER_ID \
-  VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID
 
 RUN \
   apt-get update -y && \
@@ -36,11 +30,8 @@ RUN \
 
 RUN \
   mkdir -p /opt/extract && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/extract && \
   mkdir -p /client_data && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /client_data && \
-  mkdir -p /mmap_contrib && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /mmap_contrib
+  mkdir -p /mmap_contrib
 
 COPY ./volume/compiled_core/bin/mapextractor /opt/extract/bin/mapextractor
 COPY ./volume/compiled_core/bin/vmapextractor /opt/extract/bin/vmapextractor
@@ -49,7 +40,5 @@ COPY ./volume/compiled_core/bin/MoveMapGen /opt/extract/bin/MoveMapGen
 RUN chmod +x /opt/extract/bin
 
 WORKDIR /client_data
-
-USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 CMD /opt/extract/bin/mapextractor /client_data
