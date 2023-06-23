@@ -61,7 +61,8 @@ RUN \
   ln -s /usr/bin/ccache /usr/local/bin/c++
 
 RUN \
-  export ACE_ROOT=/usr/include/ace
+  export ACE_ROOT=/usr/include/ace \
+  export TBB_ROOT_DIR=/usr/include/tbb
 
 RUN \
   mkdir -p /opt/core && \
