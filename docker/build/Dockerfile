@@ -16,12 +16,7 @@
 
 FROM ubuntu:20.04
 
-ARG VMANGOS_GROUP_ID
-ARG VMANGOS_USER_ID
 ARG DEBIAN_FRONTEND=noninteractive
-
-ENV VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID
-ENV VMANGOS_USER_ID=VMANGOS_USER_ID
 
 RUN \
   apt-get update -y && \
@@ -50,13 +45,9 @@ RUN \
   export TBB_ROOT_DIR=/usr/include/tbb
 
 RUN \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt && \
   mkdir -p /compiled_core && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /compiled_core && \
   mkdir -p /ccache && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /ccache && \
   mkdir -p /database && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /database
 
 CMD \
   git clone ${VMANGOS_GIT_SOURCE_CORE_URL} /opt/core && \
