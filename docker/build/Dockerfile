@@ -36,7 +36,29 @@ ARG VMANGOS_WORLD_DATABASE
 ARG TZ
 ARG VMANGOS_GROUP_ID
 ARG VMANGOS_USER_ID
-ARG DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND
+
+#compiler image settings git clone
+ENV VMANGOS_GIT_SOURCE_CORE_BRANCH
+ENV VMANGOS_GIT_SOURCE_CORE_URL
+ENV VMANGOS_GIT_SOURCE_DATABASE_BRANCH
+ENV VMANGOS_GIT_SOURCE_DATABASE_URL
+#compiler image settings cmake
+ENV VMANGOS_THREADS
+ENV VMANGOS_DEBUG
+ENV VMANGOS_MALLOC
+ENV VMANGOS_CLIENT
+ENV VMANGOS_EXTRACTORS
+ENV VMANGOS_ANTICHEAT
+ENV VMANGOS_SCRIPTS
+ENV VMANGOS_LIBCURL
+#compiler and database image settings world database name
+ENV VMANGOS_WORLD_DATABASE
+#compiler image settings
+ENV TZ
+ENV VMANGOS_GROUP_ID
+ENV VMANGOS_USER_ID
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN \
   apt-get update -y && \
@@ -65,7 +87,6 @@ RUN \
   export TBB_ROOT_DIR=/usr/include/tbb
 
 RUN \
-  mkdir -p /opt/core && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt && \
   mkdir -p /compiled_core && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /compiled_core && \
@@ -73,8 +94,6 @@ RUN \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /ccache && \
   mkdir -p /database && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /database
-
-USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 CMD \
   git clone ${VMANGOS_GIT_SOURCE_CORE_URL} /opt/core && \
