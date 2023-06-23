@@ -18,9 +18,7 @@
 
 # Get .ENV Variables
 
-cp -rf .\.env .\env_bash
-
-source .\env_bash
+source .\.env
 
 # Handle script call from other directory
 
