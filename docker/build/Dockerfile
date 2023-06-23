@@ -45,6 +45,7 @@ RUN \
   export TBB_ROOT_DIR=/usr/include/tbb
 
 RUN \
+  mkdir -p /opt/compiled_core && \
   mkdir -p /compiled_core && \
   mkdir -p /ccache && \
   mkdir -p /database
