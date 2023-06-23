@@ -46,7 +46,6 @@ docker run \
   -v "$repository_path/volume/ccache:/ccache" \
   --env-file=.env \
   -e VMANGOS_THREADS=$((`nproc` > 1 ? `nproc` - 1 : 1)) \
-  --user=root \
   --rm \
   vmangos_build
 
@@ -68,21 +67,18 @@ docker run \
 
   docker run \
     -v "$repository_path/volume/client_data:/client_data" \
-    --user=root \
     --rm \
     vmangos_extractors \
     /opt/extract/bin/mapextractor
 
   docker run \
     -v "$repository_path/volume/client_data:/client_data" \
-    --user=root \
     --rm \
     vmangos_extractors \
     /opt/extract/bin/vmapextractor
 
   docker run \
     -v "$repository_path/volume/client_data:/client_data" \
-    --user=root \
     --rm \
     vmangos_extractors \
     /opt/extract/bin/vmap_assembler
@@ -90,7 +86,6 @@ docker run \
   docker run \
     -v "$repository_path/volume/client_data:/client_data" \
     -v "$repository_path/volume/compiled_core/contrib/mmap:/mmap_contrib" \
-    --user=root \
     --rm \
     vmangos_extractors \
     /opt/extract/bin/MoveMapGen --offMeshInput /mmap_contrib/offmesh.txt
