@@ -44,7 +44,7 @@ docker run \
   -v "$repository_path/volume/compiled_core:/compiled_core" \
   -v "$repository_path/volume/database:/database" \
   -v "$repository_path/volume/ccache:/ccache" \
-  --env-file=.env
+  --env-file=.env \
   -e VMANGOS_THREADS=$((`nproc` > 1 ? `nproc` - 1 : 1)) \
   --user=root \
   --rm \
