@@ -48,7 +48,7 @@ docker run \
   -v "$repository_path/volume/database:/database" \
   -v "$repository_path/volume/ccache:/ccache" \
   -e CCACHE_DIR=/ccache \
-  -e VMANGOS_CLIENT=$VMANGOS_CLIENT_VERSIONn \
+  -e VMANGOS_CLIENT=$VMANGOS_CLIENT_VERSION \
   -e VMANGOS_WORLD=$VMANGOS_WORLD_DATABASE \
   -e VMANGOS_THREADS=$((`nproc` > 1 ? `nproc` - 1 : 1)) \
   --user=root \
