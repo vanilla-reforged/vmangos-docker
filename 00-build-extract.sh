@@ -34,23 +34,23 @@ echo "[VMaNGOS]: Building VMaNGOS..."
 
 docker build \
   #compiler image settings git clone
-  --build-arg VMANGOS_GIT_SOURCE_CORE_BRANCH=${VMANGOS_GIT_SOURCE_CORE_BRANCH} \
-  --build-arg VMANGOS_GIT_SOURCE_CORE_URL=${VMANGOS_GIT_SOURCE_CORE_URL} \
-  --build-arg VMANGOS_GIT_SOURCE_DATABASE_BRANCH=${VMANGOS_GIT_SOURCE_DATABASE_BRANCH} \
-  --build-arg VMANGOS_GIT_SOURCE_DATABASE_URL=${VMANGOS_GIT_SOURCE_DATABASE_URL} \
+  --build-arg VMANGOS_GIT_SOURCE_CORE_BRANCH=$VMANGOS_GIT_SOURCE_CORE_BRANCH \
+  --build-arg VMANGOS_GIT_SOURCE_CORE_URL=$VMANGOS_GIT_SOURCE_CORE_URL \
+  --build-arg VMANGOS_GIT_SOURCE_DATABASE_BRANCH=$VMANGOS_GIT_SOURCE_DATABASE_BRANCH \
+  --build-arg VMANGOS_GIT_SOURCE_DATABASE_URL=$VMANGOS_GIT_SOURCE_DATABASE_URL \
   #compiler image settings cmake
-  --build-arg VMANGOS_THREADS=${VMANGOS_THREADS} \
-  --build-arg VMANGOS_DEBUG=${VMANGOS_DEBUG} \
-  --build-arg VMANGOS_MALLOC=${VMANGOS_MALLOC} \
-  --build-arg VMANGOS_CLIENT=${VMANGOS_CLIENT} \
-  --build-arg VMANGOS_EXTRACTORS=${VMANGOS_EXTRACTORS} \
-  --build-arg VMANGOS_ANTICHEAT=${VMANGOS_ANTICHEAT} \
-  --build-arg VMANGOS_SCRIPTS=${VMANGOS_SCRIPTS} \
-  --build-arg VMANGOS_LIBCURL=${VMANGOS_LIBCURL} \
+  --build-arg VMANGOS_THREADS=$VMANGOS_THREADS \
+  --build-arg VMANGOS_DEBUG=$VMANGOS_DEBUG \
+  --build-arg VMANGOS_MALLOC=$VMANGOS_MALLOC \
+  --build-arg VMANGOS_CLIENT=$VMANGOS_CLIENT \
+  --build-arg VMANGOS_EXTRACTORS=$VMANGOS_EXTRACTORS \
+  --build-arg VMANGOS_ANTICHEAT=$VMANGOS_ANTICHEAT \
+  --build-arg VMANGOS_SCRIPTS=$VMANGOS_SCRIPTS \
+  --build-arg VMANGOS_LIBCURL=$VMANGOS_LIBCURL \
   #compiler and database image settings world database name
-  --build-arg VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE} \
+  --build-arg VMANGOS_WORLD_DATABASE=$VMANGOS_WORLD_DATABASE \
   #compiler image settings
-  --build-arg TZ=${TZ} \
+  --build-arg TZ=$TZ \
   --build-arg DEBIAN_FRONTEND=noninteractive \
   --no-cache \
   -t vmangos_build \
@@ -63,8 +63,8 @@ docker run \
   -v "$repository_path/volume/database:/database" \
   -v "$repository_path/volume/ccache:/ccache" \
   -e CCACHE_DIR=/ccache \
-  -e VMANGOS_CLIENT=${VMANGOS_CLIENT_VERSION} \
-  -e VMANGOS_WORLD=${VMANGOS_WORLD_DATABASE} \
+  -e VMANGOS_CLIENT=$VMANGOS_CLIENT_VERSION \
+  -e VMANGOS_WORLD=$VMANGOS_WORLD_DATABASE \
   -e VMANGOS_THREADS=$((`nproc` > 1 ? `nproc` - 1 : 1)) \
   --user=root \
   --rm \
@@ -81,8 +81,8 @@ docker run \
 
   docker build \
     --no-cache \
-    --build-arg VMANGOS_USER_ID=${VMANGOS_USER_ID} \
-    --build-arg VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID} \
+    --build-arg VMANGOS_USER_ID=$VMANGOS_USER_ID \
+    --build-arg VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID \
     -t vmangos_extractors \
     -f ./docker/extractors/Dockerfile .
 
@@ -120,9 +120,9 @@ docker run \
 
   # Remove potentially existing partial data
   rm -rf ./volume/client_data_extracted/*
-  mkdir -p "./volume/client_data_extracted/${VMANGOS_CLIENT_VERSION}"
+  mkdir -p "./volume/client_data_extracted/$VMANGOS_CLIENT_VERSION"
 
-  mv ./volume/client_data/dbc "./volume/client_data_extracted/${VMANGOS_CLIENT_VERSION}/"
+  mv ./volume/client_data/dbc "./volume/client_data_extracted/$VMANGOS_CLIENT_VERSION/"
   mv ./volume/client_data/maps ./volume/client_data_extracted/
   mv ./volume/client_data/mmaps ./volume/client_data_extracted/
   mv ./volume/client_data/vmaps ./volume/client_data_extracted/
