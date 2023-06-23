@@ -17,14 +17,11 @@
 FROM ubuntu:20.04
 
 #compiler image settings git clone
-
 ARG VMANGOS_GIT_SOURCE_CORE_BRANCH
 ARG VMANGOS_GIT_SOURCE_CORE_URL
 ARG VMANGOS_GIT_SOURCE_DATABASE_BRANCH
 ARG VMANGOS_GIT_SOURCE_DATABASE_URL
-
 #compiler image settings cmake
-
 ARG VMANGOS_THREADS
 ARG VMANGOS_DEBUG
 ARG VMANGOS_MALLOC
@@ -33,21 +30,13 @@ ARG VMANGOS_EXTRACTORS
 ARG VMANGOS_ANTICHEAT
 ARG VMANGOS_SCRIPTS
 ARG VMANGOS_LIBCURL
-
 #compiler and database image settings world database name
-
 ARG VMANGOS_WORLD_DATABASE
-
 #compiler image settings
-
 ARG TZ
 ARG VMANGOS_GROUP_ID
 ARG VMANGOS_USER_ID
 ARG DEBIAN_FRONTEND=noninteractive
-
-ENV \
-  VMANGOS_USER_ID=$VMANGOS_USER_ID \
-  VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID
 
 RUN \
   apt-get update -y && \
@@ -60,7 +49,7 @@ RUN \
     libcurl4-openssl-dev \
     libmysqlclient-dev \
     libssl-dev \
-#   libtbb-dev \
+    libtbb-dev \
     openssl \
     p7zip-full \
     zlib1g-dev
