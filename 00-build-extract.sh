@@ -44,8 +44,8 @@ docker build \
   --build-arg VMANGOS_SCRIPTS=$VMANGOS_SCRIPTS \
   --build-arg VMANGOS_LIBCURL=$VMANGOS_LIBCURL \
   --build-arg VMANGOS_WORLD_DATABASE=$VMANGOS_WORLD_DATABASE \
-  --build-arg VMANGOS_USER_ID=$VMANGOS_USER_ID
-  --build-arg VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID
+  --build-arg VMANGOS_USER_ID=$VMANGOS_USER_ID \
+  --build-arg VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID \
   --build-arg TZ=$TZ \
   --build-arg DEBIAN_FRONTEND=noninteractive \
   --no-cache \
