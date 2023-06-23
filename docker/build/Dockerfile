@@ -77,8 +77,8 @@ RUN \
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 CMD \
-  git clone -b $VMANGOS_GIT_SOURCE_CORE /opt/core && \
-  git clone -b $VMANGOS_GIT_SOURCE_DATABASE /opt/database && \
+  git clone -b "$VMANGOS_GIT_SOURCE_CORE" /opt/core && \
+  git clone -b "$VMANGOS_GIT_SOURCE_DATABASE" /opt/database && \
   cd /opt/core/sql/migrations && \
   ./merge.sh && \
   mkdir /opt/core/build && \
