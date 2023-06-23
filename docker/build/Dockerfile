@@ -47,7 +47,7 @@ RUN \
 RUN \
   mkdir -p /compiled_core && \
   mkdir -p /ccache && \
-  mkdir -p /database && \
+  mkdir -p /database
 
 CMD \
   git clone ${VMANGOS_GIT_SOURCE_CORE_URL} /opt/core && \
