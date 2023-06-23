@@ -34,24 +34,24 @@ echo "[VMaNGOS]: Building VMaNGOS..."
 
 docker build \
   #compiler image settings git clone
-  --build-arg VMANGOS_GIT_SOURCE_CORE_BRANCH=${VMANGOS_GIT_SOURCE_CORE_BRANCH}
-  --build-arg VMANGOS_GIT_SOURCE_CORE_URL=${VMANGOS_GIT_SOURCE_CORE_URL}
-  --build-arg VMANGOS_GIT_SOURCE_DATABASE_BRANCH=${VMANGOS_GIT_SOURCE_DATABASE_BRANCH}
-  --build-arg VMANGOS_GIT_SOURCE_DATABASE_URL=${VMANGOS_GIT_SOURCE_DATABASE_URL}
+  --build-arg VMANGOS_GIT_SOURCE_CORE_BRANCH=${VMANGOS_GIT_SOURCE_CORE_BRANCH} \
+  --build-arg VMANGOS_GIT_SOURCE_CORE_URL=${VMANGOS_GIT_SOURCE_CORE_URL} \
+  --build-arg VMANGOS_GIT_SOURCE_DATABASE_BRANCH=${VMANGOS_GIT_SOURCE_DATABASE_BRANCH} \
+  --build-arg VMANGOS_GIT_SOURCE_DATABASE_URL=${VMANGOS_GIT_SOURCE_DATABASE_URL} \
   #compiler image settings cmake
-  --build-arg VMANGOS_THREADS=${VMANGOS_THREADS}
-  --build-arg VMANGOS_DEBUG=${VMANGOS_DEBUG}
-  --build-arg VMANGOS_MALLOC=${VMANGOS_MALLOC}
-  --build-arg VMANGOS_CLIENT=${VMANGOS_CLIENT}
-  --build-arg VMANGOS_EXTRACTORS=${VMANGOS_EXTRACTORS}
-  --build-arg VMANGOS_ANTICHEAT=${VMANGOS_ANTICHEAT}
-  --build-arg VMANGOS_SCRIPTS=${VMANGOS_SCRIPTS}
-  --build-arg VMANGOS_LIBCURL=${VMANGOS_LIBCURL}
+  --build-arg VMANGOS_THREADS=${VMANGOS_THREADS} \
+  --build-arg VMANGOS_DEBUG=${VMANGOS_DEBUG} \
+  --build-arg VMANGOS_MALLOC=${VMANGOS_MALLOC} \
+  --build-arg VMANGOS_CLIENT=${VMANGOS_CLIENT} \
+  --build-arg VMANGOS_EXTRACTORS=${VMANGOS_EXTRACTORS} \
+  --build-arg VMANGOS_ANTICHEAT=${VMANGOS_ANTICHEAT} \
+  --build-arg VMANGOS_SCRIPTS=${VMANGOS_SCRIPTS} \
+  --build-arg VMANGOS_LIBCURL=${VMANGOS_LIBCURL} \
   #compiler and database image settings world database name
-  --build-arg VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE}
+  --build-arg VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE} \
   #compiler image settings
-  --build-arg TZ=${TZ}
-  --build-arg DEBIAN_FRONTEND=noninteractive
+  --build-arg TZ=${TZ} \
+  --build-arg DEBIAN_FRONTEND=noninteractive \
   --no-cache \
   -t vmangos_build \
   -f ./docker/build/Dockerfile .
