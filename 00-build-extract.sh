@@ -33,8 +33,7 @@ echo "[VMaNGOS]: Building VMaNGOS..."
 # Build compiler image
 
 docker build \
-  --build-arg VMANGOS_USER_ID=$VMANGOS_USER_ID \
-  --build-arg VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID \
+  --build-arg DEBIAN_FRONTEND=noninteractive \
   --no-cache \
   -t vmangos_build \
   -f ./docker/build/Dockerfile .
