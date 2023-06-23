@@ -20,10 +20,6 @@ ARG VMANGOS_USER_ID
 ARG VMANGOS_GROUP_ID
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV \
-  VMANGOS_USER_ID=$VMANGOS_USER_ID \
-  VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID
-
 RUN \
   apt-get update -y && \
   apt-get install -y \
