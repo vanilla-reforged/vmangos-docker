@@ -38,7 +38,7 @@ RUN \
   mkdir -p /backup && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /backup
 
-USER 
+USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 CMD \
 mariadb-shell  && \
