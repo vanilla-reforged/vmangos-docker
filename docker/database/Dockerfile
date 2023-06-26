@@ -61,7 +61,7 @@ mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} realmd < /opt/database/sql/logon.sql
 mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} logs < /opt/database/sql/logs.sql  && \
 mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} characters < /opt/database/sql/characters.sql  && \
 mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} mangos < /opt/database/sql/${VMANGOS_WORLD_DATABASE}.sql && \
- 
+
 [ -e /opt/database/sql/migrations/world_db_updates.sql ] mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} mangos < /opt/database/sql/migrations/world_db_updates.sql  && \
 [ -e /opt/database/sql/migrations/characters_db_updates.sql ] mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} characters < /opt/database/sql/migrations/characters_db_updates.sql  && \
 [ -e /opt/database/sql/migrations/logon_db_updates.sql ] mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} realmd < /opt/database/sql/migrations/logon_db_updates.sql && \
