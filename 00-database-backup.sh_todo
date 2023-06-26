@@ -18,7 +18,9 @@
 
 # Get .ENV Variables
 
-. .\.env
+while IFS== read -r key value; do
+  printf -v "$key" %s "$value" && export "$key"
+done <.env
 
 # Handle script call from other directory
 
