@@ -68,7 +68,7 @@ RUN \
   git clone ${VMANGOS_GIT_SOURCE_CORE_URL} /opt/core && \
   git clone ${VMANGOS_GIT_SOURCE_DATABASE_URL} /opt/database
 
-RUN \
+CMD \
   cd /opt/core/sql/migrations && \
   ./merge.sh && \
   mkdir /database/sql &&\
