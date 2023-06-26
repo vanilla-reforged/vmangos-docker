@@ -71,8 +71,6 @@ docker run \
 
   docker build \
     --no-cache \
-    --build-arg VMANGOS_USER_ID=$VMANGOS_USER_ID \
-    --build-arg VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID \
     -t vmangos_extractors \
     -f ./docker/extractors/Dockerfile .
 
