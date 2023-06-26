@@ -12,6 +12,8 @@ services:
     volumes:
       - ./volume/backup:/backup
       - ./volume/database:/opt/database
+    environment:
+      -
 
   vmangos_realmd:
     container_name: vmangos_realmd
@@ -26,8 +28,12 @@ services:
     volumes:
       - ./volume/configuration/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
     environment:
+      - TZ=${TZ}
+      - VMANGOS_USER_ID=${VMANGOS_USER_ID}
+      - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
+
 
   vmangos_mangos:
     container_name: vmangos_mangos
@@ -48,6 +54,9 @@ services:
       - ./volume/client_data_extracted/mmaps:/opt/vmangos/bin/mmaps:ro
       - ./volume/client_data_extracted/vmaps:/opt/vmangos/bin/vmaps:ro
     environment:
+      - TZ=${TZ}
+      - VMANGOS_USER_ID=${VMANGOS_USER_ID}
+      - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
 
