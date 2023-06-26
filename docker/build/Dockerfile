@@ -73,7 +73,6 @@ CMD \
   make install && \
   mkdir /opt/compiled_core/data && \
   mkdir /opt/compiled_core/logs && \
-  mkdir /opt/compiled_core/sql && \
   cp -r /opt/compiled_core/* /compiled_core && \
   cp -r /opt/database/* /database && \
   cd /database && 7z e ${VMANGOS_WORLD_DATABASE}.7z
