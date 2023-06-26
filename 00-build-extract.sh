@@ -18,7 +18,10 @@
 
 # Get .ENV Variables
 
-. .\.env
+if [ ! -f .env ]
+then
+  export $(cat .env | xargs)
+fi
 
 # Handle script call from other directory
 
