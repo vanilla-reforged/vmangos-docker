@@ -44,19 +44,19 @@ docker run \
   -v "$repository_path/volume/compiled_core:/compiled_core" \
   -v "$repository_path/volume/database:/database" \
   -v "$repository_path/volume/ccache:/ccache" \
-  --build-arg DEBIAN_FRONTEND=noninteractive
-  --build-arg VMANGOS_GIT_SOURCE_CORE_URL=$VMANGOS_GIT_SOURCE_CORE_URL
-  --build-arg VMANGOS_GIT_SOURCE_DATABASE_URL=$VMANGOS_GIT_SOURCE_DATABASE_URL
-  --build-arg CCACHE_DIR=$CCACHE_DIR
-  --build-arg VMANGOS_THREADS=$VMANGOS_THREADS
-  --build-arg VMANGOS_DEBUG=$VMANGOS_DEBUG
-  --build-arg VMANGOS_MALLOC=$VMANGOS_MALLOC
-  --build-arg VMANGOS_CLIENT=$VMANGOS_CLIENT
-  --build-arg VMANGOS_EXTRACTORS=$VMANGOS_EXTRACTORS
-  --build-arg VMANGOS_ANTICHEAT=$VMANGOS_ANTICHEAT
-  --build-arg VMANGOS_SCRIPTS=$VMANGOS_SCRIPTS
-  --build-arg VMANGOS_LIBCURL=$VMANGOS_LIBCURL
-  --build-arg VMANGOS_WORLD_DATABASE=$VMANGOS_WORLD_DATABASE
+  --build-arg DEBIAN_FRONTEND=noninteractive \
+  --build-arg VMANGOS_GIT_SOURCE_CORE_URL=$VMANGOS_GIT_SOURCE_CORE_URL \
+  --build-arg VMANGOS_GIT_SOURCE_DATABASE_URL=$VMANGOS_GIT_SOURCE_DATABASE_URL \
+  --build-arg CCACHE_DIR=$CCACHE_DIR \
+  --build-arg VMANGOS_THREADS=$VMANGOS_THREADS \
+  --build-arg VMANGOS_DEBUG=$VMANGOS_DEBUG \
+  --build-arg VMANGOS_MALLOC=$VMANGOS_MALLOC \
+  --build-arg VMANGOS_CLIENT=$VMANGOS_CLIENT \
+  --build-arg VMANGOS_EXTRACTORS=$VMANGOS_EXTRACTORS \
+  --build-arg VMANGOS_ANTICHEAT=$VMANGOS_ANTICHEAT \
+  --build-arg VMANGOS_SCRIPTS=$VMANGOS_SCRIPTS \
+  --build-arg VMANGOS_LIBCURL=$VMANGOS_LIBCURL \
+  --build-arg VMANGOS_WORLD_DATABASE=$VMANGOS_WORLD_DATABASE \
   --rm \
   vmangos_build
 
