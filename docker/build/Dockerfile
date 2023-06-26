@@ -50,6 +50,7 @@ RUN \
 RUN \
   mkdir -p /opt/core && \
   mkdir -p /opt/compiled_core && \
+  mkdir -p /core && \
   mkdir -p /compiled_core && \
   mkdir -p /ccache && \
   mkdir -p /database
@@ -61,8 +62,7 @@ RUN \
 CMD \
   cd /opt/core/sql/migrations && \
   ./merge.sh && \
-  mkdir /database/sql &&\
-  cp -r /opt/core/sql/* /database/sql &&\
+  cp -r /opt/core/* /core &&\
   mkdir /opt/core/build && \
   cd /opt/core/build && \
   cmake \
