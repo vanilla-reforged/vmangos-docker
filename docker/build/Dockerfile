@@ -60,7 +60,6 @@ RUN \
   export TBB_ROOT_DIR=/usr/include/tbb
 
 RUN \
-  mkdir -p /opt/core && \
   mkdir -p /opt/compiled_core && \
   mkdir -p /compiled_core && \
   mkdir -p /ccache && \
@@ -68,7 +67,7 @@ RUN \
 
 RUN \
   git clone ${VMANGOS_GIT_SOURCE_CORE_URL} /opt/core && \
-  git clone ${VMANGOS_GIT_SOURCE_DATABASE_URL} /opt/database && \
+  git clone ${VMANGOS_GIT_SOURCE_DATABASE_URL} /opt/database
 
 RUN \
   cd /opt/core/sql/migrations && \
