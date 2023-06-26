@@ -40,7 +40,7 @@ RUN \
 
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
-CMD \
+RUN \
 mariadb-shell  && \
 CREATE DATABASE IF NOT EXISTS realmd DEFAULT CHARSET utf8 COLLATE utf8_general_ci;  && \
 CREATE DATABASE IF NOT EXISTS characters DEFAULT CHARSET utf8 COLLATE utf8_general_ci;  && \
