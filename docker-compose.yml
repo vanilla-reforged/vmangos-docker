@@ -6,6 +6,9 @@ services:
 #      - 3306:3306
     build:
       context: .
+      args: 
+        - VMANGOS_USER_ID=${VMANGOS_USER_ID}
+        - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       dockerfile: docker/database/Dockerfile
     restart: unless-stopped
     command: --max_allowed_packet=32505856
@@ -13,6 +16,7 @@ services:
       - ./volume/backup:/backup
       - ./volume/database:/opt/database
     environment:
+      - TZ=${TZ}
       - VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - VMANGOS_REALM_NAME=${VMANGOS_REALM_NAME}
@@ -31,6 +35,9 @@ services:
     container_name: vmangos_realmd
     build:
       context: .
+      args: 
+        - VMANGOS_USER_ID=${VMANGOS_USER_ID}
+        - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       dockerfile: docker/realmd/Dockerfile
     depends_on:
       - vmangos_database
@@ -41,11 +48,8 @@ services:
       - ./volume/configuration/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
     environment:
       - TZ=${TZ}
-      - VMANGOS_USER_ID=${VMANGOS_USER_ID}
-      - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
-
 
   vmangos_mangos:
     container_name: vmangos_mangos
@@ -55,6 +59,9 @@ services:
       - 8085:8085
     build:
       context: .
+      args: 
+        - VMANGOS_USER_ID=${VMANGOS_USER_ID}
+        - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       dockerfile: docker/mangos/Dockerfile
     depends_on:
       - vmangos_database
@@ -67,8 +74,5 @@ services:
       - ./volume/client_data_extracted/vmaps:/opt/vmangos/bin/vmaps:ro
     environment:
       - TZ=${TZ}
-      - VMANGOS_USER_ID=${VMANGOS_USER_ID}
-      - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
-
