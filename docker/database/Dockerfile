@@ -21,7 +21,10 @@ ARG VMANGOS_GROUP_ID
 
 RUN \
   mkdir -p /backup && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /backup
+  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /backup && \
+  mkdir -p /core && \
+  mkdir -p /core/sql && \
+  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /core
 
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
