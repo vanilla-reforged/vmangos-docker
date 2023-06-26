@@ -55,7 +55,7 @@ CMD \
   git clone ${VMANGOS_GIT_SOURCE_DATABASE_URL} /opt/database && \
   cd /opt/core/sql/migrations && \
   ./merge.sh && \
-  cp -r /opt/core/sql/* /compiled_core/sql &&\
+  cp -r /opt/core/sql/* /database/sql &&\
   mkdir /opt/core/build && \
   cd /opt/core/build && \
   cmake \
