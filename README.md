@@ -6,6 +6,11 @@ Heavily inspired by Michael Serajnik @ repository https://sr.ht/~mser/vmangos-do
 
 ### Whats different
 
+- Split .env files up and only give it to the container that needs the specified envs.
+- 
+
+### Whats different
+
 - All variables can now be given in the .env file of the root directory, and are then passed either through the 00-build-extract.sh script or the docker-compose file to the corresponding commands and Dockerfiles.
 - .sql and .sh scripts have been eliminated where possible.
 - Volumes now have their own directory for a better overview.
