@@ -50,9 +50,11 @@ RUN \
   mkdir -p /ccache && \
   mkdir -p /database
 
-CMD \
+RUN \
   git clone ${VMANGOS_GIT_SOURCE_CORE_URL} /opt/core && \
   git clone ${VMANGOS_GIT_SOURCE_DATABASE_URL} /opt/database && \
+
+RUN \
   cd /opt/core/sql/migrations && \
   ./merge.sh && \
   mkdir /database/sql &&\
