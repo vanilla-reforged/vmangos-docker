@@ -16,11 +16,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Get .ENV Variables
+# export .env variables
 
-while IFS== read -r key value; do
-  printf -v "$key" %s "$value" && export "$key"
-done <.env
+export $(xargs <.env)
 
 # Handle script call from other directory
 
