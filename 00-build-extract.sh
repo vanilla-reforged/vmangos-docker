@@ -42,6 +42,7 @@ docker build \
 
 # Run compiler image
 docker run \
+  -v "$repository_path/volume/core:/core" \
   -v "$repository_path/volume/compiled_core:/compiled_core" \
   -v "$repository_path/volume/database:/database" \
   -v "$repository_path/volume/ccache:/ccache" \
