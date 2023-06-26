@@ -16,9 +16,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# export .env variables
+# get variables defined in .env_shell
 
-export $(xargs <.env)
+source .env_shell
 
 # Handle script call from other directory
 
