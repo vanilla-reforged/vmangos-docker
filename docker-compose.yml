@@ -42,7 +42,6 @@ services:
       - vmangos_database
     restart: unless-stopped
     volumes:
-      - ./volume/compiled_core:/opt/vmangos
       - ./volume/configuration/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro
       - ./volume/client_data_extracted/${VMANGOS_CLIENT_VERSION}:/opt/vmangos/bin/${VMANGOS_CLIENT_VERSION}:ro
       - ./volume/client_data_extracted/maps:/opt/vmangos/bin/maps:ro
