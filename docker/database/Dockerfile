@@ -57,14 +57,14 @@ GRANT ALL ON logs.* TO mangos@'localhost' WITH GRANT OPTION;  && \
 FLUSH PRIVILEGES;  && \
 exit  && \
 
-mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} realmd < /opt/database/logon.sql
-mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} logs < /opt/database/logs.sql
-mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} characters < /opt/database/characters.sql
+mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} realmd < /opt/database/logon.sql  && \
+mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} logs < /opt/database/logs.sql  && \
+mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} characters < /opt/database/characters.sql  && \
 mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} mangos < /opt/database/${VMANGOS_WORLD_DATABASE}.sql
 [ -e /opt/vmangos/sql/migrations/world_db_updates.sql ] && \
-  mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} mangos < /opt/vmangos/sql/migrations/world_db_updates.sql
+  mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} mangos < /opt/vmangos/sql/migrations/world_db_updates.sql  && \
 [ -e /opt/vmangos/sql/migrations/characters_db_updates.sql ] && \
-  mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} characters < /opt/vmangos/sql/migrations/characters_db_updates.sql
+  mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} characters < /opt/vmangos/sql/migrations/characters_db_updates.sql  && \
 [ -e /opt/vmangos/sql/migrations/logon_db_updates.sql ] && \
   mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} realmd < /opt/vmangos/sql/migrations/logon_db_updates.sql
 [ -e /opt/vmangos/sql/migrations/logs_db_updates.sql ] && \
