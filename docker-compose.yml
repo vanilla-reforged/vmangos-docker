@@ -18,10 +18,6 @@ services:
     container_name: vmangos_realmd
     build:
       context: .
-      args:
-        - TZ=${TZ}
-        - VMANGOS_USER_ID=${VMANGOS_USER_ID}
-        - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       dockerfile: docker/realmd/Dockerfile
     depends_on:
       - vmangos_database
@@ -42,7 +38,6 @@ services:
       - 8085:8085
     build:
       context: .
-      args:
       dockerfile: docker/mangos/Dockerfile
     depends_on:
       - vmangos_database
