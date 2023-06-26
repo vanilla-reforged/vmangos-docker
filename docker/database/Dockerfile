@@ -16,7 +16,6 @@
 
 FROM mariadb
 
-ARG TZ
 ARG VMANGOS_USER_ID
 ARG VMANGOS_GROUP_ID
 
@@ -26,10 +25,8 @@ RUN \
 
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
-RUN \
-  mariadb-shell
-
-RUN \
+CMD \
+  mariadb-shell && \
   CREATE DATABASE IF NOT EXISTS realmd DEFAULT CHARSET utf8 COLLATE utf8_general_ci;  && \
   CREATE DATABASE IF NOT EXISTS characters DEFAULT CHARSET utf8 COLLATE utf8_general_ci;  && \
   CREATE DATABASE IF NOT EXISTS mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;  && \
@@ -43,9 +40,7 @@ RUN \
   GRANT ALL ON mangos.* TO mangos@'localhost' WITH GRANT OPTION;  && \
   GRANT ALL ON logs.* TO mangos@'localhost' WITH GRANT OPTION;  && \
   FLUSH PRIVILEGES;  && \
-  exit
-
-CMD \
+  exit && \
   mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} realmd < /opt/database/sql/logon.sql  && \
   mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} logs < /opt/database/sql/logs.sql  && \
   mariadb -u mangos -p ${MYSQL_ROOT_PASSWORD} characters < /opt/database/sql/characters.sql  && \
