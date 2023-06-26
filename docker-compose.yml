@@ -15,7 +15,7 @@ services:
     volumes:
       - ./volume/backup:/backup
       - ./volume/database:/opt/database
-      - ./volume/core:/opt/core
+      - ./volume/core/sql:/opt/core/sql
     environment:
       - TZ=${TZ}
       - VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE}
