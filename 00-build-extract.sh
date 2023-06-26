@@ -18,10 +18,9 @@
 
 # Get .ENV Variables
 
-if [ ! -f .env ]
-then
-  export $(cat .env | xargs)
-fi
+set -a # automatically export all variables
+source .env
+set +a
 
 # Handle script call from other directory
 
