@@ -71,13 +71,6 @@ user@local:vmangos-docker$ .\03-extract-client-data.sh
 user@local:vmangos-docker$ .\04-build-db-container.sh
 ```
 
-After this use docker-compose up -d and docker compose down to start and stop your environment.
-
-```sh
-user@local:vmangos-docker$ docker compose up -d
-user@local:vmangos-docker$ docker compose down
-```
-
 Note that generating the required data will take many hours (depending on your
 hardware). Some notices/errors during the generation are normal and nothing to
 worry about.
@@ -107,7 +100,7 @@ When you are done, detach from the Docker container by pressing
 
 ### Starting and stopping VMaNGOS
 
-VMaNGOS can be started and stopped using the following scripts:
+VMaNGOS can be started and stopped using the following commands:
 
 ```sh
 user@local:vmangos-docker$ docker-compose -d up
