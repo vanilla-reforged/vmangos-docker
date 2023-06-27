@@ -14,7 +14,7 @@ services:
     command: --max_allowed_packet=32505856
     volumes:
       - ./volume/backup:/backup
-      - ./volume/database:/var/lib/mysql
+      - vmangos_database:/var/lib/mysql
       - ./volume/database:/opt/database
       - ./volume/core/sql:/opt/core/sql
     environment:
