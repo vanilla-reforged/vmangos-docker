@@ -15,7 +15,6 @@ RUN \
     libssl-dev \
     libtbb-dev \
     openssl \
-    p7zip-full \
     zlib1g-dev
 
 RUN \
