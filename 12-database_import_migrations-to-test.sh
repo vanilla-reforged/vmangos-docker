@@ -18,13 +18,16 @@ cd "$repository_path"
 
 echo "[VMaNGOS]: Merging database migrations..."
 
-cd ./src/core/sql/migrations
+cd ./src/github_core/sql/migrations
 ./merge.sh
 cd "$repository_path"
 
 echo "[VMaNGOS]: Copying database migrations to /vol/database..."
 
-
+cp -r ./src/github_core/sql/migrations/ ./vol/database/
+cp -r ./src/github_core/sql/migrations/ ./vol/database/
+cp -r ./src/github_core/sql/migrations/ ./vol/database/
+cp -r ./src/github_core/sql/migrations/ ./vol/database/
 
 echo "[VMaNGOS]: Importing migrations..."
 
