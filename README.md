@@ -8,15 +8,14 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 
 ### ToDO
 
-- get cmake to eat cmake variables provided through shell script
 - get generate-db-1.sql to use the env variable for setting the db pw (has to be edited manually atm)
 
 ### Whats different
 
-- All variables can now be given in the .env file of the root directory, and are then passed either through the 00-build-extract.sh script or the docker-compose file to the corresponding commands and Dockerfiles.
-- .sql and .sh scripts have been eliminated where possible.
-- Volumes now have their own directory for a better overview.
-- Git clone commands are not executed on the host, but in the docker build image.
+- All variables can now be given in the .env file of the root directory.
+- Vol directory contains volumes mounted when the containers are running.
+- Src directory contains dependencies which are copied into the containers at build.
+- Mapping path is 1:1 Host:Container where apps don't expect a specific path.
 - Non persistent containers (Build, Extractors) run with root.
 
 The Instructions below have been edited to reflect the changes to setting up and using the project.
