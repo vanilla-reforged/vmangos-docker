@@ -6,7 +6,7 @@ source .env
 
 #Date and Time Variable
 
-date_time=$(date "+%Y.%m.%d-%H.%M.%S")
+date_time=$(date "+%Y.%m.%d_%H.%M.%S")
 
 #Handle script call from other directory
 
@@ -19,10 +19,12 @@ cd "$repository_path"
 echo "[VMaNGOS]: Backing up databases..."
 
 docker exec vmangos_database /bin/sh \
-  'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD mangos > /backup/"$date_time"_mangos.sql'
+  'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD --single-transaction mangos > /backup/"$date_time"_mangos.sql'
 docker exec vmangos_database /bin/sh \
-  'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD characters > /backup/"$date_time"_characters.sql'
+  'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD --single-transaction characters > /backup/"$date_time"_characters.sql'
 docker exec vmangos_database /bin/sh \
-  'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD realmd > /backup/"$date_time"_realmd.sql'
+  'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD --single-transaction realmd > /backup/"$date_time"_realmd.sql'
+docker exec vmangos_database /bin/sh \
+  'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD --single-transaction logs > /backup/"$date_time"_logs.sql'
 
 echo "[VMaNGOS]: Backup complete!"
