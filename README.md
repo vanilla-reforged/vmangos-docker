@@ -6,6 +6,10 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 
 # vmangos-docker
 
+### What is the Idea
+
+This is an attempt to make an (for me) easier to understand and set up VMANGOS environment for Docker. Feel free to use it or contribute.
+
 ### ToDO
 
 - get generate-db-1.sql to use the env variable for setting the db pw (has to be edited manually atm)
