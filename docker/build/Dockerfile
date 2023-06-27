@@ -25,6 +25,10 @@ RUN \
   ln -s /usr/bin/ccache /usr/local/bin/c++
 
 RUN \
+  mkdir /vol/ccache && \
+  mkdir /vol/core
+
+RUN \
   export ACE_ROOT=/usr/include/ace && \
   export TBB_ROOT_DIR=/usr/include/tbb
 
