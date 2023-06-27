@@ -25,7 +25,7 @@ docker build \
 #Run compiler image
 
 docker run \
-  -v "$repository_path/vol/cache:/vol/ccache" \
+  -v "$repository_path/vol/ccache:/vol/ccache" \
   -v "$repository_path/vol/core:/vol/core" \
   -e CCACHE_DIR=$CCACHE_DIR \
   -e VMANGOS_ANTICHEAT=$VMANGOS_ANTICHEAT \
