@@ -3,6 +3,9 @@ FROM mariadb
 ARG VMANGOS_USER_ID
 ARG VMANGOS_GROUP_ID
 
+RUN \
+     mkdir -p  /vol/backup 
+
 COPY ./src/github_database/${VMANGOS_WORLD_DATABASE}.sql /src/github_database/${VMANGOS_WORLD_DATABASE}.sql
      
 COPY ./src/github_core/sql/logon.sql /src/github_core/sql/logon.sql && \
