@@ -13,10 +13,10 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 ### Whats different
 
 - All variables can now be given in the .env file of the root directory.
-- Vol directory contains volumes mounted when the containers are running.
 - Src directory contains dependencies which are copied into the containers at build.
-- Mapping path is 1:1 Host:Container where apps don't expect a specific path.
-- Non persistent containers (Build, Extractors) run with root.
+- Vol directory contains volumes mounted when the containers are running.
+- Mapping directory path similar in host and container where apps don't expect a specific path.
+- Non persistent containers (build, extractors) run with root.
 
 The Instructions below have been edited to reflect the changes to setting up and using the project.
 
