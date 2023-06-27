@@ -20,6 +20,7 @@ ARG VMANGOS_USER_ID
 ARG VMANGOS_GROUP_ID
 
 RUN \
+  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /var/lib/mysql && \
   mkdir -p /backup && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /backup && \
   mkdir -p /opt/core && \
