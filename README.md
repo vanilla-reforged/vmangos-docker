@@ -47,7 +47,7 @@ user@local:~$ cd vmangos-docker
 
 ```
 
-At this point, you have to adjust the two configuration files in `./volume/configuration` as
+At this point, you have to adjust the two configuration files in `./vol/configuration` as
 well as `./.env` for your desired setup. The default setup will
 only allow local connections (from the same machine). To make the server
 public, it is required to change the `VMANGOS_REALM_IP` environment variable
@@ -58,12 +58,24 @@ accessible over the Internet).
 VMaNGOS also requires some data generated/extracted from the client to work
 correctly. To generate that data automatically during the installation, copy
 the contents of your World of Warcraft client directory into
-`./volume/client_data`.
+`./src/client_data`.
 
-After that, simply execute the script:
+Alternatively if you have already extracted the client data you may place it directly in /vol/server_data.
+
+Do the installation execute the scripts in order from 01 to 04.
 
 ```sh
-user@local:vmangos-docker$ ./00-build-extract.sh
+user@local:vmangos-docker$ .\01-clone-github.sh
+user@local:vmangos-docker$ .\02-compile-core.sh
+user@local:vmangos-docker$ .\03-extract-client-data.sh
+user@local:vmangos-docker$ .\04-build-db-container.sh
+```
+
+After this use docker-compose up -d and docker compose down to start and stop your environment.
+
+```sh
+user@local:vmangos-docker$ docker compose up -d
+user@local:vmangos-docker$ docker compose down
 ```
 
 Note that generating the required data will take many hours (depending on your
