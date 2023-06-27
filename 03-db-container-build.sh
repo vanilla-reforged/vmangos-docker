@@ -12,6 +12,16 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
+echo "[VMaNGOS]: Extracting VMaNGOS world database..."
+
+cd /src/github_database
+7z e ${VMANGOS_WORLD_DATABASE}.7z
+
+echo "[VMaNGOS]: Merging VMaNGOS core migrations..."
+
+cd /src/github_core/sql/migrations
+./merge.sh
+
 echo "[VMaNGOS]: Building VMaNGOS database container image..."
 
 #Build db image
@@ -22,4 +32,4 @@ docker build \
   -t vmangos_build \
   -f ./docker/database/Dockerfil
 
-echo "[VMaNGOS]: Compiling complete!"
+echo "[VMaNGOS]: VMaNGOS database container image built!"
