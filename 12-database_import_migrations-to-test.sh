@@ -12,6 +12,11 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
+
+cd ./src/core/sql/migrations
+./merge.sh
+cd "$repository_path"
+
 date_time=$(date "+%Y.%m.%d-%H.%M.%S")
 
 echo "[VMaNGOS]: Importing migrations..."
