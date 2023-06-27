@@ -17,13 +17,13 @@ This is an attempt to make an (for me) easier to understand and set up VMANGOS e
 ### Whats different
 
 - All variables can now be given in the .env file of the root directory.
-- /src/ directory contains dependencies which are copied into the containers at build.
-- /vol/ directory contains volumes mounted when the containers are running.
-- Mapping directory path similar in host and container where apps don't expect a specific path.
-- Non persistent containers (build, extractors) run with root.
+- /src/ directory contains dependencies, which are copied into the containers at build.
+- /vol/ directory contains volumes mounted, when the containers are running.
+- Directory paths for volumes are similar in host and container, where apps don't expect a specific path within the container.
+- Non-persistent containers run with root.
 - Scripts starting with 0X are meant for setup.
-- Scripts starting with 1X are meant for rare update tasks.
-- Scripts starting with 2X are meant for backup / maintenance task and are intended to be run as cron jobs.
+- Scripts starting with 1X are meant for update tasks.
+- Scripts starting with 2X are meant for backup and maintenance tasks and are intended to be run as cron jobs.
 
 The Instructions below have been edited to reflect the changes to setting up and using the project.
 
@@ -73,7 +73,7 @@ hardware). Some notices/errors during the generation are normal and nothing to
 worry about.
 
 Alternatively if you have already extracted the client data you may place it directly
-in /vol/server_data and skip the "03-extract-client-data.sh" script.
+in `./vol/server_data` and skip the "03-extract-client-data.sh" script.
 
 To do the installation execute the scripts in order from 01 to 04.
 
@@ -126,12 +126,8 @@ user@local:vmangos-docker$ docker-compose down
 
 ## License
 
-[AGPL-3.0-or-later](LICENSE) © Michael Serajnik
+[AGPL-3.0-or-later](LICENSE)
 
 [vmangos]: https://github.com/vmangos/core
 [tonymmm1-vmangos-docker]: https://github.com/tonymmm1/vmangos-docker
 [Michael Serajnik vmangos-docker]: https://sr.ht/~mser/
-[docker]: https://docs.docker.com/get-docker/
-[docker-compose]: https://docs.docker.com/compose/install/
-
-
