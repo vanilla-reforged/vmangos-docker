@@ -25,7 +25,6 @@ docker build \
 #Run compiler image
 
 docker run \
-  -v "$repository_path/src/github_core:/src/github_core" \
   -v "$repository_path/vol/cache:/vol/ccache" \
   -v "$repository_path/vol/core:/vol/core" \
   -e CCACHE_DIR=$CCACHE_DIR \
