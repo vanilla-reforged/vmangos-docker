@@ -8,6 +8,7 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 
 ### ToDO
 
+- get cmake to eat cmake variables provided through shell script
 - get generate-db-1.sql to use the env variable for setting the db pw (has to be edited manually atm)
 
 ### Whats different
