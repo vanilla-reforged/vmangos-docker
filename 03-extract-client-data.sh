@@ -21,10 +21,10 @@ cd "$repository_path"
 
 #Copy extractors from /vol/core to /src/extractors
 
-cp ./vol/core/bin/mapextractor ./src/extractors/
-cp ./vol/core/bin/vmapextractor ./src/extractors/
-cp ./vol/core/bin/vmap_assembler ./src/extractors/
-cp ./vol/core/bin/MoveMapGen ./src/extractors/
+cp ./vol/core/bin/mapextractor ./src/extractors/mapextractor
+cp ./vol/core/bin/vmapextractor ./src/extractors/vmapextractor
+cp ./vol/core/bin/vmap_assembler ./src/extractors/vmap_assembler
+cp ./vol/core/bin/MoveMapGen ./src/extractors/MoveMapGen
 
 echo "[VMaNGOS]: Running client data extractors."
 echo "[VMaNGOS]: This will take a long time..."
@@ -39,21 +39,21 @@ echo "[VMaNGOS]: This will take a long time..."
     --user=root \
     --rm \
     vmangos_extractors \
-    /vol/core/bin/mapextractor
+    /src/extractors/mapextractor
 
   docker run \
     -v "$repository_path/src/client_data:/src/client_data" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /vol/core/bin/vmapextractor
+    /src/extractors/vmapextractor
 
   docker run \
     -v "$repository_path/src/client_data:/src/client_data" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /vol/core/bin/vmap_assembler
+    /src/extractors/vmap_assembler
 
   docker run \
     -v "$repository_path/src/client_data:/src/client_data" \
@@ -61,7 +61,7 @@ echo "[VMaNGOS]: This will take a long time..."
     --user=root \
     --rm \
     vmangos_extractors \
-    /vol/core/bin/MoveMapGen --offMeshInput /vol/core/contrib/mmap/offmesh.txt
+    /src/extractors/MoveMapGen --offMeshInput /vol/core/contrib/mmap/offmesh.txt
 
   # This data isn't used. delete it to avoid confusion
   rm -rf ./src/client_data/Buildings
