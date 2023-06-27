@@ -19,26 +19,26 @@
 echo "[VMaNGOS]: Importing databases..."
 
 echo "[VMaNGOS]: Importing logon..."
-mariadb -u mangos -p $MYSQL_ROOT_PASSWORD realmd < /opt/database/logon.sql
+mariadb -u mangos -p $MYSQL_ROOT_PASSWORD realmd < /opt/core/sql/logon.sql
 
 echo "[VMaNGOS]: Importing logs..."
-mariadb -u mangos -p $MYSQL_ROOT_PASSWORD logs < /opt/database/logs.sql
+mariadb -u mangos -p $MYSQL_ROOT_PASSWORD logs < /opt/core/sql/logs.sql
 
 echo "[VMaNGOS]: Importing characters..."
-mariadb -u mangos -p $MYSQL_ROOT_PASSWORD characters < /opt/database/characters.sql
+mariadb -u mangos -p $MYSQL_ROOT_PASSWORD characters < /opt/core/sql/characters.sql
 
 echo "[VMaNGOS]: Importing world..."
-mariadb -u mangos -p $MYSQL_ROOT_PASSWORD mangos < /opt/world_database/$VMANGOS_WORLD.sql
+mariadb -u mangos -p $MYSQL_ROOT_PASSWORD mangos < /opt/core/sql/$VMANGOS_WORLD.sql
 
 echo "[VMaNGOS]: Importing database updates..."
-[ -e /opt/vmangos/sql/migrations/world_db_updates.sql ]
-  mariadb -u mangos -p $MYSQL_ROOT_PASSWORD mangos < /opt/vmangos/sql/migrations/world_db_updates.sql
-[ -e /opt/vmangos/sql/migrations/characters_db_updates.sql ]
-  mariadb -u mangos -p $MYSQL_ROOT_PASSWORD characters < /opt/vmangos/sql/migrations/characters_db_updates.sql
-[ -e /opt/vmangos/sql/migrations/logon_db_updates.sql ]
-  mariadb -u mangos -p $MYSQL_ROOT_PASSWORD realmd < /opt/vmangos/sql/migrations/logon_db_updates.sql
-[ -e /opt/vmangos/sql/migrations/logs_db_updates.sql ]
-  mariadb -u mangos -p $MYSQL_ROOT_PASSWORD logs < /opt/vmangos/sql/migrations/logs_db_updates.sql
+[ -e /opt/core/sql/migrations/world_db_updates.sql ]
+  mariadb -u mangos -p $MYSQL_ROOT_PASSWORD mangos < /opt/core/sql/migrations/world_db_updates.sql
+[ -e /opt/core/sql/migrations/characters_db_updates.sql ]
+  mariadb -u mangos -p $MYSQL_ROOT_PASSWORD characters < /opt/core/sql/migrations/characters_db_updates.sql
+[ -e /opt/core/sql/migrations/logon_db_updates.sql ]
+  mariadb -u mangos -p $MYSQL_ROOT_PASSWORD realmd < /opt/core/sql/migrations/logon_db_updates.sql
+[ -e /opt/core/sql/migrations/logs_db_updates.sql ]
+  mariadb -u mangos -p $MYSQL_ROOT_PASSWORD logs < /opt/core/sql/migrations/logs_db_updates.sql
 
 echo "[VMaNGOS]: Upgrading mysql..."
 mariadb-upgrade -u mangos -p $MYSQL_ROOT_PASSWORD
