@@ -34,6 +34,8 @@ RUN \
 COPY  ./src/github_core /src/github_core
 
 CMD \
+  mkdir /vol/core/data && \
+  mkdir /vol/core/logs && \
   mkdir /src/github_core/build && \
   cd /src/github_core/build && \
   cmake \
@@ -47,7 +49,5 @@ CMD \
     -DCMAKE_INSTALL_PREFIX=/vol/core ../ && \
   make -j ${VMANGOS_THREADS} && \
   make install && \
-  mkdir /vol/core/data && \
-  mkdir /vol/core/logs && \
   cp /vol/core/etc/mangosd.conf.dist /vol/core/etc/mangosd.conf && \
   cp /vol/core/etc/realmd.conf.dist /vol/core/etc/realmd.conf
