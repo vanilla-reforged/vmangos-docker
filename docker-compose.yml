@@ -13,9 +13,8 @@ services:
     restart: unless-stopped
     command: --max_allowed_packet=32505856
     volumes:
-      - ./volume/backup:/backup
-      - ./volume/database:/opt/database
-      - ./volume/core/sql:/opt/core/sql
+      - ./vol/backup:/vol/backup
+      - ./vol/database:/var/lib/mysql
     environment:
       - TZ=${TZ}
       - VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE}
