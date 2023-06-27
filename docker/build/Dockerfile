@@ -25,8 +25,8 @@ RUN \
   ln -s /usr/bin/ccache /usr/local/bin/c++
 
 RUN \
-  mkdir -P /vol/ccache && \
-  mkdir -P /vol/core
+  mkdir -p /vol/ccache && \
+  mkdir -p /vol/core
 
 RUN \
   export ACE_ROOT=/usr/include/ace && \
