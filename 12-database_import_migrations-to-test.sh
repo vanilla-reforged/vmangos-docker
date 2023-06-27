@@ -4,10 +4,6 @@
 
 source .env
 
-#Date and Time Variable
-
-date_time=$(date "+%Y.%m.%d-%H.%M.%S")
-
 #Handle script call from other directory
 
 get_script_path() {
@@ -24,20 +20,20 @@ cd "$repository_path"
 
 echo "[VMaNGOS]: Copying database migrations to /vol/database..."
 
-cp -r ./src/github_core/sql/migrations/ ./vol/database/
-cp -r ./src/github_core/sql/migrations/ ./vol/database/
-cp -r ./src/github_core/sql/migrations/ ./vol/database/
-cp -r ./src/github_core/sql/migrations/ ./vol/database/
+cp -r ./src/github_core/sql/migrations/world_db_updates.sql ./vol/database/migrations/world_db_updates.sql
+cp -r ./src/github_core/sql/migrations/characters_db_updates.sql ./vol/database/migrations/characters_db_updates.sql
+cp -r ./src/github_core/sql/migrations/logon_db_updates.sql ./vol/database/migrations/logon_db_updates.sql
+cp -r ./src/github_core/sql/migrations/logs_db_updates.sql ./vol/database/migrations/logs_db_updates.sql
 
 echo "[VMaNGOS]: Importing migrations..."
 
 docker exec vmangos_database /bin/sh \
-  '[ -e /opt/core/sql/migrations/world_db_updates.sql ] mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos < /src/github_core/sql/migrations/"$date_time"_world_db_updates.sql'
+  '[ -e /vol/database/migrations/migrations/world_db_updates.sql ] mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos < /vol/database/migrations/world_db_updates.sql'
 docker exec vmangos_database /bin/sh \
-  '[ -e /opt/core/sql/migrations/characters_db_updates.sql ] mariadb -u mangos -p$MYSQL_ROOT_PASSWORD characters < /src/github_core/sql/migrations/"$date_time"_characters_db_updates.sql'
+  '[ -e /vol/database/migrations/characters_db_updates.sql ] mariadb -u mangos -p$MYSQL_ROOT_PASSWORD characters < /vol/database/migrations/characters_db_updates.sql'
 docker exec vmangos_database /bin/sh \ 
-  '[ -e /opt/core/sql/migrations/logon_db_updates.sql ] mariadb -u mangos -p$MYSQL_ROOT_PASSWORD realmd < /src/github_core/sql/migrations/"$date_time"_logon_db_updates.sql'
+  '[ -e /vol/database/migrations/logon_db_updates.sql ] mariadb -u mangos -p$MYSQL_ROOT_PASSWORD realmd < /vol/database/migrations/logon_db_updates.sql'
 docker exec vmangos_database /bin/sh \ 
-  '[ -e /opt/core/sql/migrations/logs_db_updates.sql ] mariadb -u mangos -p$MYSQL_ROOT_PASSWORD logs < /src/github_core/sql/migrations/"$date_time"_logs_db_updates.sql'
+  '[ -e /vol/database/migrations/logs_db_updates.sql ] mariadb -u mangos -p$MYSQL_ROOT_PASSWORD logs < /vol/database/migrations/logs_db_updates.sql'
 
 echo "[VMaNGOS]: Importing database updates..."
