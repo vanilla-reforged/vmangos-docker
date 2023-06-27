@@ -12,10 +12,13 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
+echo "[VMaNGOS]: Merging database migrations..."
 
 cd ./src/core/sql/migrations
 ./merge.sh
 cd "$repository_path"
+
+echo "[VMaNGOS]: Copying database migrations to /vol/database..."
 
 date_time=$(date "+%Y.%m.%d-%H.%M.%S")
 
