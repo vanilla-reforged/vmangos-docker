@@ -16,11 +16,11 @@ date_time=$(date "+%Y.%m.%d-%H.%M.%S")
 
 echo "[VMaNGOS]: Backing up databases..."
 
-docker exec -T vmangos_database sh -c \
+docker exec vmangos_database /bin/sh \
   'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD mangos > /backup/"$date_time"_mangos.sql'
-docker exec -T vmangos_database sh -c \
+docker exec vmangos_database /bin/sh \
   'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD characters > /backup/"$date_time"_characters.sql'
-docker exec -T vmangos_database sh -c \
+docker exec vmangos_database /bin/sh \
   'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD realmd > /backup/"$date_time"_realmd.sql'
 
 echo "[VMaNGOS]: Backup complete!"
