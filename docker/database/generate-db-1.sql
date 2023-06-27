@@ -14,12 +14,13 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+DECLARE 
 CREATE DATABASE IF NOT EXISTS realmd DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 CREATE DATABASE IF NOT EXISTS characters DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 CREATE DATABASE IF NOT EXISTS mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 CREATE DATABASE IF NOT EXISTS logs DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 CREATE USER 'mangos'@'localhost' IDENTIFIED BY 'mangos';
-SET PASSWORD FOR 'mangos'@'localhost' = PASSWORD('$MYSQL_ROOT_PASSWORD');
+SET PASSWORD FOR 'mangos'@'localhost' = PASSWORD('mangos');
 GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'%' IDENTIFIED BY 'mangos';
 FLUSH PRIVILEGES;
 GRANT ALL ON realmd.* TO mangos@'localhost' WITH GRANT OPTION;
