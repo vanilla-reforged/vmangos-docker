@@ -12,13 +12,15 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
-echo "[VMaNGOS]: Running client data extractors."
-echo "[VMaNGOS]: This will take a long time..."
+#Check if client data exists
 
  if [ ! -d "./src/client_data/data" ]; then
     echo "[VMaNGOS]: Client data missing, aborting extraction."
     exit 1
  fi
+
+echo "[VMaNGOS]: Running client data extractors."
+echo "[VMaNGOS]: This will take a long time..."
 
  docker build \
     --no-cache \
