@@ -4,6 +4,10 @@
 
 source .env
 
+#Date and Time Variable
+
+date_time=$(date "+%Y.%m.%d-%H.%M.%S")
+
 #Handle script call from other directory
 
 get_script_path() {
@@ -20,7 +24,7 @@ cd "$repository_path"
 
 echo "[VMaNGOS]: Copying database migrations to /vol/database..."
 
-date_time=$(date "+%Y.%m.%d-%H.%M.%S")
+
 
 echo "[VMaNGOS]: Importing migrations..."
 
