@@ -24,6 +24,7 @@ The Instructions below have been edited to reflect the changes to setting up and
 
 + [Docker][docker]
 + [Docker Compose][docker-compose]
++ 7z
 + A POSIX-compliant shell as well as various core utilities (such as `cp` and
   `rm`) if you intend to use the provided scripts to install, update and manage
   VMaNGOS
