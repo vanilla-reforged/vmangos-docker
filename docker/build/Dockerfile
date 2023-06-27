@@ -36,11 +36,8 @@ RUN \
 COPY  ./src/github_core/* /src/github_core/
 
 CMD \
-  cd /opt/core/sql/migrations && \
-  ./merge.sh && \
-  cp -r /opt/core/* /core &&\
-  mkdir /opt/core/build && \
-  cd /opt/core/build && \
+  mkdir /src/github_core/build && \
+  cd /src/github_core/build && \
   cmake \
     -DDEBUG=${VMANGOS_DEBUG} \
     -DUSE_STD_MALLOC=${VMANGOS_MALLOC} \
@@ -49,13 +46,8 @@ CMD \
     -DUSE_ANTICHEAT=${VMANGOS_ANTICHEAT} \
     -DSCRIPTS=${VMANGOS_SCRIPTS} \
     -DUSE_LIBCURL=${VMANGOS_LIBCURL} \
-    -DCMAKE_INSTALL_PREFIX=/opt/compiled_core ../ && \
+    -DCMAKE_INSTALL_PREFIX=/vol/core ../ && \
   make -j ${VMANGOS_THREADS} && \
   make install && \
-  make -j ${VMANGOS_THREADS} && \
-  make install && \
-  mkdir /opt/compiled_core/data && \
-  mkdir /opt/compiled_core/logs && \
-  cp -r /opt/compiled_core/* /compiled_core && \
-  cp -r /opt/database/* /database && \
-  cd /database && 7z e ${VMANGOS_WORLD_DATABASE}.7z
+  mkdir /vol/core/data && \
+  mkdir /vol/core/logs && \
