@@ -22,11 +22,6 @@ ARG VMANGOS_GROUP_ID
 RUN \
   mkdir -p /backup && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /backup && \
-  mkdir -p /opt/core && \
-  mkdir -p /opt/core/sql && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/core
-
-USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
 COPY ./docker/database/generate-db-1.sql /docker-entrypoint-initdb.d
 COPY ./docker/database/generate-db-2.sh /docker-entrypoint-initdb.d
