@@ -4,6 +4,10 @@
 
 source .env
 
+#Date and Time Variable
+
+date_time=$(date "+%Y.%m.%d-%H.%M.%S")
+
 #Handle script call from other directory
 
 get_script_path() {
@@ -11,8 +15,6 @@ get_script_path() {
 }
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
-
-date_time=$(date "+%Y.%m.%d-%H.%M.%S")
 
 echo "[VMaNGOS]: Backing up databases..."
 
