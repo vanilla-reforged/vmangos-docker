@@ -32,7 +32,7 @@ RUN \
   export ACE_ROOT=/usr/include/ace && \
   export TBB_ROOT_DIR=/usr/include/tbb
 
-COPY  ./src/github_core/* /src/github_core/
+COPY  ./src/github_core /src/github_core
 
 CMD \
   mkdir /src/github_core/build && \
