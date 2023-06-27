@@ -14,7 +14,7 @@ cd "$repository_path"
 
 #Check if client data exists
 
- if [ ! -d "./src/client_data/data" ]; then
+ if [ ! -d "./src/client_data/Data" ]; then
     echo "[VMaNGOS]: Client data missing, aborting extraction."
     exit 1
  fi
