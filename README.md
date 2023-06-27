@@ -10,11 +10,11 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 
 This is an attempt to make an (for me) easier to understand and set up VMANGOS environment for Docker. Feel free to use it or contribute.
 
-### ToDO
+### ATM ToDo
 
 - get generate-db-1.sql to use the env variable for setting the db pw (has to be edited manually atm)
 
-# What's different compared to Michael Serajnik @ repository https://sr.ht/~mser/vmangos-docker/
+### What's different compared to Michael Serajnik @ repository https://sr.ht/~mser/vmangos-docker/
 
 - All variables can now be given in the .env file of the root directory.
 - ./src directory contains dependencies, which are copied into the containers at build.
