@@ -21,6 +21,6 @@ COPY ./src/extractors/MoveMapGen /src/extractors/MoveMapGen
 
 RUN chmod +x /src/extractors
 
-WORKDIR /client_data
+WORKDIR /src/client_data
 
 CMD
