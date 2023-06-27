@@ -48,4 +48,6 @@ CMD \
   make -j ${VMANGOS_THREADS} && \
   make install && \
   mkdir /vol/core/data && \
-  mkdir /vol/core/logs
+  mkdir /vol/core/logs && \
+  cp /vol/core/etc/mangosd.conf.dist /vol/core/etc/mangosd.conf && \
+  cp /vol/core/etc/realmd.conf.dist /vol/core/etc/realmd.conf
