@@ -17,8 +17,8 @@ This is an attempt to make an (for me) easier to understand and set up VMANGOS e
 ### Whats different
 
 - All variables can now be given in the .env file of the root directory.
-- /src/ directory contains dependencies, which are copied into the containers at build.
-- /vol/ directory contains volumes, mounted when the containers are running.
+- ./src directory contains dependencies, which are copied into the containers at build.
+- ./vol directory contains volumes, mounted when the containers are running.
 - Directory paths for volumes are similar in host and container, where apps don't expect a specific path within the container.
 - Non-persistent containers run with root.
 - Scripts starting with 0X are meant for setup.
