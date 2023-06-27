@@ -24,7 +24,7 @@ RUN \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /backup && \
   mkdir -p /opt/core && \
   mkdir -p /opt/core/sql && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /core
+  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/core
 
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
