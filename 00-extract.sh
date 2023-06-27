@@ -12,68 +12,58 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
-echo "[VMaNGOS]: Stopping potentially running containers..."
-
-docker-compose down
-
-echo "[VMaNGOS]: Removing old files..."
-
-rm -rf ./volumes/ccache/*
-
 echo "[VMaNGOS]: Running client data extractors."
 echo "[VMaNGOS]: This will take a long time..."
 
- if [ ! -d "./volume/client_data/Data" ]; then
+ if [ ! -d "./src/client_data/data" ]; then
     echo "[VMaNGOS]: Client data missing, aborting extraction."
     exit 1
  fi
 
  docker build \
     --no-cache \
-    --build-arg VMANGOS_USER_ID=$VMANGOS_USER_ID \
-    --build-arg VMANGOS_GROUP_ID=$VMANGOS_GROUP_ID \
     -t vmangos_extractors \
     -f ./docker/extractors/Dockerfile .
 
   docker run \
-    -v "$repository_path/volume/client_data:/client_data" \
+    -v "$repository_path/src/client_data:/src/client_data" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /opt/extract/bin/mapextractor
+    /core/bin/mapextractor
 
   docker run \
-    -v "$repository_path/volume/client_data:/client_data" \
+    -v "$repository_path/src/client_data:/src/client_data" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /opt/extract/bin/vmapextractor
+    /core/bin/vmapextractor
 
   docker run \
-    -v "$repository_path/volume/client_data:/client_data" \
+    -v "$repository_path/src/client_data:/src/client_data" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /opt/extract/bin/vmap_assembler
+    /core/bin/vmap_assembler
 
   docker run \
-    -v "$repository_path/volume/client_data:/client_data" \
-    -v "$repository_path/volume/compiled_core/contrib/mmap:/mmap_contrib" \
+    -v "$repository_path/src/client_data:/src/client_data" \
+    -v "$repository_path/vol/core/contrib/mmap:/vol/core/contrib/mmap" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /opt/extract/bin/MoveMapGen --offMeshInput /mmap_contrib/offmesh.txt
+    /core/bin/MoveMapGen --offMeshInput /vol/core/contrib/mmap/offmesh.txt
 
   # This data isn't used. delete it to avoid confusion
-  rm -rf ./volume/client_data/Buildings
+  rm -rf ./src/client_data/Buildings
 
   # Remove potentially existing partial data
-  # rm -rf ./volume/data/*
-  # mkdir -p "./volume/data/$VMANGOS_CLIENT_VERSION"
+  # rm -rf ./vol/server_data/data/*
+  # mkdir -p "./vol/server_data/data/$VMANGOS_CLIENT_VERSION"
 
-  mv ./volume/client_data/dbc "./volume/client_data_extracted/data/$VMANGOS_CLIENT_VERSION/"
-  mv ./volume/client_data/maps ./volume/client_data_extracted/data/
-  mv ./volume/client_data/mmaps ./volume/client_data_extracted/data/
-  mv ./volume/client_data/vmaps ./volume/client_data_extracted/data/
+  mv ./src/client_data/dbc "./vol/server_data/data/$VMANGOS_CLIENT_VERSION/"
+  mv ./src/client_data/maps ./vol/server_data/data/
+  mv ./src/client_data/mmaps ./vol/server_data/data/
+  mv ./src/client_data/vmaps ./vol/server_data/data/
 
 echo "[VMaNGOS]: Client data extraction complete!"
