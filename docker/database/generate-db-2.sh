@@ -28,7 +28,7 @@ echo "[VMaNGOS]: Importing characters..."
 mariadb -u mangos -p$MYSQL_ROOT_PASSWORD characters < /opt/core/sql/characters.sql
 
 echo "[VMaNGOS]: Importing world..."
-mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos < /opt/database/$VMANGOS_WORLD.sql
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos < /opt/database/$VMANGOS_WORLD_DATABASE.sql
 
 echo "[VMaNGOS]: Importing database updates..."
 [ -e /opt/core/sql/migrations/world_db_updates.sql ]
