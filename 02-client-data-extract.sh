@@ -61,9 +61,9 @@ echo "[VMaNGOS]: This will take a long time..."
   # rm -rf ./vol/server_data/data/*
   # mkdir -p "./vol/server_data/data/$VMANGOS_CLIENT_VERSION"
 
-  mv ./src/client_data/dbc "./vol/server_data/data/$VMANGOS_CLIENT_VERSION/"
-  mv ./src/client_data/maps ./vol/server_data/data/
-  mv ./src/client_data/mmaps ./vol/server_data/data/
-  mv ./src/client_data/vmaps ./vol/server_data/data/
+  mv ./src/client_data/dbc "./vol/server_data/$VMANGOS_CLIENT_VERSION/"
+  mv ./src/client_data/maps ./vol/server_data/
+  mv ./src/client_data/mmaps ./vol/server_data/
+  mv ./src/client_data/vmaps ./vol/server_data/
 
 echo "[VMaNGOS]: Client data extraction complete!"
