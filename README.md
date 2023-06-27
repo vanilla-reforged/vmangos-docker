@@ -117,17 +117,7 @@ user@local:vmangos-docker$ docker-compose down
 
 ### Creating a database backup - TODO
 
-### Extracting client data
-
-If at any point after the initial installation you need to re-extract the
-client data, you can do so by running the following script:
-
-```sh
-user@local:vmangos-docker$ ./00-extract-client.sh
-```
-
-Note that this will also remove any existing data in `./volume/client_data_extracted`, so make sure
-to create a backup of that in case you want to save it.
+### Extracting client data - TODO
 
 ## License
 
