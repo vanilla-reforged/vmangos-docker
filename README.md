@@ -17,6 +17,9 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 - /vol/ directory contains volumes mounted when the containers are running.
 - Mapping directory path similar in host and container where apps don't expect a specific path.
 - Non persistent containers (build, extractors) run with root.
+- Scripts starting with 0X are meant for setup.
+- Scripts starting with 1X are meant for rare update tasks.
+- Scripts starting with 2X are meant for backup / maintenance task and are intended to be run as cron jobs.
 
 The Instructions below have been edited to reflect the changes to setting up and using the project.
 
