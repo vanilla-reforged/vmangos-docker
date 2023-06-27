@@ -52,7 +52,7 @@ echo "[VMaNGOS]: This will take a long time..."
     --user=root \
     --rm \
     vmangos_extractors \
-    /core/bin/MoveMapGen --offMeshInput /vol/core/contrib/mmap/offmesh.txt
+    /vol/core/bin/MoveMapGen --offMeshInput /vol/core/contrib/mmap/offmesh.txt
 
   # This data isn't used. delete it to avoid confusion
   rm -rf ./src/client_data/Buildings
