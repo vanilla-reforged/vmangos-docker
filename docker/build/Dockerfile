@@ -1,25 +1,6 @@
-# vmangos-docker
-# Based on Michael Serajnik's work https://sr.ht/~mser/
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-
-ARG VMANGOS_GIT_SOURCE_CORE_URL
-ARG VMANGOS_GIT_SOURCE_DATABASE_URL
 
 RUN \
   apt-get update -y && \
@@ -48,12 +29,9 @@ RUN \
   export TBB_ROOT_DIR=/usr/include/tbb
 
 RUN \
-  mkdir -p /opt/core && \
-  mkdir -p /opt/compiled_core && \
-  mkdir -p /core && \
-  mkdir -p /compiled_core && \
-  mkdir -p /ccache && \
-  mkdir -p /database
+  mkdir -p /src/github_core && \
+  mkdir -p /vol/ccache && \
+  mkdir -p /vol/core
 
 RUN \
   git clone ${VMANGOS_GIT_SOURCE_CORE_URL} /opt/core && \
