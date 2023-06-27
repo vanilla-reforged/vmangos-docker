@@ -28,11 +28,6 @@ RUN \
   export ACE_ROOT=/usr/include/ace && \
   export TBB_ROOT_DIR=/usr/include/tbb
 
-RUN \
-  mkdir -p /src/github_core && \
-  mkdir -p /vol/ccache && \
-  mkdir -p /vol/core
-
 COPY  ./src/github_core/* /src/github_core/
 
 CMD \
