@@ -19,6 +19,13 @@ cd "$repository_path"
     exit 1
  fi
 
+#Copy extractors from /vol/core to /src/extractors
+
+cp ./vol/core/bin/mapextractor ./src/extractors/
+cp ./vol/core/bin/vmapextractor ./src/extractors/
+cp ./vol/core/bin/vmap_assembler ./src/extractors/
+cp ./vol/core/bin/MoveMapGen ./src/extractors/
+
 echo "[VMaNGOS]: Running client data extractors."
 echo "[VMaNGOS]: This will take a long time..."
 
@@ -32,21 +39,21 @@ echo "[VMaNGOS]: This will take a long time..."
     --user=root \
     --rm \
     vmangos_extractors \
-    /core/bin/mapextractor
+    /vol/core/bin/mapextractor
 
   docker run \
     -v "$repository_path/src/client_data:/src/client_data" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /core/bin/vmapextractor
+    /vol/core/bin/vmapextractor
 
   docker run \
     -v "$repository_path/src/client_data:/src/client_data" \
     --user=root \
     --rm \
     vmangos_extractors \
-    /core/bin/vmap_assembler
+    /vol/core/bin/vmap_assembler
 
   docker run \
     -v "$repository_path/src/client_data:/src/client_data" \
