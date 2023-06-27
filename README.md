@@ -6,10 +6,9 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 
 # vmangos-docker
 
-### Whats different
+### ToDO
 
-- Split .env files up and only give it to the container that needs the specified envs.
-- 
+- get generate-db-1.sql to use the env variable for setting the db pw (has to be edited manually atm)
 
 ### Whats different
 
