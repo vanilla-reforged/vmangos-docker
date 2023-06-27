@@ -15,7 +15,7 @@ cd "$repository_path"
 echo "[VMaNGOS]: Extracting VMaNGOS world database..."
 
 cd /src/github_database
-7z e ${VMANGOS_WORLD_DATABASE}.7z
+7z e $VMANGOS_WORLD_DATABASE.7z
 
 echo "[VMaNGOS]: Merging VMaNGOS core migrations..."
 
