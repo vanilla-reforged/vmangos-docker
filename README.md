@@ -14,7 +14,7 @@ This is an attempt to make an (for me) easier to understand and set up VMANGOS e
 
 - get generate-db-1.sql to use the env variable for setting the db pw (has to be edited manually atm)
 
-### What's different compared to Michael Serajnik @ repository https://sr.ht/~mser/vmangos-docker/
+### What's different compared to Michael Serajnik vmangos for docker (@repository https://sr.ht/~mser/vmangos-docker/)
 
 - All variables can now be given in the .env file of the root directory.
 - ./src directory contains dependencies, which are copied into the containers at build.
