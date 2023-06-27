@@ -33,9 +33,7 @@ RUN \
   mkdir -p /vol/ccache && \
   mkdir -p /vol/core
 
-RUN \
-  git clone ${VMANGOS_GIT_SOURCE_CORE_URL} /opt/core && \
-  git clone ${VMANGOS_GIT_SOURCE_DATABASE_URL} /opt/database
+COPY  ./src/github_core/* /src/github_core/
 
 CMD \
   cd /opt/core/sql/migrations && \
