@@ -45,4 +45,4 @@ CMD \
   make -j ${VMANGOS_THREADS} && \
   make install && \
   mkdir /vol/core/data && \
-  mkdir /vol/core/logs && \
+  mkdir /vol/core/logs
