@@ -13,8 +13,8 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 ### Whats different
 
 - All variables can now be given in the .env file of the root directory.
-- Src directory contains dependencies which are copied into the containers at build.
-- Vol directory contains volumes mounted when the containers are running.
+- /src/ directory contains dependencies which are copied into the containers at build.
+- /vol/ directory contains volumes mounted when the containers are running.
 - Mapping directory path similar in host and container where apps don't expect a specific path.
 - Non persistent containers (build, extractors) run with root.
 
@@ -32,7 +32,7 @@ The Instructions below have been edited to reflect the changes to setting up and
 ### Preface
 
 This assumed client version is `5875` (patch `1.12.1`); if you want to set up
-VMaNGOS to use a different version, modify the VMANGOS_CLIENT_VERSION entry in the .env file accordingly.
+VMaNGOS to use a different version, modify the VMANGOS_CLIENT entry in the .env file accordingly.
 
 The user that is used inside the persistent containers (VMANGOS_DATABASE, VMANGOS_REALMD, VMANGOS_MANGOS) has UID `1000` and GID `1000` by
 default. You can adjust this, if needed; e.g., to match your host UID/GID.
@@ -57,13 +57,18 @@ for the `vmangos_database` service in `./docker-compose.yml`. Simply replace
 accessible over the Internet).
 
 VMaNGOS also requires some data generated/extracted from the client to work
-correctly. To generate that data automatically during the installation, copy
+correctly. To generate that data with the provided shellscript, copy
 the contents of your World of Warcraft client directory into
 `./src/client_data`.
 
-Alternatively if you have already extracted the client data you may place it directly in /vol/server_data.
+Note that generating the required data will take many hours (depending on your
+hardware). Some notices/errors during the generation are normal and nothing to
+worry about.
 
-Do the installation execute the scripts in order from 01 to 04.
+Alternatively if you have already extracted the client data you may place it directly
+in /vol/server_data and skip the "03-extract-client-data.sh" script.
+
+To do the installation execute the scripts in order from 01 to 04.
 
 ```sh
 user@local:vmangos-docker$ .\01-clone-github.sh
@@ -71,14 +76,6 @@ user@local:vmangos-docker$ .\02-compile-core.sh
 user@local:vmangos-docker$ .\03-extract-client-data.sh
 user@local:vmangos-docker$ .\04-build-db-container.sh
 ```
-
-Note that generating the required data will take many hours (depending on your
-hardware). Some notices/errors during the generation are normal and nothing to
-worry about.
-
-Alternatively, if you have acquired the extracted/generated data previously,
-you can place it directly into `./volume/client_data_extracted`, in which case the installer will
-skip extracting/generating the data.
 
 After the installer has finished, you should have a running installation and
 can create your first account by attaching to the `vmangos_mangos` service:
