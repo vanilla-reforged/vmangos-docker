@@ -2,8 +2,6 @@ version: "3.7"
 services:
   vmangos_database:
     container_name: vmangos_database
-#    ports:
-#      - 3306:3306
     build:
       context: .
       args: 
@@ -12,6 +10,8 @@ services:
         - VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE}
       dockerfile: docker/database/Dockerfile
     restart: unless-stopped
+#    ports:
+#      - 3306:3306
     command: --max_allowed_packet=32505856
     volumes:
       - ./vol/backup:/vol/backup
