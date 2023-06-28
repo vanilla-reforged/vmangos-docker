@@ -30,6 +30,7 @@ echo "[VMaNGOS]: Building VMaNGOS database container image..."
 
 docker build \
   --build-arg DEBIAN_FRONTEND=noninteractive \
+  --builod-arg VMANGOS_WORLD_DATABASE=$VMANGOS_WORLD_DATABASE \
   --no-cache \
   -t vmangos_build \
   -f ./docker/database/Dockerfile .
