@@ -20,3 +20,5 @@ COPY ./src/github_core/sql/migrations/logs_db_updates.sql /src/github_core/sql/m
 COPY ./docker/database/generate-db-1.sql /docker-entrypoint-initdb.d
 COPY ./docker/database/generate-db-2.sh /docker-entrypoint-initdb.d
 COPY ./docker/database/regenerate-world-db.sql /sql/regenerate-world-db.sql
+
+RUN chmod +x /docker-entrypoint-initdb.d/generate-db-2.s
