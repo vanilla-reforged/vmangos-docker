@@ -9,6 +9,7 @@ services:
       args: 
         - VMANGOS_USER_ID=${VMANGOS_USER_ID}
         - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
+        - VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE}
       dockerfile: docker/database/Dockerfile
     restart: unless-stopped
     command: --max_allowed_packet=32505856
