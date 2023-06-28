@@ -22,6 +22,7 @@ echo "[VMaNGOS]: Merging VMaNGOS core migrations..."
 
 cd ./src/github_core/sql/migrations
 ./merge.sh
+cd "$repository_path"
 
 echo "[VMaNGOS]: Building VMaNGOS database container image..."
 
