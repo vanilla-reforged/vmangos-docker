@@ -34,7 +34,7 @@ RUN \
   mkdir -p /opt/vmangos && \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/vmangos
 
-COPY ./volume/compiled_core/bin/realmd /opt/vmangos/bin/realmd
+COPY ./vol/core/bin/realmd /opt/vmangos/bin/realmd
 RUN chmod +x /opt/vmangos/bin
 
 ADD \
