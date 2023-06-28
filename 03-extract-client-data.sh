@@ -67,10 +67,10 @@ echo "[VMaNGOS]: This will take a long time..."
   rm -rf ./src/client_data/Buildings
 
   # Remove potentially existing partial data
-  # rm -rf ./vol/server_data/*
-  # mkdir -p "./vol/server_data/$VMANGOS_CLIENT_VERSION"
+  rm -rf ./vol/server_data/*
+  mkdir -p "./vol/server_data/$VMANGOS_CLIENT"
 
-  mv ./src/client_data/dbc "./vol/server_data/$VMANGOS_CLIENT_VERSION/"
+  mv ./src/client_data/dbc "./vol/server_data/$VMANGOS_CLIENT/"
   mv ./src/client_data/maps ./vol/server_data/
   mv ./src/client_data/mmaps ./vol/server_data/
   mv ./src/client_data/vmaps ./vol/server_data/
