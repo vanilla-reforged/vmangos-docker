@@ -14,12 +14,13 @@ cd "$repository_path"
 
 echo "[VMaNGOS]: Extracting VMaNGOS world database..."
 
-cd /src/github_database
+cd ./src/github_database
 7z e $VMANGOS_WORLD_DATABASE.7z
+cd "$repository_path"
 
 echo "[VMaNGOS]: Merging VMaNGOS core migrations..."
 
-cd /src/github_core/sql/migrations
+cd ./src/github_core/sql/migrations
 ./merge.sh
 
 echo "[VMaNGOS]: Building VMaNGOS database container image..."
