@@ -4,7 +4,7 @@ ARG VMANGOS_USER_ID
 ARG VMANGOS_GROUP_ID
 ARG VMANGOS_WORLD_DATABASE
 
-RUN mkdir -p  /vol/backup 
+RUN mkdir -p /vol/backup 
 
 COPY ./src/github_database/${VMANGOS_WORLD_DATABASE}.sql /src/github_database/${VMANGOS_WORLD_DATABASE}.sql
      
