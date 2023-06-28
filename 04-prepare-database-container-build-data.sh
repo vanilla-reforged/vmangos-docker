@@ -24,15 +24,4 @@ cd ./src/github_core/sql/migrations
 ./merge.sh
 cd "$repository_path"
 
-echo "[VMaNGOS]: Building VMaNGOS database container image..."
-
-#Build db image
-
-docker build \
-  --build-arg DEBIAN_FRONTEND=noninteractive \
-  --builod-arg VMANGOS_WORLD_DATABASE=$VMANGOS_WORLD_DATABASE \
-  --no-cache \
-  -t vmangos_build \
-  -f ./docker/database/Dockerfile .
-
-echo "[VMaNGOS]: VMaNGOS database container image built!"
+echo "[VMaNGOS]: VMaNGOS data prepared."
