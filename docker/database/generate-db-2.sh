@@ -14,7 +14,7 @@ mariadb -u mangos -p$MYSQL_ROOT_PASSWORD logs < /src/github_core/sql/logs.sql
 echo "[VMaNGOS]: Importing characters..."
 mariadb -u mangos -p$MYSQL_ROOT_PASSWORD characters < /src/github_core/sql/characters.sql
 
-echo "[VMaNGOS]: Importing database updates..."
+echo "[VMaNGOS]: Importing migrations..."
 mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos < /src/github_core/sql/migrations/world_db_updates.sql
 mariadb -u mangos -p$MYSQL_ROOT_PASSWORD characters < /src/github_core/sql/migrations/characters_db_updates.sql
 mariadb -u mangos -p$MYSQL_ROOT_PASSWORD realmd < /src/github_core/sql/migrations/logon_db_updates.sql
