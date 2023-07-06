@@ -12,6 +12,9 @@ RUN \
     openssl \
     zlib1g-dev
 
+RUN mkdir -p /vol/core
+RUN mkdir -p /vol/client_data
+
 RUN chmod +x /vol/core
 
 WORKDIR /vol/client_data
