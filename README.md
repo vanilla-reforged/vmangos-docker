@@ -8,7 +8,11 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 
 ### What is the idea
 
-This is an attempt to make an (for me, maybe for you as well) easier to understand and set up VMANGOS environment for Docker. Feel free to use it or contribute.
+This is an attempt to make an (for me, maybe for you as well) easier to understand and set up VMANGOS environment for Docker, including a container running YesilCMS. Feel free to use it or contribute.
+
+### ToDO
+
+- YesilCMS container
 
 ### What's different compared to Michael Serajnik vmangos for docker (@repository https://sr.ht/~mser/vmangos-docker/)
 
