@@ -25,19 +25,18 @@ RUN \
 
 RUN \
   mkdir -p /vol/ccache && \
-  mkdir -p /vol/core
+  mkdir -p /vol/core && \
+  mkdir -p /vol/core_github
 
 RUN \
   export ACE_ROOT=/usr/include/ace && \
   export TBB_ROOT_DIR=/usr/include/tbb
 
-COPY  ./src/github_core /src/github_core
-
 CMD \
   mkdir /vol/core/data && \
   mkdir /vol/core/logs && \
-  mkdir /src/github_core/build && \
-  cd /src/github_core/build && \
+  mkdir /vol/core_github/build && \
+  cd /vol/core_github/build && \
   cmake \
     -DDEBUG=${VMANGOS_DEBUG} \
     -DUSE_STD_MALLOC=${VMANGOS_MALLOC} \
