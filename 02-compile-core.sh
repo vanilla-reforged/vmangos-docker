@@ -27,6 +27,7 @@ docker build \
 docker run \
   -v "$repository_path/vol/ccache:/vol/ccache" \
   -v "$repository_path/vol/core:/vol/core" \
+  -v "$repository_path/vol/core_github:/vol/core_github" \
   -e CCACHE_DIR=$CCACHE_DIR \
   -e VMANGOS_ANTICHEAT=$VMANGOS_ANTICHEAT \
   -e VMANGOS_CLIENT=$VMANGOS_CLIENT \
