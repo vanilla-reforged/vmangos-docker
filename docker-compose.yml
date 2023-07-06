@@ -15,6 +15,7 @@ services:
     command: --max_allowed_packet=32505856
     volumes:
       - ./vol/backup:/vol/backup
+      - ./vol/core_github:/vol/core_github
       - ./vol/database:/var/lib/mysql
     environment:
       - TZ=${TZ}
