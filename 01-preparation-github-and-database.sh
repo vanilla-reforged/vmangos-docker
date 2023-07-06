@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# get variables defined in .env
+# Get variables defined in .env
 
 source .env
 
