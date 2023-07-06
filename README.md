@@ -43,6 +43,8 @@ The user that is used inside the persistent containers (VMANGOS_DATABASE, VMANGO
 default. You can adjust this, if needed; e.g., to match your host UID/GID.
 This requires editing the entries VMANGOS_USER_ID and VMANGOS_GROUP_ID in the .env file.
 
+Also please be aware that ./vol/client_data_extracted gets mounted directly into the mangos server to provide dbc and map data.
+
 ### Instructions
 
 First, clone the repository and move into it.
