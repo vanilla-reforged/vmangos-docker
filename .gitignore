@@ -1,5 +1,4 @@
 /vol/*
-/src/*
 /.env
 *.bak
 !/**/.gitkeep
