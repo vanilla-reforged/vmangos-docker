@@ -80,3 +80,24 @@ services:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
+
+#  vmangos_yesilcms:
+#    container_name: vmangos_yesilcms
+#    tty: true
+#    stdin_open: true
+#    ports:
+#      - 443:443
+#    build:
+#      context: .
+#      args: 
+#        - VMANGOS_USER_ID=${VMANGOS_USER_ID}
+#        - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
+#      dockerfile: docker/yesilcms/Dockerfile
+#    depends_on:
+#      - vmangos_database
+#    restart: unless-stopped
+#    volumes:
+#    environment:
+#      - TZ=${TZ}
+#      - WAIT_HOSTS=vmangos_database:3306
+#      - WAIT_TIMEOUT=120
