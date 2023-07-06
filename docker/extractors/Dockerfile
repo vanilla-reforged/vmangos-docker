@@ -14,13 +14,6 @@ RUN \
 
 RUN mkdir -p /vol/core/contrib/mmap
 
-COPY ./src/extractors/mapextractor /src/extractors/mapextractor
-COPY ./src/extractors/vmapextractor /src/extractors/vmapextractor
-COPY ./src/extractors/vmap_assembler /src/extractors/vmap_assembler
-COPY ./src/extractors/MoveMapGen /src/extractors/MoveMapGen
+RUN chmod +x /vol/extractors
 
-RUN chmod +x /src/extractors
-
-WORKDIR /src/client_data
-
-CMD
+WORKDIR /vol/client_data
