@@ -33,7 +33,6 @@ cd ./vol/core_github/sql/migrations
 ./merge.sh
 cd "$repository_path"
 
-echo "[VMaNGOS]: VMaNGOS data prepared."
 echo "[VMaNGOS]: Recreating world database..."
 docker exec vmangos_database /bin/bash 'mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos DROP DATABASE mangos;'
 docker exec vmangos_database /bin/bash 'mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos CREATE DATABASE mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;'
