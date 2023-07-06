@@ -33,8 +33,6 @@ RUN \
   export TBB_ROOT_DIR=/usr/include/tbb
 
 CMD \
-  mkdir /vol/core/data && \
-  mkdir /vol/core/logs && \
   mkdir /vol/core_github/build && \
   cd /vol/core_github/build && \
   cmake \
