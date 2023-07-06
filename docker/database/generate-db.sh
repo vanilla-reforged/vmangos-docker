@@ -11,13 +11,13 @@ mariadb -u mangos mangos CREATE USER 'mangos'@'localhost' IDENTIFIED BY '$MYSQL_
 mariadb -u mangos mangos SET PASSWORD FOR 'mangos'@'localhost' = PASSWORD('$MYSQL_ROOT_PASSWORD');
 
 echo "[VMaNGOS]: Granting privileges for user..."
-mariadb -u mangos mangos GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'%' IDENTIFIED BY 'mangos';
-mariadb -u mangos mangos FLUSH PRIVILEGES;
-mariadb -u mangos mangos GRANT ALL ON realmd.* TO mangos@'localhost' WITH GRANT OPTION;
-mariadb -u mangos mangos GRANT ALL ON characters.* TO mangos@'localhost' WITH GRANT OPTION;
-mariadb -u mangos mangos GRANT ALL ON mangos.* TO mangos@'localhost' WITH GRANT OPTION;
-mariadb -u mangos mangos GRANT ALL ON logs.* TO mangos@'localhost' WITH GRANT OPTION;
-mariadb -u mangos mangos FLUSH PRIVILEGES;
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos FLUSH PRIVILEGES;
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos GRANT ALL ON realmd.* TO mangos@'localhost' WITH GRANT OPTION;
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos GRANT ALL ON characters.* TO mangos@'localhost' WITH GRANT OPTION;
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos GRANT ALL ON mangos.* TO mangos@'localhost' WITH GRANT OPTION;
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos GRANT ALL ON logs.* TO mangos@'localhost' WITH GRANT OPTION;
+mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos FLUSH PRIVILEGES;
 
 echo "[VMaNGOS]: Importing databases..."
 echo "[VMaNGOS]: Importing world..."
