@@ -25,3 +25,36 @@ echo "[VMaNGOS]: Merging VMaNGOS core migrations..."
 cd ./vol/core_github/sql/migrations
 ./merge.sh
 cd "$repository_path"
+
+echo "[VMaNGOS]: Shutting down environment..."
+docker-compose down
+
+echo "[VMaNGOS]: Building compiler image..."
+docker build \
+  --build-arg DEBIAN_FRONTEND=noninteractive \
+  --no-cache \
+  -t vmangos_build \
+  -f ./docker/build/Dockerfile .
+
+echo "[VMaNGOS]: Compiling VMaNGOS..."
+docker run \
+  -v "$repository_path/vol/ccache:/vol/ccache" \
+  -v "$repository_path/vol/core:/vol/core" \
+  -v "$repository_path/vol/core_github:/vol/core_github" \
+  -e CCACHE_DIR=$CCACHE_DIR \
+  -e VMANGOS_ANTICHEAT=$VMANGOS_ANTICHEAT \
+  -e VMANGOS_CLIENT=$VMANGOS_CLIENT \
+  -e VMANGOS_DEBUG=$VMANGOS_DEBUG \
+  -e VMANGOS_EXTRACTORS=$VMANGOS_EXTRACTORS \
+  -e VMANGOS_LIBCURL=$VMANGOS_LIBCURL \
+  -e VMANGOS_MALLOC=$VMANGOS_MALLOC \
+  -e VMANGOS_SCRIPTS=$VMANGOS_SCRIPTS \
+  -e VMANGOS_THREADS=$VMANGOS_THREADS \
+  -e VMANGOS_WORLD_DATABASE=$VMANGOS_WORLD_DATABASE \
+  --rm \
+  vmangos_build
+
+echo "[VMaNGOS]: Compiling complete!"
+
+echo "[VMaNGOS]: Starting up environment..."
+docker-compose up -d
