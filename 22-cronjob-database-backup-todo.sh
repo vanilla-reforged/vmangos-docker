@@ -19,8 +19,6 @@ cd "$repository_path"
 echo "[VMaNGOS]: Backing up databases..."
 
 docker exec vmangos_database /bin/sh \
-  'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD --single-transaction mangos > /backup/"$date_time"_mangos.sql'
-docker exec vmangos_database /bin/sh \
   'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD --single-transaction characters > /backup/"$date_time"_characters.sql'
 docker exec vmangos_database /bin/sh \
   'mariadb-dump -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD --single-transaction realmd > /backup/"$date_time"_realmd.sql'
