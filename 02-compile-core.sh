@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#Get variables defined in .env
+# Get variables defined in .env
 
 source .env
 
-#Handle script call from other directory
+# Handle script call from other directory
 
 get_script_path() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
@@ -12,18 +12,16 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
-echo "[VMaNGOS]: Compiling VMaNGOS..."
+# Start
 
-#Build compiler image
-
+echo "[VMaNGOS]: Building compiler image..."
 docker build \
   --build-arg DEBIAN_FRONTEND=noninteractive \
   --no-cache \
   -t vmangos_build \
   -f ./docker/build/Dockerfile .
 
-#Run compiler image
-
+echo "[VMaNGOS]: Compiling VMaNGOS..."
 docker run \
   -v "$repository_path/vol/ccache:/vol/ccache" \
   -v "$repository_path/vol/core:/vol/core" \
