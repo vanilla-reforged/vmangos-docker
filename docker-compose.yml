@@ -70,10 +70,10 @@ services:
     restart: unless-stopped
     volumes:
       - ./vol/configuration/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro
-      - ./vol/server_data/${VMANGOS_CLIENT}:/opt/vmangos/bin/${VMANGOS_CLIENT}:ro
-      - ./vol/server_data/maps:/opt/vmangos/bin/maps:ro
-      - ./vol/server_data/mmaps:/opt/vmangos/bin/mmaps:ro
-      - ./vol/server_data/vmaps:/opt/vmangos/bin/vmaps:ro
+      - ./vol/client_data_extracted/${VMANGOS_CLIENT}:/opt/vmangos/bin/${VMANGOS_CLIENT}:ro
+      - ./vol/client_data_extracted/maps:/opt/vmangos/bin/maps:ro
+      - ./vol/client_data_extracted/mmaps:/opt/vmangos/bin/mmaps:ro
+      - ./vol/client_data_extracted/vmaps:/opt/vmangos/bin/vmaps:ro
     environment:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos_database:3306
