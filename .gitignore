@@ -1,4 +1,4 @@
-/vol/*
-/.env
+./vol/*
+./.env
 *.bak
 !/**/.gitkeep
