@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "[YesilCMS]: Creating database..."
-mariadb -u mangos mangos CREATE DATABASE [cms_db];;
+mariadb CREATE DATABASE [cms_db];;
 
 echo "[YesilCMS]: Creating user..."
 CREATE USER '[cms_user]'@'[host]' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD_YESILCMS';
