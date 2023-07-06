@@ -1,19 +1,3 @@
-# vmangos-docker
-# Based on Michael Serajnik's work https://sr.ht/~mser/
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -35,11 +19,13 @@ RUN \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/vmangos
 
 COPY ./vol/core/bin/mangosd /opt/vmangos/bin/mangosd
+
 RUN chmod +x /opt/vmangos/bin
 
 ADD \
   https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait \
   /opt/wait
+
 RUN chmod +x /opt/wait
 
 WORKDIR /opt/vmangos/bin
