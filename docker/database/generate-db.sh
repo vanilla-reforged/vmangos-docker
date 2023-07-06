@@ -1,5 +1,27 @@
 #!/bin/bash
 
+echo "[VMaNGOS]: Creating databases..."
+
+CREATE DATABASE IF NOT EXISTS realmd DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+CREATE DATABASE IF NOT EXISTS characters DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+CREATE DATABASE IF NOT EXISTS mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+CREATE DATABASE IF NOT EXISTS logs DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+
+echo "[VMaNGOS]: Creating user..."
+
+CREATE USER 'mangos'@'localhost' IDENTIFIED BY 'mangos';
+SET PASSWORD FOR 'mangos'@'localhost' = PASSWORD('mangos');
+
+echo "[VMaNGOS]: Granting privileges for user..."
+
+GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'%' IDENTIFIED BY 'mangos';
+FLUSH PRIVILEGES;
+GRANT ALL ON realmd.* TO mangos@'localhost' WITH GRANT OPTION;
+GRANT ALL ON characters.* TO mangos@'localhost' WITH GRANT OPTION;
+GRANT ALL ON mangos.* TO mangos@'localhost' WITH GRANT OPTION;
+GRANT ALL ON logs.* TO mangos@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
 echo "[VMaNGOS]: Importing databases..."
 
 echo "[VMaNGOS]: Importing world..."
