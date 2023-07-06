@@ -32,6 +32,6 @@ echo "[VMaNGOS]: VMaNGOS data prepared."
 
 echo "[VMaNGOS]: Importing world db migrations..."
 
-docker exec vmangos_database /bin/sh mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos < /vol/core_github/sql/migrations/world_db_updates.sql'
+docker exec vmangos_database /bin/sh 'mariadb -u mangos -p$MYSQL_ROOT_PASSWORD mangos < /vol/core_github/sql/migrations/world_db_updates.sql'
 
 echo "[VMaNGOS]: Import finished."
