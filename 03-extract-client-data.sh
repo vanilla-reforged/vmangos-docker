@@ -29,19 +29,21 @@ echo "[VMaNGOS]: This will take a long time..."
 
   docker run \
     -v "$repository_path/vol/client_data:/vol/client_data" \
-    -v "$repository_path/vol/client_data:/vol/client_data" \
+    -v "$repository_path/vol/core:/vol/core" \
     --rm \
     vmangos_extractors \
     /vol/core/bin/mapextractor
 
   docker run \
     -v "$repository_path/vol/client_data:/vol/client_data" \
+    -v "$repository_path/vol/core:/vol/core" \
     --rm \
     vmangos_extractors \
     /vol/core/bin/vmapextractor
 
   docker run \
     -v "$repository_path/vol/client_data:/vol/client_data" \
+    -v "$repository_path/vol/core:/vol/core" \
     --rm \
     vmangos_extractors \
     /vol/core/bin/vmap_assembler
@@ -54,15 +56,15 @@ echo "[VMaNGOS]: This will take a long time..."
     /vol/core/bin/MoveMapGen --offMeshInput /vol/core/contrib/mmap/offmesh.txt
 
   # This data isn't used. delete it to avoid confusion
-  rm -rf ./src/client_data/Buildings
+  rm -rf ./vol/client_data/Buildings
 
   # Remove potentially existing partial data
-  rm -rf ./vol/server_data/*
-  mkdir -p "./vol/server_data/$VMANGOS_CLIENT"
+  rm -rf ./vol/client_data_extracted/*
+  mkdir -p "./vol/client_data_extracted/$VMANGOS_CLIENT"
 
-  mv ./src/client_data/dbc "./vol/server_data/$VMANGOS_CLIENT/"
-  mv ./src/client_data/maps ./vol/server_data/
-  mv ./src/client_data/mmaps ./vol/server_data/
-  mv ./src/client_data/vmaps ./vol/server_data/
+  mv ./vol/client_data/dbc "./vol/client_data_extracted/$VMANGOS_CLIENT/"
+  mv ./vol/client_data/maps ./vol/client_data_extracted/
+  mv ./vol/client_data/mmaps ./vol/client_data_extracted/
+  mv ./vol/client_data/vmaps ./vol/client_data_extracted/
 
 echo "[VMaNGOS]: Client data extraction complete!"
