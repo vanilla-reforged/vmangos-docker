@@ -13,19 +13,13 @@ RUN \
     MariaDB
 
 RUN \
-  mkdir -p /opt/yesilcms && \
-  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /opt/yesilcms
+  sudo chown -R nginx:nginx /var/www/html && \
+  sudo usermod -a -G nginx nginx && \
+  sudo find /var/www/html -type f -exec chmod 644 {} \; && \
+  sudo find /var/www/html -type d -exec chmod 755 {} \;
 
-# RUN chmod +x /opt/vmangos/bin
 
-ADD \
-  https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait \
-  /opt/wait
-
-RUN chmod +x /opt/wait
-
-#WORKDIR /opt/vmangos/bin
 
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
 
-CMD /opt/wait &&     #./realmd -c ../etc/realmd.conf
+
