@@ -12,8 +12,8 @@ RUN \
     openssl \
     zlib1g-dev
 
-RUN mkdir -p /vol/core/contrib/mmap
+RUN mkdir -p /vol/core
 
-RUN chmod +x /vol/extractors
+RUN chmod +x /vol/core
 
 WORKDIR /vol/client_data
