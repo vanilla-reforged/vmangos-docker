@@ -14,7 +14,7 @@ cd "$repository_path"
 
 echo "[VMaNGOS]: Cloning github repositories."
 
-git clone $VMANGOS_GIT_SOURCE_CORE_URL ./src/github_core/
-git clone $VMANGOS_GIT_SOURCE_DATABASE_URL ./src/github_database/
+git clone $VMANGOS_GIT_SOURCE_CORE_URL ./vol/core_github/
+git clone $VMANGOS_GIT_SOURCE_DATABASE_URL ./vol/database_github/
 
 echo "[VMaNGOS]: Cloning github repositories finished."
