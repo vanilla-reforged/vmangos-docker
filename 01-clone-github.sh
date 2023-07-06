@@ -12,6 +12,11 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
+echo "[VMaNGOS]: Removing old data / target directories"
+
+rm -r ./vol/core_github
+rm -r ./vol/database_github
+
 echo "[VMaNGOS]: Cloning github repositories."
 
 git clone $VMANGOS_GIT_SOURCE_CORE_URL ./vol/core_github/
