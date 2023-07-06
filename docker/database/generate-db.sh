@@ -2,9 +2,9 @@
 
 echo "[VMaNGOS]: Creating databases..."
 mariadb -u root CREATE DATABASE IF NOT EXISTS realmd DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
-mariadb -u root  CREATE DATABASE IF NOT EXISTS characters DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
-mariadb -u root  CREATE DATABASE IF NOT EXISTS mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
-mariadb -u root  CREATE DATABASE IF NOT EXISTS logs DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+mariadb -u root CREATE DATABASE IF NOT EXISTS characters DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+mariadb -u root CREATE DATABASE IF NOT EXISTS mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+mariadb -u root CREATE DATABASE IF NOT EXISTS logs DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
 
 echo "[VMaNGOS]: Creating user..."
 mariadb -u root mangos CREATE USER 'mangos'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
