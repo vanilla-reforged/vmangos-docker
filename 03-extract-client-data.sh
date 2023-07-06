@@ -14,17 +14,10 @@ cd "$repository_path"
 
 #Check if client data exists
 
- if [ ! -d "./src/client_data/Data" ]; then
+ if [ ! -d "./vol/client_data/Data" ]; then
     echo "[VMaNGOS]: Client data missing, aborting extraction."
     exit 1
  fi
-
-#Copy extractors from /vol/core to /src/extractors
-
-cp ./vol/core/bin/mapextractor ./src/extractors/mapextractor
-cp ./vol/core/bin/vmapextractor ./src/extractors/vmapextractor
-cp ./vol/core/bin/vmap_assembler ./src/extractors/vmap_assembler
-cp ./vol/core/bin/MoveMapGen ./src/extractors/MoveMapGen
 
 echo "[VMaNGOS]: Running client data extractors."
 echo "[VMaNGOS]: This will take a long time..."
@@ -35,33 +28,30 @@ echo "[VMaNGOS]: This will take a long time..."
     -f ./docker/extractors/Dockerfile .
 
   docker run \
-    -v "$repository_path/src/client_data:/src/client_data" \
-    --user=root \
+    -v "$repository_path/vol/client_data:/vol/client_data" \
+    -v "$repository_path/vol/client_data:/vol/client_data" \
     --rm \
     vmangos_extractors \
-    /src/extractors/mapextractor
+    /vol/core/bin/mapextractor
 
   docker run \
-    -v "$repository_path/src/client_data:/src/client_data" \
-    --user=root \
+    -v "$repository_path/vol/client_data:/vol/client_data" \
     --rm \
     vmangos_extractors \
-    /src/extractors/vmapextractor
+    /vol/core/bin/vmapextractor
 
   docker run \
-    -v "$repository_path/src/client_data:/src/client_data" \
-    --user=root \
+    -v "$repository_path/vol/client_data:/vol/client_data" \
     --rm \
     vmangos_extractors \
-    /src/extractors/vmap_assembler
+    /vol/core/bin/vmap_assembler
 
   docker run \
-    -v "$repository_path/src/client_data:/src/client_data" \
-    -v "$repository_path/vol/core/contrib/mmap:/vol/core/contrib/mmap" \
-    --user=root \
+    -v "$repository_path/vol/client_data:/vol/client_data" \
+    -v "$repository_path/vol/core:/vol/core" \
     --rm \
     vmangos_extractors \
-    /src/extractors/MoveMapGen --offMeshInput /vol/core/contrib/mmap/offmesh.txt
+    /vol/core/bin/MoveMapGen --offMeshInput /vol/core/contrib/mmap/offmesh.txt
 
   # This data isn't used. delete it to avoid confusion
   rm -rf ./src/client_data/Buildings
