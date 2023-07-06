@@ -97,7 +97,7 @@ services:
 #      - vmangos_database
 #    restart: unless-stopped
 #    volumes:
-#    - ./vol/yesilcms_github:/vol/yesilcms_github
+#    - ./vol/yesilcms_github:/var/www/html
 #    environment:
 #      - TZ=${TZ}
 #      - WAIT_HOSTS=vmangos_database:3306
