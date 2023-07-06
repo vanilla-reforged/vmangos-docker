@@ -105,18 +105,6 @@ user@local:vmangos-docker$ docker-compose -d up
 user@local:vmangos-docker$ docker-compose down
 ```
 
-### Recompiling core - TODO
-
-### Regenerating world db - TODO
-
-### Updating database without world db - TODO
-
-### Updating database with world db - TODO
-
-### Creating a database backup - TODO
-
-### Extracting client data - TODO
-
 ## License
 
 [AGPL-3.0-or-later](LICENSE)
