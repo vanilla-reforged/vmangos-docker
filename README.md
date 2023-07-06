@@ -29,7 +29,7 @@ This is an attempt to make an (for me, maybe for you as well) easier to understa
 
 + docker
 + docker-compose
-+ p7zip
++ p7zip-full
 + A POSIX-compliant shell as well as various core utilities (such as `cp` and
   `rm`) if you intend to use the provided scripts to install, update and manage
   VMaNGOS
