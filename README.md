@@ -111,13 +111,13 @@ user@local:vmangos-docker$ docker-compose -d up
 user@local:vmangos-docker$ docker-compose down
 ```
 
-### REBUILDING - TODO
+### Recompiling core - TODO
 
-### Updating CORE - TODO
+### Regenerating world db - TODO
 
-### Updating DATABASE without WORLD DB - TODO
+### Updating database without world db - TODO
 
-### Updating DATABASE with WORLD DB - TODO
+### Updating database with world db - TODO
 
 ### Creating a database backup - TODO
 
