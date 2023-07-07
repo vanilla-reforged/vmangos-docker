@@ -9,10 +9,8 @@ RUN \
   mkdir -p /vol/core_github && \
   mkdir -p /vol/database_github
 
-COPY \
-  ./docker/database/generate-db.sh /docker-entrypoint-initdb.d && \
-  ./docker/database/regenerate-world-db.sh /sql/regenerate-world-db.sh
+COPY ./docker/database/generate-db.sh /docker-entrypoint-initdb.d
 
-RUN chmod +x /docker-entrypoint-initdb.d/generate-db-2.sh
+RUN chmod +x /docker-entrypoint-initdb.d/generate-db.sh
 
 USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
