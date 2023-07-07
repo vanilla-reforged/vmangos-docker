@@ -5,9 +5,6 @@ services:
     build:
       context: .
       args: 
-        - VMANGOS_USER_ID=${VMANGOS_USER_ID}
-        - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
-        - VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE}
       dockerfile: docker/database/Dockerfile
     restart: unless-stopped
 #    ports:
@@ -19,21 +16,6 @@ services:
       - ./vol/database_github:/vol/database_github
       - ./vol/database:/var/lib/mysql
     environment:
-      - TZ=${TZ}
-      - VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - VMANGOS_REALM_NAME=${VMANGOS_REALM_NAME}
-      - VMANGOS_REALM_IP=${VMANGOS_REALM_IP}
-      - VMANGOS_REALM_PORT=${VMANGOS_REALM_PORT}
-      - VMANGOS_CLIENT=${VMANGOS_CLIENT}
-      - VMANGOS_REALM_ICON=${VMANGOS_REALM_ICON}
-      - VMANGOS_REALM_FLAGS=${VMANGOS_REALM_FLAGS}
-      - VMANGOS_TIMEZONE=${VMANGOS_TIMEZONE}
-      - VMANGOS_ALLOWED_SECURITY_LEVEL=${VMANGOS_ALLOWED_SECURITY_LEVEL}
-      - VMANGOS_POPULATION=${VMANGOS_POPULATION}
-      - VMANGOS_GAMEBUILD_MIN=${VMANGOS_GAMEBUILD_MIN}
-      - VMANGOS_GAMEBUILD_MAX=${VMANGOS_GAMEBUILD_MAX}
-      - VMANGOS_FLAG=${VMANGOS_FLAG}
 
   vmangos_realmd:
     container_name: vmangos_realmd
