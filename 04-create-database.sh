@@ -35,18 +35,18 @@ docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD -e 
 
 echo "[VMaNGOS]: Importing databases…"
 echo "[VMaNGOS]: Importing world…"
-docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD mangos < /vol/database_github/$VMANGOS_WORLD_DATABASE.sql
+docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD mangos < ./vol/database_github/$VMANGOS_WORLD_DATABASE.sql
 echo "[VMaNGOS]: Importing logon…"
-docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD realmd < /vol/core_github/sql/logon.sql
+docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD realmd < ./vol/core_github/sql/logon.sql
 echo "[VMaNGOS]: Importing logs…"
-docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD logs < /vol/core_github/sql/logs.sql
+docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD logs < ./vol/core_github/sql/logs.sql
 echo "[VMaNGOS]: Importing characters…"
-docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD characters < /vol/core_github/sql/characters.sql
+docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD characters < ./vol/core_github/sql/characters.sql
 echo "[VMaNGOS]: Importing migrations…"
-docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD mangos < /vol/core_github/sql/migrations/world_db_updates.sql
-docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD characters < /vol/core_github/sql/migrations/characters_db_updates.sql
-docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD realmd < /vol/core_github/sql/migrations/logon_db_updates.sql
-docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD logs < /vol/core_github/sql/migrations/logs_db_updates.sql
+docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD mangos < ./vol/core_github/sql/migrations/world_db_updates.sql
+docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD characters < ./vol/core_github/sql/migrations/characters_db_updates.sql
+docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD realmd < ./vol/core_github/sql/migrations/logon_db_updates.sql
+docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD logs < ./vol/core_github/sql/migrations/logs_db_updates.sql
 
 echo "[VMaNGOS]: Upgrading mysql…"
 docker exec -it vmangos_database sudo mariadb-upgrade -u root -p$MYSQL_ROOT_PASSWORD
