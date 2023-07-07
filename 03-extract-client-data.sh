@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#Get variables defined in .env
+# Get variables defined in .env
 
 source .env
 
-#Handle script call from other directory
+# Handle script call from other directory
 
 get_script_path() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
@@ -12,7 +12,7 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
-#Check if client data exists
+# Check if client data exists
 
  if [ ! -d "./vol/client_data/Data" ]; then
     echo "[VMaNGOS]: Client data missing, aborting extraction."
