@@ -4,7 +4,6 @@ services:
     container_name: vmangos_database
     build:
       context: .
-      args: 
       dockerfile: docker/database/Dockerfile
     restart: unless-stopped
 #    ports:
