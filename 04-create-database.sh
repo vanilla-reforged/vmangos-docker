@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# Get variables defined in .env
+
+source .env
+
+# Handle script call from other directory
+
+get_script_path() {
+  [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+}
+repository_path=$(dirname "$(get_script_path "$0")")
+cd "$repository_path"
+
+# Start
+
 echo "[VMaNGOS]: Creating databases…"
 docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS realmd DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"
 docker exec -it vmangos_database sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS characters DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"
