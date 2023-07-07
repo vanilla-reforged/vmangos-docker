@@ -27,6 +27,7 @@ services:
       - VMANGOS_POPULATION=${VMANGOS_POPULATION}
       - VMANGOS_GAMEBUILD_MIN=${VMANGOS_GAMEBUILD_MIN}
       - VMANGOS_GAMEBUILD_MAX=${VMANGOS_GAMEBUILD_MAX}
+      - VMANGOS_FLAG=${VMANGOS_FLAG}
 
   vmangos_realmd:
     container_name: vmangos_realmd
