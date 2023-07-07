@@ -62,7 +62,7 @@ echo "[VMaNGOS]: This will take a long time..."
   rm -rf ./vol/client_data_extracted/*
   mkdir -p "./vol/client_data_extracted/$VMANGOS_CLIENT"
 
-  mv ./vol/client_data/dbc "./vol/client_data_extracted/$VMANGOS_CLIENT/"
+  mv ./vol/client_data/dbc ./vol/client_data_extracted/$VMANGOS_CLIENT/
   mv ./vol/client_data/maps ./vol/client_data_extracted/
   mv ./vol/client_data/mmaps ./vol/client_data_extracted/
   mv ./vol/client_data/vmaps ./vol/client_data_extracted/
