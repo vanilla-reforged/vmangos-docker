@@ -83,8 +83,19 @@ user@local:vmangos-docker$ .\01-preparations-github-and-database.sh
 user@local:vmangos-docker$ .\02-compile-core.sh
 user@local:vmangos-docker$ .\03-extract-client-data.sh
 ```
+then start your environment
 
-After the installer has finished, you should have a running installation and
+```sh
+user@local:vmangos-docker$ docker compose up -d
+```
+
+then create the databases with the script 04.
+
+```sh
+user@local:vmangos-docker$ .\04-create-database.sh
+```
+
+After the script has finished, you should have a running installation and
 can create your first account by attaching to the `vmangos_mangos` service:
 
 ```sh
@@ -108,8 +119,8 @@ When you are done, detach from the Docker container by pressing
 VMaNGOS can be started and stopped using the following commands:
 
 ```sh
-user@local:vmangos-docker$ docker-compose -d up
-user@local:vmangos-docker$ docker-compose down
+user@local:vmangos-docker$ docker compose up -d
+user@local:vmangos-docker$ docker compose down
 ```
 
 ## License
