@@ -1,5 +1,9 @@
 FROM mariadb
 
+ARG VMANGOS_USER_ID
+ARG VMANGOS_GROUP_ID
+ARG VMANGOS_WORLD_DATABASE
+
 RUN \
   apt-get update -y && \
   apt-get install -y \
