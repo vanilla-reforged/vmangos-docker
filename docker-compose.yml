@@ -14,6 +14,8 @@ services:
       - ./vol/core_github:/vol/core_github
       - ./vol/database_github:/vol/database_github
       - ./vol/database:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 
   vmangos_realmd:
     container_name: vmangos_realmd
