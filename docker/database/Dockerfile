@@ -9,3 +9,7 @@ RUN \
   mkdir -p /vol/backup && \
   mkdir -p /vol/core_github && \
   mkdir -p /vol/database_github
+
+COPY ./docker/database/generate-db.sql /
+
+RUN chmod +x /generate-db.sql
