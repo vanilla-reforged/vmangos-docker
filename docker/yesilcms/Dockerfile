@@ -3,7 +3,7 @@ FROM ubuntu:20.04
 RUN \
   apt-get update -y && \
   apt-get install -y \
-    Nginx Full \
+    nginx \
     php7.4 \
     php7.4-fpm \
     mariadb-server
