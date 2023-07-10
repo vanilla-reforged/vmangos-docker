@@ -15,7 +15,6 @@ RUN \
   sudo find /var/www/html -type d -exec chmod 755 {} \; && \
   composer update
 
-COPY \
-  ./docker/yesilcms/generate-db.sh /docker-entrypoint-initdb.d && \
+COPY ./docker/yesilcms/generate-db.sh /docker-entrypoint-initdb.d
 
 RUN chmod +x /docker-entrypoint-initdb.d/generate-db.sh
