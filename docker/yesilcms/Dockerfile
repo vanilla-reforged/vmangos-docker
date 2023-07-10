@@ -1,9 +1,5 @@
 FROM ubuntu:20.04
 
-ARG DEBIAN_FRONTEND=noninteractive
-ARG VMANGOS_USER_ID
-ARG VMANGOS_GROUP_ID
-
 RUN \
   apt-get update -y && \
   apt-get install -y \
@@ -22,5 +18,3 @@ COPY \
   ./docker/yesilcms/generate-db.sh /docker-entrypoint-initdb.d && \
 
 RUN chmod +x /docker-entrypoint-initdb.d/generate-db-2.sh
-
-USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
