@@ -13,8 +13,6 @@ RUN \
     php7.4-fpm \
     mariadb-server
 
-WORKDIR /var/www/html
-
 RUN \
   useradd -s /bin/false nginx && \
   chown -R nginx /var/www/html && \
@@ -24,7 +22,8 @@ RUN \
 
 USER nginx
 
-RUN composer update
+RUN composer update --working-dir=/var/www/html
+RUN composer install --working-dir=/var/www/html
 
 COPY ./docker/yesilcms/generate-db.sh /docker-entrypoint-initdb.d
 
