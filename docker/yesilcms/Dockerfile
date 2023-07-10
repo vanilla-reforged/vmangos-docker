@@ -6,7 +6,7 @@ RUN \
     Nginx Full \
     php7.4 \
     php7.4-fpm \
-    MariaDB
+    mariadb-server
 
 RUN \
   sudo chown -R nginx:nginx /var/www/html && \
