@@ -7,6 +7,8 @@ RUN \
   apt-get install -y \
     mariadb-server
 
+COPY ./docker/yesilcms/generate-db.sh /
+
 RUN chmod +x /generate-db.sh
 
 WORKDIR /var/www/html
