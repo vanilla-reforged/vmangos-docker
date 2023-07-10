@@ -19,7 +19,7 @@ RUN \
   chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /var/www/html && \
   usermod -a -G ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} && \
   find /var/www/html -type f -exec chmod 644 {} \; && \
-  find /var/www/html -type d -exec chmod 755 {} \; && 
+  find /var/www/html -type d -exec chmod 755 {} \; && \ 
   composer update
 
 COPY ./docker/yesilcms/generate-db.sh /docker-entrypoint-initdb.d
