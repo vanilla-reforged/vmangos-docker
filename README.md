@@ -8,7 +8,8 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 
 ### What is the idea
 
-This is an attempt to make an easier to understand and set up VMANGOS environment for Docker, including a container running YesilCMS. Feel free to use it or contribute.
+This is an attempt to make an easier to understand and set up VMANGOS environment for Docker, including a container running YesilCMS.
+Feel free to use it or contribute.
 
 ### ToDO
 
@@ -20,7 +21,7 @@ This is an attempt to make an easier to understand and set up VMANGOS environmen
 - All volumes are in the ./vol directory.
 - Directory paths for volumes are similar in host and container, where apps don't expect a specific path within the container.
 - Non-persistent containers run with root.
-- No more copying of data to containers instead volumes are used.
+- No more copying of data to containers, instead volumes are used.
 - Tasks have been split in multiple scripts for easier troubleshooting.
    - Scripts starting with 0X are meant for setup.
    - Scripts starting with 1X are meant for update and recreation tasks.
