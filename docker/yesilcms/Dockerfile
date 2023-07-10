@@ -1,8 +1,8 @@
 FROM php-apache
 
 ARG DEBIAN_FRONTEND=noninteractive
-#ARG VMANGOS_USER_ID
-#ARG VMANGOS_GROUP_ID
+ARG VMANGOS_USER_ID
+ARG VMANGOS_GROUP_ID
 
 RUN \
   apt-get update -y && \
