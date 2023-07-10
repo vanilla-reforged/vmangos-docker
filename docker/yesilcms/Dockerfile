@@ -6,6 +6,7 @@ RUN \
   apt-get update -y && \
   apt-get install -y \
     nginx \
+    composer \
     php7.4 \
     php7.4-fpm \
     mariadb-server
