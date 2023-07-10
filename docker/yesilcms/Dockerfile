@@ -1,8 +1,8 @@
 FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG VMANGOS_USER_ID
-ARG VMANGOS_GROUP_ID
+#ARG VMANGOS_USER_ID
+#ARG VMANGOS_GROUP_ID
 
 RUN \
   apt-get update -y && \
@@ -16,12 +16,13 @@ RUN \
 WORKDIR /var/www/html
 
 RUN \
-  chown -R ${VMANGOS_GROUP_ID} /var/www/html && \
-  usermod -a -G ${VMANGOS_USER_ID} && \
+  useradd -s /bin/false nginx && \
+  chown -R nginx:nginx /var/www/html && \
+  usermod -a -G nginx nginx && \
   find /var/www/html -type f -exec chmod 644 {} \; && \
   find /var/www/html -type d -exec chmod 755 {} \; && \
 
-USER ${VMANGOS_GROUP_ID}:${VMANGOS_USER_ID}
+USER nginx:nginx
 
 RUN composer update
 
