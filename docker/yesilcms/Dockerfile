@@ -25,6 +25,6 @@ USER nginx
 RUN composer update --working-dir=/var/www/html
 RUN composer install --working-dir=/var/www/html
 
-COPY ./docker/yesilcms/generate-db.sh /docker-entrypoint-initdb.d
+COPY ./docker/yesilcms/generate-db.sh /
 
-RUN chmod +x /docker-entrypoint-initdb.d/generate-db.sh
+RUN chmod +x /generate-db.sh
