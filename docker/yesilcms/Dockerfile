@@ -21,10 +21,7 @@ RUN \
   usermod -a -G nginx nginx && \
   find /var/www/html -type f -exec chmod 644 {} \; && \
   find /var/www/html -type d -exec chmod 755 {} \; && \
-
-USER nginx:nginx
-
-RUN composer update
+  composer update
 
 COPY ./docker/yesilcms/generate-db.sh /docker-entrypoint-initdb.d
 
