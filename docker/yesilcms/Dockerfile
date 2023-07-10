@@ -16,6 +16,7 @@ RUN \
 WORKDIR /var/www/html
 
 RUN \
+  mkdir -p /var/www/html && \
   useradd -s /bin/false nginx && \
   chown -R nginx:nginx /var/www/html && \
   usermod -a -G nginx nginx && \
