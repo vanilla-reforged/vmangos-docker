@@ -83,6 +83,9 @@ services:
       - 443:443
     build:
       context: .
+      args: 
+        - VMANGOS_USER_ID=${VMANGOS_USER_ID}
+        - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       dockerfile: docker/yesilcms/Dockerfile
     depends_on:
       - vmangos_database
