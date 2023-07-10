@@ -12,3 +12,9 @@ RUN \
 COPY ./docker/yesilcms/generate-db.sh /
 
 RUN chmod +x /generate-db.sh
+
+WORKDIR /var/www/html
+
+USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
+
+CMD composer update
