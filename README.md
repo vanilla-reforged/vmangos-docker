@@ -14,6 +14,7 @@ Feel free to use it or contribute.
 ### ToDO
 
 - YesilCMS container
+- 1X and 2X scripttest
 
 ### Differences to Michael Serajnik's vmangos for docker (@repository https://sr.ht/~mser/vmangos-docker/)
 
