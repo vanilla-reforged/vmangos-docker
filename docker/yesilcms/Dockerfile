@@ -18,7 +18,7 @@ WORKDIR /var/www/html
 RUN \
   useradd -s /bin/false nginx && \
   chown -R nginx /var/www/html && \
-  usermod -a -G nginx && \
+  usermod -a -G nginx nginx && \
   find /var/www/html -type f -exec chmod 644 {} \; && \
   find /var/www/html -type d -exec chmod 755 {} \;
 
