@@ -1,6 +1,8 @@
 FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG VMANGOS_USER_ID
+ARG VMANGOS_GROUP_ID
 
 RUN \
   apt-get update -y && \
@@ -12,10 +14,11 @@ RUN \
     mariadb-server
 
 RUN \
-#  chown -R nginx:nginx /var/www/html && \
-#  usermod -a -G nginx nginx && \
+  chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /var/www/html && \
+  usermod -a -G ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} && \
   find /var/www/html -type f -exec chmod 644 {} \; && \
-  find /var/www/html -type d -exec chmod 755 {} \; && \
+  find /var/www/html -type d -exec chmod 755 {} \; && 
+  cd /var/www/html && \
   composer update
 
 COPY ./docker/yesilcms/generate-db.sh /docker-entrypoint-initdb.d
