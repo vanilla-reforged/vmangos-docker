@@ -96,7 +96,7 @@ user@local:vmangos-docker$ .\04-create-database-mangos.sh
 user@local:vmangos-docker$ .\05-create-database-yesilcms.sh
 ```
 
-After the script has finished, you should have a running installation and
+After the scripts have finished, you should have a running installation and
 can create your first account by attaching to the `vmangos_mangos` service:
 
 ```sh
@@ -112,6 +112,8 @@ account set gmlevel <account name> <account level> # see https://github.com/vman
 
 When you are done, detach from the Docker container by pressing
 <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
+
+ToDo for configuring yesilcms, expose
 
 ## Usage
 
