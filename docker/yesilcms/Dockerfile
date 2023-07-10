@@ -1,4 +1,4 @@
-FROM webdevops/php-apache:7.4
+FROM webdevops/php-apache:7.2
 
 ARG DEBIAN_FRONTEND=noninteractive
 
