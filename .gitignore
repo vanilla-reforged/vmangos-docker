@@ -1,5 +1,4 @@
-*/vol
-*.env
-*.bak
 !/**/.gitkeep
-*docker-compose.yml
+vol/
+docker-compose.yml
+.env
