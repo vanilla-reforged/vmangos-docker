@@ -1,7 +1,5 @@
-FROM webdevops/php-apache:7.2
+FROM php
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /var/www/html
-
-CMD composer update
