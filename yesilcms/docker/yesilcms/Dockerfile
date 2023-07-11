@@ -1,20 +1,4 @@
-FROM php
+FROM khromov/alpine-nginx-php8
 
-ARG DEBIAN_FRONTEND=noninteractive
-ARG VMANGOS_USER_ID
-ARG VMANGOS_GROUP_ID
-
-RUN \
-  apt-get update -y && \
-  apt-get install -y \
-  php-gd \
-  php8.0-mysql \
-  php8.0-soap \
-  php8.0-gmp \
-  php-redis
-
-RUN chown -R ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID} /var/www/html
-
-USER ${VMANGOS_USER_ID}:${VMANGOS_GROUP_ID}
-
-WORKDIR /var/www/html
+RUN chown -R nobody:nogroup ./src-compose
+RUN chmod -R 777 ./src-compose
