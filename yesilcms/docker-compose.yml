@@ -8,7 +8,7 @@ services:
     restart: unless-stopped
     command: --max_allowed_packet=32505856
     environment:
-      - MYSQL_ROOT_PASSWORD_YESILCMS=${MYSQL_ROOT_PASSWORD_YESILCMS}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 
   yesilcms:
     container_name: yesilcms
