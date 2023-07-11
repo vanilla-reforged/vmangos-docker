@@ -17,12 +17,10 @@ cd "$repository_path"
 echo "[VMaNGOS]: Removing old target directories..."
 rm -r ./vol/core_github
 rm -r ./vol/database_github
-rm -r ./vol/yesilcms_github
 
 echo "[VMaNGOS]: Cloning github repositories..."
 git clone $VMANGOS_GIT_SOURCE_CORE_URL ./vol/core_github/
 git clone $VMANGOS_GIT_SOURCE_DATABASE_URL ./vol/database_github/
-git clone $VMANGOS_GIT_SOURCE_YESILCMS ./vol/yesilcms_github/
 
 echo "[VMaNGOS]: Extracting VMaNGOS world database with 7zip..."
 cd ./vol/database_github
