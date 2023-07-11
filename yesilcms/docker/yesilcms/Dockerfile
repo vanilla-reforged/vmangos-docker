@@ -1,7 +1,7 @@
 FROM composer AS composer
 
 # copying the source directory and install the dependencies with composer
-COPY <your_directory>/ /app
+COPY ./vol/yesilcms_github /app
 
 # run composer install to install the dependencies
 RUN composer install \
