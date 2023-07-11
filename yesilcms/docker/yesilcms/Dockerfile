@@ -1,8 +1,15 @@
-FROM khromov/alpine-nginx-php8
+FROM composer AS composer
 
-RUN chown -R nobody:nogroup /var/www/html
-RUN chmod -R 777 /var/www/html
+# copying the source directory and install the dependencies with composer
+COPY <your_directory>/ /app
 
-WORKDIR /var/www/html
+# run composer install to install the dependencies
+RUN composer install \
+  --optimize-autoloader \
+  --no-interaction \
+  --no-progress
 
-CMD composer update
+# continue stage build with the desired image and copy the source including the
+# dependencies downloaded by composer
+FROM trafex/php-nginx
+COPY --chown=nginx --from=composer /app /var/www/html
