@@ -91,11 +91,10 @@ then start your environment
 user@local:vmangos-docker/vmangos$ docker compose up -d
 ```
 
-then create the database with the scripts 04.
+then create the database with the script 04.
 
 ```sh
 user@local:vmangos-docker/vmangos$ .\04-create-database-mangos.sh
-user@local:vmangos-docker/vmangos$ .\05-create-database-yesilcms.sh
 ```
 
 After the scripts have finished, you should have a running installation and
