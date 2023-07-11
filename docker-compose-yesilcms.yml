@@ -7,11 +7,6 @@ services:
       dockerfile: docker/yesilcms_database/Dockerfile
     restart: unless-stopped
     command: --max_allowed_packet=32505856
-    volumes:
-      - ./vol/backup:/vol/backup
-      - ./vol/core_github:/vol/core_github
-      - ./vol/database_github:/vol/database_github
-      - ./vol/database:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD_YESILCMS=${MYSQL_ROOT_PASSWORD_YESILCMS}
 
