@@ -53,7 +53,7 @@ Also please be aware that ./vol/client_data_extracted gets mounted directly into
 First, clone the repository and move into it.
 
 ```sh
-user@local:~$ git clone https://github.com/flyingfrog23/vmangos-docker
+user@local:~$ git clone https://github.com/vanilla-reforged/vmangos-docker
 user@local:~$ cd vmangos-docker
 
 ```
