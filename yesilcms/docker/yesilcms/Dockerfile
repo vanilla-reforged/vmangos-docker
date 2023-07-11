@@ -11,5 +11,5 @@ RUN composer install \
 
 # continue stage build with the desired image and copy the source including the
 # dependencies downloaded by composer
-FROM trafex/php-nginx
+FROM php:7.4-apache
 COPY --chown=nginx --from=composer /app /var/www/html
