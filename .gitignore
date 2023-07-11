@@ -1,5 +1,5 @@
-./vol/*
-./.env
+*/vol
+*.env
 *.bak
 !/**/.gitkeep
-./docker-compose.yml
+*docker-compose.yml
