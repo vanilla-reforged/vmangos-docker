@@ -8,7 +8,7 @@ RUN \
   apt-get update -y && \
   apt-get install -y \
   php-gd \
-  php-mysql \
+  php8.0-mysql \
   php8.0-soap \
   php8.0-gmp \
   php-redis
