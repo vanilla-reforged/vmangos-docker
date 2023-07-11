@@ -48,14 +48,14 @@ This requires editing the entries VMANGOS_USER_ID and VMANGOS_GROUP_ID in the .e
 
 Also please be aware that ./vol/client_data_extracted gets mounted directly into the mangos server to provide dbc and map data.
 
-### Instructions
+### Instructions VMANGOS
 
 First, clone the repository and move into it.
 
 ```sh
 user@local:~$ git clone https://github.com/vanilla-reforged/vmangos-docker
 user@local:~$ cd vmangos-docker
-
+user@local:vmangos-docker$ cd vmangos
 ```
 
 At this point, you have to adjust the two configuration files in `./vol/configuration` as
@@ -81,28 +81,28 @@ in `./vol/client_data_extracted` and skip the "03-extract-client-data.sh" script
 To do the installation execute the scripts in order from 01 to 03.
 
 ```sh
-user@local:vmangos-docker$ .\01-preparations-github-and-database.sh
-user@local:vmangos-docker$ .\02-compile-core.sh
-user@local:vmangos-docker$ .\03-extract-client-data.sh
+user@local:vmangos-docker/vmangos$ .\01-preparations-github-and-database.sh
+user@local:vmangos-docker/vmangos$ .\02-compile-core.sh
+user@local:vmangos-docker/vmangos$ .\03-extract-client-data.sh
 ```
 then start your environment
 
 ```sh
-user@local:vmangos-docker$ docker compose up -d
+user@local:vmangos-docker/vmangos$ docker compose up -d
 ```
 
-then create the databases with the scripts 04 and 05.
+then create the database with the scripts 04.
 
 ```sh
-user@local:vmangos-docker$ .\04-create-database-mangos.sh
-user@local:vmangos-docker$ .\05-create-database-yesilcms.sh
+user@local:vmangos-docker/vmangos$ .\04-create-database-mangos.sh
+user@local:vmangos-docker/vmangos$ .\05-create-database-yesilcms.sh
 ```
 
 After the scripts have finished, you should have a running installation and
 can create your first account by attaching to the `vmangos_mangos` service:
 
 ```sh
-user@local:vmangos-docker$ docker attach vmangos_mangos
+user@local:vmangos-docker/vmangos$ docker attach vmangos_mangos
 ```
 
 After attaching, create the account and assign an account level:
@@ -115,7 +115,9 @@ account set gmlevel <account name> <account level> # see https://github.com/vman
 When you are done, detach from the Docker container by pressing
 <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 
-ToDo for configuring yesilcms, expose
+### Instructions YesilCMS
+
+TODO
 
 ## Usage
 
