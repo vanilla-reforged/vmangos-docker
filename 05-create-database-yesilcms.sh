@@ -14,4 +14,4 @@ cd "$repository_path"
 
 # Start
 
-docker exec vmangos_yesilcms /generate-db.sh
+docker exec yesilcms_database /generate-db.sh
