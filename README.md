@@ -8,7 +8,7 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 
 ### What is the idea
 
-This is an attempt to make an easier to understand and set up VMANGOS environment for Docker, including a container running YesilCMS.
+This is an attempt to make an easier to understand and set up VMANGOS environment for Docker.
 Feel free to use it or contribute.
 
 ### ToDO
@@ -113,10 +113,6 @@ account set gmlevel <account name> <account level> # see https://github.com/vman
 
 When you are done, detach from the Docker container by pressing
 <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
-
-### Instructions YesilCMS
-
-TODO
 
 ## Usage
 
