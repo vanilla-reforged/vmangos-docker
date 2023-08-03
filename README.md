@@ -77,9 +77,9 @@ in `./vol/client_data_extracted` and skip the "03-extract-client-data.sh" script
 To do the installation execute the scripts in order from 01 to 03.
 
 ```sh
-user@local:vmangos-docker$ .\01-preparations-github-and-database.sh
-user@local:vmangos-docker$ .\02-compile-core.sh
-user@local:vmangos-docker$ .\03-extract-client-data.sh
+user@local:vmangos-docker$ ./01-preparations-github-and-database.sh
+user@local:vmangos-docker$ ./02-compile-core.sh
+user@local:vmangos-docker$ ./03-extract-client-data.sh
 ```
 then start your environment
 
@@ -90,10 +90,12 @@ user@local:vmangos-docker$ docker compose up -d
 then create the database with the script 04.
 
 ```sh
-user@local:vmangos-docker$ .\04-create-database-mangos.sh
+user@local:vmangos-docker$ ./04-create-database-mangos.sh
 ```
 
-After the scripts have finished, you should have a running installation and
+If you used a custom mysql root passwort, you need to update your mangosd.conf and realmd.conf with that new password.
+
+After the scripts have finished and you updated your mangosd.conf and realmd.conf, you should have a running installation and
 can create your first account by attaching to the `vmangos_mangos` service:
 
 ```sh
