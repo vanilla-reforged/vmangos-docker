@@ -17,6 +17,9 @@ cd "$repository_path"
 echo "[VMaNGOS]: Removing old target directory..."
 rm -r ./vol/core_github
 
+echo "[VMaNGOS]: Removing contents of ccache directory..."
+rm -r ./vol/ccache/*
+
 echo "[VMaNGOS]: Cloning github repository..."
 git clone $VMANGOS_GIT_SOURCE_CORE_URL ./vol/core_github/
 
