@@ -33,3 +33,5 @@ cd ./vol/core_github/sql/migrations
 ./merge.sh
 cd "$repository_path"
 
+# Start
+docker exec vmangos_database /recreate-world-db.sh
