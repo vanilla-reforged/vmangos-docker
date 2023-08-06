@@ -24,7 +24,7 @@ echo "[VMaNGOS]: Shutting down environment..."
 docker compose down
 
 echo "[VMaNGOS]: Removing old core..."
-rm -r ./vol/core
+rm -r ./vol/core/*
 
 echo "[VMaNGOS]: Building compiler image..."
 docker build \
