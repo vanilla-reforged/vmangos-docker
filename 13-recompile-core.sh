@@ -52,3 +52,5 @@ docker run \
   vmangos_build
 
 echo "[VMaNGOS]: Compiling complete!"
+
+docker compose up --build -d
