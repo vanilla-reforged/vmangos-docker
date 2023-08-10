@@ -33,10 +33,14 @@ cd ./vol/core_github/sql/migrations
 ./merge.sh
 cd "$repository_path"
 
-echo "[VMaNGOS]: Restarting environemnt..."
+echo "[VMaNGOS]: Restarting environment..."
 
 docker compose down
 docker compose up -d
+
+echo "[VMaNGOS]: Wait for DB..."
+
+sleep 45
 
 # Start
 docker exec vmangos_database /recreate-world-db.sh
