@@ -3,9 +3,9 @@
 echo "[VMaNGOS]: Recreating world database..."
 mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "DROP DATABASE mangos;"
 mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"
-mariadb -u root -p$MYSQL_ROOT_PASSWORD -e  "GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';"
+mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';"
 mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
-mariadb -u root -p$MYSQL_ROOT_PASSWORD -e -e "GRANT ALL ON mangos.* TO mangos@'localhost' WITH GRANT OPTION;"
+mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL ON mangos.* TO mangos@'localhost' WITH GRANT OPTION;"
 mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
 
 echo "[VMaNGOS]: Importing databases..."
