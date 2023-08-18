@@ -112,6 +112,12 @@ account set gmlevel <account name> <account level> # see https://github.com/vman
 When you are done, detach from the Docker container by pressing
 <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 
+## Vanilla Reforged Links
+
+Find and join us on the web [https](https://vanillareforged.org/en/)
+
+Support our efforts on Patreon [https](https://www.patreon.com/vanillareforged)
+
 ## Usage
 
 ### Starting and stopping VMaNGOS
@@ -123,9 +129,7 @@ user@local:vmangos-docker$ docker compose up -d
 user@local:vmangos-docker$ docker compose down
 ```
 
-## License
-
-[AGPL-3.0-or-later](LICENSE)
+## Links
 
 [vmangos]: https://github.com/vmangos/core
 [tonymmm1-vmangos-docker]: https://github.com/tonymmm1/vmangos-docker
