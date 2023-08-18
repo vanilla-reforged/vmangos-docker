@@ -12,6 +12,11 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
+echo "[VMaNGOS]: Merging VMaNGOS core migrations..."
+cd ./vol/core_github/sql/migrations
+./merge.sh
+cd "$repository_path"
+
 # Start
 
 docker exec vmangos_database /import-world-db-migrations.sh
