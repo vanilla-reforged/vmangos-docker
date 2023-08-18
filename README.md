@@ -114,9 +114,9 @@ When you are done, detach from the Docker container by pressing
 
 ## Vanilla Reforged Links
 
-Find and join us on the web [https](https://vanillareforged.org/en/)
+Find and join us on the web https://vanillareforged.org/en/
 
-Support our efforts on Patreon [https](https://www.patreon.com/vanillareforged)
+Support our efforts on Patreon https://www.patreon.com/vanillareforged
 
 ## Usage
 
