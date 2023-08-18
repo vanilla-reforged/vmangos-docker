@@ -77,10 +77,11 @@ in `./vol/client_data_extracted` and skip the "03-extract-client-data.sh" script
 To do the installation execute the scripts in order from 01 to 03.
 
 ```sh
-user@local:vmangos-docker$ ./01-preparations-github-and-database.sh
+user@local:vmangos-docker$ ./01-update-github-and-database.sh
 user@local:vmangos-docker$ ./02-compile-core.sh
 user@local:vmangos-docker$ ./03-extract-client-data.sh
 ```
+
 then start your environment
 
 ```sh
