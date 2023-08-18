@@ -14,12 +14,6 @@ cd "$repository_path"
 
 # Start
 
-echo "[VMaNGOS]: Removing old target directory..."
-rm -r ./vol/core_github
-
-echo "[VMaNGOS]: Cloning github repository..."
-git clone $VMANGOS_GIT_SOURCE_CORE_URL ./vol/core_github/
-
 echo "[VMaNGOS]: Shutting down environment..."
 docker compose down
 
