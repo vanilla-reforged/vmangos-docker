@@ -11,8 +11,9 @@ Wouldn't have been possible without help from the VMANGOS discord community and 
 This is an attempt to make an easier to understand and set up VMANGOS environment for Docker.
 Feel free to use it or contribute.
 
-### ToDO
+### ToDo
 
+- Scripts 11 & 12 broken as of now.
 - cleanup root access on db container
 
 ### Differences to Michael Serajnik's vmangos for docker (@repository https://sr.ht/~mser/vmangos-docker/)
