@@ -1,26 +1,9 @@
 # vmangos-docker
 
-### What is the idea
-
-This is an attempt to make an easier to understand and set up VMANGOS environment for Docker.
-Feel free to use it or contribute.
-
 ### ToDo
 
 - Scripts 11 & 12 broken as of now.
 - cleanup root access on db container
-
-### Differences to Michael Serajnik's vmangos for docker (@repository https://sr.ht/~mser/vmangos-docker/)
-
-- All variables can now be given in the .env file of the root directory.
-- All volumes are in the ./vol directory.
-- Directory paths for volumes are similar in host and container, where apps don't expect a specific path within the container.
-- Non-persistent containers run with root.
-- No more copying of data to containers, instead volumes are used.
-- Tasks have been split in multiple scripts for easier troubleshooting.
-   - Scripts starting with 0X are meant for setup.
-   - Scripts starting with 1X are meant for update and recreation tasks.
-   - Scripts starting with 2X are meant for backup and maintenance tasks and are intended to be run as cron jobs.
 
 ### Dependencies
 
