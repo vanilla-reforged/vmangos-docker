@@ -1,9 +1,3 @@
-Heavily inspired by Michael Serajnik @ repository https://sr.ht/~mser/vmangos-docker/ which in turn based his work on https://github.com/tonymmm1/vmangos-docker.
-
-Wouldn't have been possible without help from the VMANGOS discord community and the user @0x539 in particular.
-
----
-
 # vmangos-docker
 
 ### What is the idea
