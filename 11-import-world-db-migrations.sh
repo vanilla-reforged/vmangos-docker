@@ -12,11 +12,35 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
-# Start
-# Restart environment to make new files visible inside container volume
+# Get and prepare migrations
+
+echo "[VMaNGOS]: Removing old target directories..."
+rm -r ./vol/core_github
+rm -r ./vol/database_github
+
+echo "[VMaNGOS]: Cloning github repositories..."
+git clone $VMANGOS_GIT_SOURCE_CORE_URL ./vol/core_github/
+git clone $VMANGOS_GIT_SOURCE_DATABASE_URL ./vol/database_github/
+
+echo "[VMaNGOS]: Cloning github repositories finished."
+echo "[VMaNGOS]: Extracting VMaNGOS world database with 7zip..."
+cd ./vol/database_github
+7z e $VMANGOS_WORLD_DATABASE.7z
+cd "$repository_path"
+
+echo "[VMaNGOS]: Merging VMaNGOS core migrations..."
+cd ./vol/core_github/sql/migrations
+./merge.sh
+cd "$repository_path"
+
+echo "[VMaNGOS]: Restarting environment..."
+
 docker compose down
-sleep 30s
 docker compose up -d
-sleep 30s
-# Execute sh script inside container
+
+echo "[VMaNGOS]: Wait for DB..."
+
+sleep 45
+
+# Start
 docker exec vmangos_database /import-world-db-migrations.sh
