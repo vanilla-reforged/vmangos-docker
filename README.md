@@ -2,7 +2,6 @@
 
 ### ToDo
 
-- Scripts 11 & 12 broken as of now.
 - cleanup root access on db container
 
 ### Dependencies
