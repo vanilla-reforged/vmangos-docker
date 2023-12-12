@@ -12,7 +12,7 @@ get_script_path() {
 repository_path=$(dirname "$(get_script_path "$0")")
 cd "$repository_path"
 
-# Start
+# Get and prepare World DB and migrations
 
 echo "[VMaNGOS]: Removing old target directories..."
 rm -r ./vol/core_github
