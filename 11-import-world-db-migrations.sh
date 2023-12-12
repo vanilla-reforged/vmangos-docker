@@ -14,4 +14,12 @@ cd "$repository_path"
 
 # Start
 
+docker compose down
+
+sleep 30s
+
+docker compose up -d
+
+sleep 30s
+
 docker exec vmangos_database /import-world-db-migrations.sh
