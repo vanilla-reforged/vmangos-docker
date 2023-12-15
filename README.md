@@ -24,7 +24,7 @@ This requires editing the entries VMANGOS_USER_ID and VMANGOS_GROUP_ID in the .e
 
 Also please be aware that ./vol/client_data_extracted gets mounted directly into the mangos server to provide dbc and map data.
 
-### Instructions VMANGOS
+### Instructions vmangos
 
 First, clone the repository and move into it.
 
