@@ -80,3 +80,7 @@ services:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
+
+networks:
+  vmangos-network:
+    driver: bridge  
