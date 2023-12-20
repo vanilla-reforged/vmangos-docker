@@ -109,6 +109,6 @@ Support our efforts on Patreon https://www.patreon.com/vanillareforged
 
 ## Links
 
-[vmangos]: https://github.com/vmangos/core
-[tonymmm1-vmangos-docker]: https://github.com/tonymmm1/vmangos-docker
-[Michael Serajnik vmangos-docker]: https://sr.ht/~mser/
+[vmangos](https://github.com/vmangos/core)
+[tonymmm1 vmangos-docker](https://github.com/tonymmm1/vmangos-docker)
+[mserajnik vmangos-docker](https://github.com/mserajnik/vmangos-deploy)
