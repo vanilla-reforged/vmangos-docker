@@ -103,7 +103,7 @@ docker compose down
 
 ## Vanilla Reforged Links
 
-Find and join us on the web https://vanillareforged.org/en/
+Find and join us on the web https://vanillareforged.org/
 
 Support our efforts on Patreon https://www.patreon.com/vanillareforged
 
