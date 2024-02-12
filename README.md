@@ -49,14 +49,14 @@ hardware). Some notices/errors during the generation are normal and nothing to
 worry about.
 
 Alternatively if you have already extracted the client data you may place it directly
-in `./vol/client_data_extracted` and skip the "03-extract-client-data.sh" script.
+in `./vol/client_data_extracted` and skip the "02-extract-client-data.sh" script.
 
 To do the installation execute the scripts in order from 01 to 03.
 
 ```sh
 ./01-update-github-and-database.sh
-./02-compile-core.sh
-./03-extract-client-data.sh
+./02-extract-client-data.sh
+./03-compile-core.sh
 ```
 
 then start your environment
