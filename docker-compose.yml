@@ -14,8 +14,6 @@ services:
       - ./vol/core_github:/vol/core_github
       - ./vol/database_github:/vol/database_github
       - ./vol/database:/var/lib/mysql
-    networks:
-      - vmangos-network
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE}
@@ -46,8 +44,6 @@ services:
       - 3724:3724
     volumes:
       - ./vol/configuration/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
-    networks:
-      - vmangos-network
     environment:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos_database:3306
@@ -74,10 +70,7 @@ services:
       - ./vol/client_data_extracted/maps:/opt/vmangos/bin/maps:ro
       - ./vol/client_data_extracted/mmaps:/opt/vmangos/bin/mmaps:ro
       - ./vol/client_data_extracted/vmaps:/opt/vmangos/bin/vmaps:ro
-    networks:
-      - vmangos-network
     environment:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
-    name: vmangos-network  
