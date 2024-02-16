@@ -7,6 +7,8 @@ networks:
 services:
   vmangos_database:
     container_name: vmangos_database
+    labels:
+      - "traefik.enable=true"
     build:
       context: .
       dockerfile: docker/database/Dockerfile
@@ -34,6 +36,8 @@ services:
 
   vmangos_realmd:
     container_name: vmangos_realmd
+    labels:
+      - "traefik.enable=true"
     build:
       context: .
       args: 
@@ -52,6 +56,8 @@ services:
 
   vmangos_mangos:
     container_name: vmangos_mangos
+    labels:
+      - "traefik.enable=true"
     tty: true
     stdin_open: true
     build:
