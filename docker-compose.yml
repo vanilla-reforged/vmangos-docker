@@ -10,6 +10,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.tcp.routers.vmangos_database.entrypoints=vmangos_database"
+      - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=3724"
+      - "traefik.tcp.middlewares.vmangos_database_whitelist.ipwhitelist.sourcerange=[your IP here]"
+      - "traefik.tcp.routers.vmangos_database.middlewares=vmangos_database@docker"
     build:
       context: .
       dockerfile: docker/database/Dockerfile
