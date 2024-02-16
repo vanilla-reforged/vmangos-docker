@@ -19,12 +19,12 @@ Otherwise the sql port of your vmangos_database will be exposed to the internet.
 the ufw commands you will need:
 
 ```sh
-ufw all from [your client ip]
+ufw allow all from [your client ip]
 ufw route allow proto tcp from [your client ip] to any
-ufw allow proto tcp from any to any port 80
-ufw allow proto tcp from any to any port 443
-ufw allow proto tcp from any to any port 3724
-ufw allow proto tcp from any to any port 8085
+ufw route proto tcp from any to any port 80
+ufw route proto tcp from any to any port 443
+ufw route proto tcp from any to any port 3724
+ufw route proto tcp from any to any port 8085
 ```
 
 ### ToDo
