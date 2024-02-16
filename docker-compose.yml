@@ -6,8 +6,8 @@ services:
       context: .
       dockerfile: docker/database/Dockerfile
     restart: unless-stopped
-#    ports:
-#      - 3306:3306
+    expose:
+      - 3306
     command: --max_allowed_packet=32505856
     volumes:
       - ./vol/backup:/vol/backup
@@ -40,8 +40,8 @@ services:
     depends_on:
       - vmangos_database
     restart: unless-stopped
-    ports:
-      - 3724:3724
+    expose:
+      - 3724
     volumes:
       - ./vol/configuration/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
     environment:
@@ -53,8 +53,8 @@ services:
     container_name: vmangos_mangos
     tty: true
     stdin_open: true
-    ports:
-      - 8085:8085
+    expose:
+      - 8085
     build:
       context: .
       args: 
