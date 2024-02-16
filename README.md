@@ -4,7 +4,8 @@
 
 If you intend to use this repository without the supplementary projects under:
 
-https://github.com/vanilla-reforged/lazycms-vmangos-docker
+https://github.com/vanilla-reforged/lazycms-vmangos-docker/
+
 https://github.com/vanilla-reforged/traefik-vmangos-docker/
 
 you will need the uncommented ports: sections in the docker-compose.yml file.
