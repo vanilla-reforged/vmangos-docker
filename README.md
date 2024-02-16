@@ -8,7 +8,7 @@ https://github.com/vanilla-reforged/lazycms-vmangos-docker/
 
 https://github.com/vanilla-reforged/traefik-vmangos-docker/
 
-you will need the uncommented ports: sections in the docker-compose.yml file.
+you will need to outcomment the "ports:" sections in the docker-compose.yml file.
 
 ### ToDo
 
