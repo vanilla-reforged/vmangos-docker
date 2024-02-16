@@ -1,9 +1,5 @@
 version: "3.7"
 
-networks:
-  vmangos-network:
-    external: true
-
 services:
   vmangos_database:
     container_name: vmangos_database
@@ -87,3 +83,7 @@ services:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
+
+networks:
+  vmangos-network:
+    external: true
