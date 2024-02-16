@@ -1,8 +1,5 @@
 version: "3.7"
 
-networks:
-  vmangos-network:
-
 services:
   vmangos_database:
     container_name: vmangos_database
@@ -34,6 +31,8 @@ services:
       - VMANGOS_GAMEBUILD_MIN=${VMANGOS_GAMEBUILD_MIN}
       - VMANGOS_GAMEBUILD_MAX=${VMANGOS_GAMEBUILD_MAX}
       - VMANGOS_FLAG=${VMANGOS_FLAG}
+    networks:
+      - vmangos-network
 
   vmangos_realmd:
     container_name: vmangos_realmd
@@ -57,6 +56,8 @@ services:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
+    networks:
+      - vmangos-network
 
   vmangos_mangos:
     container_name: vmangos_mangos
@@ -86,3 +87,5 @@ services:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos_database:3306
       - WAIT_TIMEOUT=120
+    networks:
+      - vmangos-network
