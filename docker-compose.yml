@@ -42,7 +42,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.tcp.routers.vmangos_realmd.entrypoints=vmangos_realmd"
-      - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=3724"
+      - "traefik.tcp.services.vmangos_realmd.loadbalancer.server.port=3724"
     build:
       context: .
       args: 
@@ -66,7 +66,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.tcp.routers.vmangos_mangos.entrypoints=vmangos_mangos"
-      - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=8085"
+      - "traefik.tcp.services.vmangos_mangos.loadbalancer.server.port=8085"
     tty: true
     stdin_open: true
     build:
