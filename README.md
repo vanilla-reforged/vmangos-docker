@@ -14,6 +14,17 @@ If you use this repository together with traffic, please follow the instructions
 
 https://github.com/chaifeng/ufw-docker
 
+the ufw commands you will need:
+
+```sh
+ufw all from [your client ip]
+ufw route allow proto tcp from [your client ip] to any
+ufw allow proto tcp from any to any port 80
+ufw allow proto tcp from any to any port 443
+ufw allow proto tcp from any to any port 3724
+ufw allow proto tcp from any to any port 8085
+```
+
 ### ToDo
 
 - cleanup root access on db container
