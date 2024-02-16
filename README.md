@@ -10,9 +10,11 @@ https://github.com/vanilla-reforged/traefik-vmangos-docker/
 
 you will need to outcomment the "ports:" sections in the docker-compose.yml file.
 
-If you use this repository together with traffic, please follow the instructions as written here to secure the sql connection to your vmangos_database container (section "Solving UFW and Docker issues"):
+If you use this repository together with the supplementary projects, please follow the instructions in the section "Solving UFW and Docker issues" of this repository:
 
 https://github.com/chaifeng/ufw-docker
+
+Otherwise the sql port of your vmangos_database will be exposed to the internet.
 
 the ufw commands you will need:
 
