@@ -2,7 +2,6 @@ version: "3.7"
 
 networks:
   vmangos-network:
-    external: true
 
 services:
   vmangos_database:
