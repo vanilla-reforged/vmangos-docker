@@ -9,8 +9,9 @@ services:
     container_name: vmangos_database
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.vmangos_database.entrypoints=vmangos_database"
-      - "traefik.http.routers.vmangos_database.rule=Host(`vanillareforged.org`)"
+      - "traefik.tcp.routers.vmangos_database.entrypoints=vmangos_database"
+      - "traefik.tcp.routers.vmangos_database.rule=Host(`vanillareforged.org`)"
+      - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=3724"
     build:
       context: .
       dockerfile: docker/database/Dockerfile
@@ -42,9 +43,9 @@ services:
     container_name: vmangos_realmd
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.vmangos_realmd.entrypoints=vmangos_realmd"
-      - "traefik.http.routers.vmangos_realmd.rule=Host(`vanillareforged.org`)"
-      - "traefik.http.services.vmangos_database.loadbalancer.server.port=3724"
+      - "traefik.tcp.routers.vmangos_realmd.entrypoints=vmangos_realmd"
+      - "traefik.tcp.routers.vmangos_realmd.rule=Host(`vanillareforged.org`)"
+      - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=3724"
     build:
       context: .
       args: 
@@ -67,9 +68,9 @@ services:
     container_name: vmangos_mangos
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.vmangos_mangos.entrypoints=vmangos_mangos"
-      - "traefik.http.routers.vmangos_mangos.rule=Host(`vanillareforged.org`)"
-      - "traefik.http.services.vmangos_database.loadbalancer.server.port=8085"
+      - "traefik.tcp.routers.vmangos_mangos.entrypoints=vmangos_mangos"
+      - "traefik.tcp.routers.vmangos_mangos.rule=Host(`vanillareforged.org`)"
+      - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=8085"
     tty: true
     stdin_open: true
     build:
