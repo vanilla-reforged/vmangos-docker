@@ -12,8 +12,8 @@ services:
       - "traefik.tcp.routers.vmangos_database.rule=HostSNI(`*`)"
       - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=3306"
       - "traefik.tcp.routers.vmangos_database.entrypoints=vmangos_database"
-      - "traefik.tcp.middlewares.foo-ip-whitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
-      - "traefik.tcp.routers.router1.middlewares=foo-ip-whitelist@docker"
+#      - "traefik.tcp.middlewares.foo-ip-whitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
+#      - "traefik.tcp.routers.router1.middlewares=foo-ip-whitelist@docker"
 
     build:
       context: .
