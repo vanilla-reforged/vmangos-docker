@@ -9,6 +9,8 @@ services:
     container_name: vmangos_database
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.vmangos_database.entrypoints=vmangos_database"
+      - "traefik.http.routers.vmangos_database.rule=Host(`vanillareforged.org`)"
     build:
       context: .
       dockerfile: docker/database/Dockerfile
@@ -38,6 +40,8 @@ services:
     container_name: vmangos_realmd
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.vmangos_realmd.entrypoints=vmangos_realmd"
+      - "traefik.http.routers.vmangos_realmd.rule=Host(`vanillareforged.org`)"
     build:
       context: .
       args: 
@@ -58,6 +62,8 @@ services:
     container_name: vmangos_mangos
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.vmangos_mangos.entrypoints=vmangos_mangos"
+      - "traefik.http.routers.vmangos_mangos.rule=Host(`vanillareforged.org`)"
     tty: true
     stdin_open: true
     build:
