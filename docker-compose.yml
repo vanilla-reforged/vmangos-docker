@@ -10,7 +10,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.tcp.routers.vmangos_database.entrypoints=vmangos_database"
-      - "traefik.tcp.routers.vmangos_database.rule=Host(`vanillareforged.org`)"
+      - "traefik.tcp.routers.vmangos_database.rule=Host(`*`)"
       - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=3724"
     build:
       context: .
@@ -44,7 +44,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.tcp.routers.vmangos_realmd.entrypoints=vmangos_realmd"
-      - "traefik.tcp.routers.vmangos_realmd.rule=Host(`vanillareforged.org`)"
+      - "traefik.tcp.routers.vmangos_realmd.rule=Host(`*`)"
       - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=3724"
     build:
       context: .
@@ -69,7 +69,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.tcp.routers.vmangos_mangos.entrypoints=vmangos_mangos"
-      - "traefik.tcp.routers.vmangos_mangos.rule=Host(`vanillareforged.org`)"
+      - "traefik.tcp.routers.vmangos_mangos.rule=Host(`*`)"
       - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=8085"
     tty: true
     stdin_open: true
