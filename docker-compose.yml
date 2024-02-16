@@ -65,7 +65,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.vmangos_mangos.entrypoints=vmangos_mangos"
       - "traefik.http.routers.vmangos_mangos.rule=Host(`vanillareforged.org`)"
-       - "traefik.http.services.vmangos_database.loadbalancer.server.port=8085"
+      - "traefik.http.services.vmangos_database.loadbalancer.server.port=8085"
     tty: true
     stdin_open: true
     build:
