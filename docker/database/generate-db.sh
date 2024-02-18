@@ -11,7 +11,7 @@ sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "CREATE USER 'mangos'@'localhost'
 sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "SET PASSWORD FOR 'mangos'@'localhost' = PASSWORD('$MYSQL_ROOT_PASSWORD');"
 
 echo "[VMaNGOS]: Granting privileges for user…"
-sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';"
+sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';"
 sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;"
 sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL ON realmd.* TO mangos@'localhost' WITH GRANT OPTION;"
 sudo mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "GRANT ALL ON characters.* TO mangos@'localhost' WITH GRANT OPTION;"
