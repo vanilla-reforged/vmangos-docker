@@ -59,7 +59,7 @@ services:
       dockerfile: docker/realmd/Dockerfile
     depends_on:
       - vmangos_database
-   expose:
+    expose:
      - 3724
 #   -- (Optional) enable use vmangos without lazycms or traefik
 #   ports:
