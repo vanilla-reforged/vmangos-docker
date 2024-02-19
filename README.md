@@ -2,9 +2,7 @@
 
 ### Before you dive in
 
-Secure your system by understanding the following information:
-
-https://github.com/chaifeng/ufw-docker
+Secure your system by understanding the following information: https://github.com/chaifeng/ufw-docker.
 
 the ufw commands you will need to secure your installation:
 
