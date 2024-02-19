@@ -1,6 +1,21 @@
-# vmangos-docker
+### vmangos-docker
 
-### Before you dive in
+This solution allows vmangos to be run as Docker containers.
+
+### ToDo
+
+- cleanup root access on db container
+
+### Dependencies
+
++ docker
++ docker compose 2
++ p7zip-full
++ A POSIX-compliant shell as well as various core utilities (such as `cp` and
+  `rm`) if you intend to use the provided scripts to install, update and manage
+  VMaNGOS
+
+### Security
 
 Secure your system by understanding the following information: https://github.com/chaifeng/ufw-docker.
 
@@ -20,22 +35,9 @@ ufw route allow proto tcp from any to any port 3724
 ufw route allow proto tcp from any to any port 8085
 ```
 
-### ToDo
+### Docker Setup
 
-- cleanup root access on db container
-
-### Dependencies
-
-+ docker
-+ docker compose 2
-+ p7zip-full
-+ A POSIX-compliant shell as well as various core utilities (such as `cp` and
-  `rm`) if you intend to use the provided scripts to install, update and manage
-  VMaNGOS
-
-### Preface
-
-This assumed client version is `5875` (patch `1.12.1`); if you want to set up
+The assumed client version is `5875` (patch `1.12.1`); if you want to set up
 VMaNGOS to use a different version, modify the VMANGOS_CLIENT entry in the .env file accordingly.
 
 The user that is used inside the persistent containers (VMANGOS_DATABASE, VMANGOS_REALMD, VMANGOS_MANGOS) has UID `1000` and GID `1000` by
@@ -43,8 +45,6 @@ default. You can adjust this, if needed; e.g., to match your host UID/GID.
 This requires editing the entries VMANGOS_USER_ID and VMANGOS_GROUP_ID in the .env file.
 
 Also please be aware that ./vol/client_data_extracted gets mounted directly into the mangos server to provide dbc and map data.
-
-### Instructions vmangos
 
 First, clone the repository and move into it.
 
@@ -110,11 +110,9 @@ account set gmlevel <account name> <account level> # see https://github.com/vman
 When you are done, detach from the Docker container by pressing
 <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 
-## Usage
+### Starting and Stopping vmangos
 
-### Starting and stopping VMaNGOS
-
-VMaNGOS can be started and stopped using the following commands:
+Vmangos can be started and stopped using the following commands:
 
 ```sh
 docker compose up -d
