@@ -1,6 +1,6 @@
 ### vmangos-docker
 
-This solution allows vmangos to be run as Docker containers.
+Run your vmangos in docker containers.
 
 ### ToDo
 
