@@ -1,6 +1,6 @@
 ### vmangos-docker
 
-Run your vmangos in docker containers.
+A Docker setup for VMaNGOS.
 
 ### todo
 
