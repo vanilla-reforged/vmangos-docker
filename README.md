@@ -1,32 +1,5 @@
 # vmangos-docker
 
-### Before you dive in
-
-If you intend to use this repository without the supplementary projects under:
-
-https://github.com/vanilla-reforged/lazycms-vmangos-docker/
-
-https://github.com/vanilla-reforged/traefik-vmangos-docker/
-
-you will need to outcomment the "ports:" sections in the docker-compose.yml file.
-
-If you use this repository together with the supplementary projects, please follow the instructions in the section "Solving UFW and Docker issues" of this repository:
-
-https://github.com/chaifeng/ufw-docker
-
-Otherwise the sql port of your vmangos_database will be exposed to the internet.
-
-the ufw commands you will need:
-
-```sh
-ufw allow from [your client ip]
-ufw route allow proto tcp from [your client ip] to any
-ufw route allow proto tcp from any to any port 80
-ufw route allow proto tcp from any to any port 443
-ufw route allow proto tcp from any to any port 3724
-ufw route allow proto tcp from any to any port 8085
-```
-
 ### ToDo
 
 - cleanup root access on db container
