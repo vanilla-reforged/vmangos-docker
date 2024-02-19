@@ -2,18 +2,18 @@
 
 Run your vmangos in docker containers.
 
-### ToDo
+### todo
 
 - Clean up root access on db container
 
-### Dependencies
+### dependencies
 
 - Docker
 - Docker compose 2
 - p7zip-full
 - A POSIX-compliant shell as well as various core utilities (such as `cp` and `rm`) if you intend to use the provided scripts to install, update, and manage VMaNGOS.
 
-### Security
+### security
 
 Secure your system by understanding the following information: [ufw-docker](https://github.com/chaifeng/ufw-docker).
 
@@ -33,7 +33,7 @@ ufw route allow proto tcp from any to any port 3724
 ufw route allow proto tcp from any to any port 8085
 ```
 
-### Docker Setup
+### docker setup
 
 The assumed client version is `5875` (patch `1.12.1`); if you want to set up VMaNGOS to use a different version, modify the `VMANGOS_CLIENT` entry in the `.env` file accordingly.
 
@@ -93,7 +93,7 @@ account set gmlevel <account name> <account level> # see https://github.com/vman
 
 When you are done, detach from the Docker container by pressing <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 
-### Starting and Stopping vmangos
+### starting and stopping vmangos
 
 Vmangos can be started and stopped using the following commands:
 
@@ -102,13 +102,13 @@ docker compose up -d
 docker compose down
 ```
 
-## Vanilla Reforged Links
+## vanilla reforged links
 
 Find and join us on the web: [Vanilla Reforged](https://vanillareforged.org/)
 
 Support our efforts on Patreon: [Vanilla Reforged Patreon](https://www.patreon.com/vanillareforged)
 
-## Links
+## links
 
 - [vmangos](https://github.com/vmangos/core)
 - [tonymmm1 vmangos-docker](https://github.com/tonymmm1/vmangos-docker)
