@@ -7,21 +7,13 @@ networks:
 services:
   vmangos_database:
     container_name: vmangos_database
-    labels:
-      - "traefik.enable=true"
-      - "traefik.tcp.routers.vmangos_database.rule=HostSNI(`*`)"
-      - "traefik.tcp.services.vmangos_database.loadbalancer.server.port=3306"
-      - "traefik.tcp.routers.vmangos_database.entrypoints=vmangos_database"
-#      - "traefik.tcp.middlewares.foo-ip-whitelist.ipwhitelist.sourcerange=127.0.0.1/32, 192.168.1.7"
-#      - "traefik.tcp.routers.router1.middlewares=foo-ip-whitelist@docker"
     build:
       context: .
       dockerfile: docker/database/Dockerfile
     restart: unless-stopped
     command: --max_allowed_packet=32505856
-#   -- (Optional) enable use vmangos without lazycms or traefik
-#   ports:
-#     - 3306:3306
+    ports:
+      - 3306:3306
     volumes:
       - ./vol/backup:/vol/backup
       - ./vol/core_github:/vol/core_github
@@ -46,11 +38,6 @@ services:
 
   vmangos_realmd:
     container_name: vmangos_realmd
-    labels:
-      - "traefik.enable=true"
-      - "traefik.tcp.routers.vmangos_realmd.rule=HostSNI(`*`)"
-      - "traefik.tcp.services.vmangos_realmd.loadbalancer.server.port=3724"
-      - "traefik.tcp.routers.vmangos_realmd.entrypoints=vmangos_realmd"
     build:
       context: .
       args: 
@@ -59,9 +46,8 @@ services:
       dockerfile: docker/realmd/Dockerfile
     depends_on:
       - vmangos_database
-#   -- (Optional) enable use vmangos without lazycms or traefik
-#   ports:
-#     - 3724:3724
+    ports:
+      - 3724:3724
     restart: unless-stopped
     volumes:
       - ./vol/configuration/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
@@ -74,11 +60,6 @@ services:
 
   vmangos_mangos:
     container_name: vmangos_mangos
-    labels:
-      - "traefik.enable=true"
-      - "traefik.tcp.routers.vmangos_mangos.rule=HostSNI(`*`)"
-      - "traefik.tcp.services.vmangos_mangos.loadbalancer.server.port=8085"
-      - "traefik.tcp.routers.vmangos_mangos.entrypoints=vmangos_mangos"
     tty: true
     stdin_open: true
     build:
@@ -89,9 +70,8 @@ services:
       dockerfile: docker/mangos/Dockerfile
     depends_on:
       - vmangos_database
-#   -- (Optional) enable use vmangos without lazycms or traefik
-#   ports:
-#     - 8085:8085
+    ports:
+      - 8085:8085
     restart: unless-stopped
     volumes:
       - ./vol/configuration/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro
