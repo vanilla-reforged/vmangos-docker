@@ -20,13 +20,6 @@ ufw route allow proto tcp from any to any port 3724
 ufw route allow proto tcp from any to any port 8085
 ```
 
-Lazycmd public access:
-
-```sh
-ufw route allow proto tcp from any to any port 80
-ufw route allow proto tcp from any to any port 443
-```
-
 ### ToDo
 
 - cleanup root access on db container
