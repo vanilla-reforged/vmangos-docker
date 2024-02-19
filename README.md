@@ -1,5 +1,34 @@
 # vmangos-docker
 
+### Before you dive in
+
+Secure your system by understanding the following information:
+
+https://github.com/chaifeng/ufw-docker
+
+the ufw commands you will need to secure your installation:
+
+Management:
+
+```sh
+ufw allow from [your client ip]
+ufw route allow proto tcp from [your client ip] to any
+```
+
+Vmangos public access:
+
+```sh
+ufw route allow proto tcp from any to any port 3724
+ufw route allow proto tcp from any to any port 8085
+```
+
+Lazycmd public access:
+
+```sh
+ufw route allow proto tcp from any to any port 80
+ufw route allow proto tcp from any to any port 443
+```
+
 ### ToDo
 
 - cleanup root access on db container
