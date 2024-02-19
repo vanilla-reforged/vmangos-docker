@@ -128,10 +128,6 @@ docker compose up -d
 docker compose down
 ```
 
-### Connecting
-
-You will need to either edit the docker-compose.yml to bind ports directly to the docker host or use the traeffic reverse proxy under https://github.com/vanilla-reforged/traefik-vmangos-docker.
-
 ## Vanilla Reforged Links
 
 Find and join us on the web https://vanillareforged.org/
