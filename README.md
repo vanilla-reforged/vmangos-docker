@@ -86,12 +86,6 @@ To do the installation execute the scripts in order from 01 to 03.
 ./03-compile-core.sh
 ```
 
-create your vmangos network
-
-```sh
-docker network create vmangos-network
-```
-
 then start your environment
 
 ```sh
