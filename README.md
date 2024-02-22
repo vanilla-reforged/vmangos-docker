@@ -103,13 +103,11 @@ docker compose down
 ```
 
 ## vanilla reforged links
-
 - [Vanilla Reforged Website](https://vanillareforged.org/)
 - [Vanilla Reforged Discord](https://discord.gg/KkkDV5zmPb)
 - [Vanilla Reforged Patreon](https://www.patreon.com/vanillareforged)
 
 ## other links
-
 - [vmangos](https://github.com/vmangos/core)
 - [tonymmm1 vmangos-docker](https://github.com/tonymmm1/vmangos-docker)
 - [mserajnik vmangos-docker](https://github.com/mserajnik/vmangos-deploy)
