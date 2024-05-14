@@ -15,7 +15,8 @@ RUN \
     libssl-dev \
     libtbb-dev \
     openssl \
-    zlib1g-dev
+    zlib1g-dev \
+    libreadline-dev
 
 RUN \
   ln -s /usr/bin/ccache /usr/local/bin/gcc && \
