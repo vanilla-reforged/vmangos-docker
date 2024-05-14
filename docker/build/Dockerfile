@@ -33,7 +33,7 @@ RUN \
   export TBB_ROOT_DIR=/usr/include/tbb
 
 CMD \
-  mkdir /vol/core_github/build && \
+  mkdir -p /vol/core_github/build && \
   cd /vol/core_github/build && \
   cmake \
     -DDEBUG=${VMANGOS_DEBUG} \
