@@ -107,6 +107,6 @@ docker compose down
 - [Vanilla Reforged Discord](https://discord.gg/KkkDV5zmPb)
 - [Vanilla Reforged Patreon](https://www.patreon.com/vanillareforged)
 
-## this work project is based upon these projects
+## this work is based upon these projects
 - [tonymmm1 vmangos-docker](https://github.com/tonymmm1/vmangos-docker)
 - [mserajnik vmangos-docker](https://github.com/mserajnik/vmangos-deploy)
