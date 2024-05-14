@@ -12,7 +12,8 @@ RUN \
     libmysqlclient-dev \
     libssl-dev \
     openssl \
-    zlib1g-dev
+    zlib1g-dev \
+    libreadline-dev
 
 RUN \
   mkdir -p /opt/vmangos && \
