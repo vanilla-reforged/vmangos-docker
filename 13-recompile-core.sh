@@ -20,6 +20,9 @@ docker compose down
 echo "[VMaNGOS]: Removing old core..."
 rm -r ./vol/core/*
 
+echo "[VMaNGOS]: Removing old installation files..."
+rm -r ./vol/core_github/build
+
 echo "[VMaNGOS]: Building compiler image..."
 docker build \
   --build-arg DEBIAN_FRONTEND=noninteractive \
