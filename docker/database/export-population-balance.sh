@@ -6,15 +6,17 @@ export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 # Database connection details
 DB_USER="root"
 DB_PASS="$MYSQL_ROOT_PASSWORD"
-DB_NAME="realmd"
-TABLE_NAME="account"
+CHAR_DB="characters"
+REALM_DB="realmd"
+TABLE_NAME="characters"
 
-# SQL query to get the count of Alliance and Horde characters
+# SQL query to get the count of online Alliance and Horde characters by joining `characters.characters` and `realmd.account`
 SQL_QUERY="SELECT 
-    SUM(race IN (1, 3, 4, 7)) AS alliance_count, 
-    SUM(race IN (2, 5, 6, 8)) AS horde_count 
-FROM $TABLE_NAME 
-WHERE online = 1;"
+    IFNULL(SUM(c.race IN (1, 3, 4, 7)), 0) AS alliance_count, 
+    IFNULL(SUM(c.race IN (2, 5, 6, 8)), 0) AS horde_count 
+FROM ${CHAR_DB}.${TABLE_NAME} c 
+JOIN ${REALM_DB}.account a ON c.account = a.id
+WHERE a.online = 1;"
 
 # Run the SQL query and output the result
-mariadb -u $DB_USER -p$DB_PASS $DB_NAME -sN -e "$SQL_QUERY"
+mariadb -u $DB_USER -p$DB_PASS -sN -e "$SQL_QUERY"
