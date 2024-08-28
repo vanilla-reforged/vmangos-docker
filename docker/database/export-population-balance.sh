@@ -7,7 +7,7 @@ export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 DB_USER="root"
 DB_PASS="$MYSQL_ROOT_PASSWORD"
 DB_NAME="realmd"
-TABLE_NAME="characters"
+TABLE_NAME="account"
 
 # SQL query to get the count of Alliance and Horde characters
 SQL_QUERY="SELECT 

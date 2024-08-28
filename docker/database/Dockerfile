@@ -17,3 +17,4 @@ COPY ./docker/database/recreate-world-db.sh /
 RUN chmod +x /generate-db.sh
 RUN chmod +x /import-world-db-migrations.sh
 RUN chmod +x /recreate-world-db.sh
+RUN chmod +x /export-population-balance.sh
