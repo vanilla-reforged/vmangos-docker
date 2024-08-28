@@ -2,7 +2,7 @@
 
 # Hardcoded values
 MARIADB_CONTAINER="vmangos_database"  # Correct MariaDB container name
-DOCKER_CONTAINER="vmangos_mangos"
+DOCKER_CONTAINER="vmangos_mangos"  # Correct VMangos Docker container name
 CONFIG_FILE="vol/configuration/mangosd.conf"  # Corrected path to mangosd.conf file
 
 # Function to fetch population balance from the MariaDB container
@@ -69,18 +69,20 @@ update_config_file() {
 restart_server() {
     echo "Restarting VMangos server using tmux..."
 
-    # Create a tmux session, attach to the Docker container, send the restart command, and then detach
+    # Create a tmux session, attach to the Docker container, send the restart command
     tmux new-session -d -s vmangos_restart "docker attach $DOCKER_CONTAINER"
     sleep 2  # Wait for the attach to complete
 
-    # Send the simplified server restart command within the tmux session
+    # Send the server restart command within the tmux session
     tmux send-keys -t vmangos_restart "server restart 900" C-m
 
-    # Wait a moment to ensure the command is processed, then detach
+    # Wait a moment to ensure the command is processed
     sleep 2
-    tmux send-keys -t vmangos_restart C-d  # Detach from the console
 
-    echo "Server restart command sent."
+    # Use tmux command to detach the client from the session without killing it
+    tmux detach-client -s vmangos_restart
+
+    echo "Server restart command sent with a 900-second delay."
 }
 
 # Main execution flow
