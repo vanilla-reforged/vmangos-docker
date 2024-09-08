@@ -6,7 +6,7 @@ networks:
 
 services:
   vmangos_database:
-    container_name: vmangos_database
+    container_name: vmangos-database
     build:
       context: .
       dockerfile: docker/database/Dockerfile
@@ -37,7 +37,7 @@ services:
       - vmangos-network
 
   vmangos_realmd:
-    container_name: vmangos_realmd
+    container_name: vmangos-realmd
     build:
       context: .
       args: 
@@ -59,7 +59,7 @@ services:
       - vmangos-network
 
   vmangos_mangos:
-    container_name: vmangos_mangos
+    container_name: vmangos-mangos
     tty: true
     stdin_open: true
     build:

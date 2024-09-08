@@ -18,7 +18,7 @@ echo "[VMaNGOS]: Building compiler image..."
 docker build \
   --build-arg DEBIAN_FRONTEND=noninteractive \
   --no-cache \
-  -t vmangos_build \
+  -t vmangos-build \
   -f ./docker/build/Dockerfile .
 
 echo "[VMaNGOS]: Compiling VMaNGOS..."
@@ -37,6 +37,6 @@ docker run \
   -e VMANGOS_THREADS=$VMANGOS_THREADS \
   -e VMANGOS_WORLD_DATABASE=$VMANGOS_WORLD_DATABASE \
   --rm \
-  vmangos_build
+  vmangos-build
 
 echo "[VMaNGOS]: Compiling complete!"
