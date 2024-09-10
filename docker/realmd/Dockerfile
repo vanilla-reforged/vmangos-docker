@@ -44,3 +44,4 @@ USER vmangos-realmd-user
 
 # Set the default command to run realmd with the configuration file
 CMD /opt/wait && ./realmd -c ../etc/realmd.conf
+
