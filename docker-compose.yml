@@ -62,8 +62,8 @@ services:
       - ./vol/client-data-extracted/maps:/opt/vmangos/bin/maps:ro
       - ./vol/client-data-extracted/mmaps:/opt/vmangos/bin/mmaps:ro
       - ./vol/client-data-extracted/vmaps:/opt/vmangos/bin/vmaps:ro
-      - ./vol/logs/mangos:/opt/vmangos/logs
-      - ./vol/logs/mangos/honor:/opt/vmangos/honor
+      - ./vol/logs/mangos:/opt/vmangos/storage/logs
+      - ./vol/logs/mangos/honor:/opt/vmangos/storage/honor
     environment:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos-database:3306
