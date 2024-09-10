@@ -1,53 +1,45 @@
 #!/bin/bash
 
-# Get variables defined in .env
+set -e  # Exit immediately if a command exits with a non-zero status
 
-source .env
+# Define variables
+CORE_DIR="./vol/core"
+CORE_GITHUB_DIR="./vol/core-github"
+COMPILER_IMAGE="vmangos_build"
+DOCKERFILE="./docker/build/Dockerfile"
 
-# Handle script call from other directory
-
-get_script_path() {
-  [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+# Function to handle errors
+handle_error() {
+  echo "[VMaNGOS]: Error occurred: $1"
+  exit 1
 }
-repository_path=$(dirname "$(get_script_path "$0")")
-cd "$repository_path"
 
-# Start
-
+# Shut down the environment
 echo "[VMaNGOS]: Shutting down environment..."
-docker compose down
+docker compose down || handle_error "Failed to shut down environment"
 
-echo "[VMaNGOS]: Removing old core..."
-rm -r ./vol/core/*
+# Remove old files
+echo "[VMaNGOS]: Removing old core and installation files..."
+rm -rf "$CORE_DIR" "$CORE_GITHUB_DIR/build" || handle_error "Failed to remove old files"
 
-echo "[VMaNGOS]: Removing old installation files..."
-rm -r ./vol/core_github/build
-
+# Build the compiler image
 echo "[VMaNGOS]: Building compiler image..."
-docker build \
-  --build-arg DEBIAN_FRONTEND=noninteractive \
-  --no-cache \
-  -t vmangos_build \
-  -f ./docker/build/Dockerfile .
+docker build --build-arg DEBIAN_FRONTEND=noninteractive --no-cache -t "$COMPILER_IMAGE" -f "$DOCKERFILE" . || handle_error "Failed to build compiler image"
 
+# Compile VMaNGOS
 echo "[VMaNGOS]: Compiling VMaNGOS..."
 docker run \
-  -v "$repository_path/vol/ccache:/vol/ccache" \
-  -v "$repository_path/vol/core:/vol/core" \
-  -v "$repository_path/vol/core_github:/vol/core_github" \
-  -e CCACHE_DIR=$CCACHE_DIR \
-  -e VMANGOS_ANTICHEAT=$VMANGOS_ANTICHEAT \
-  -e VMANGOS_CLIENT=$VMANGOS_CLIENT \
-  -e VMANGOS_DEBUG=$VMANGOS_DEBUG \
-  -e VMANGOS_EXTRACTORS=$VMANGOS_EXTRACTORS \
-  -e VMANGOS_LIBCURL=$VMANGOS_LIBCURL \
-  -e VMANGOS_MALLOC=$VMANGOS_MALLOC \
-  -e VMANGOS_SCRIPTS=$VMANGOS_SCRIPTS \
-  -e VMANGOS_THREADS=$VMANGOS_THREADS \
-  -e VMANGOS_WORLD_DATABASE=$VMANGOS_WORLD_DATABASE \
+  -v "$CORE_DIR:/vol/core" \
+  -v "$CORE_GITHUB_DIR:/vol/core-github" \
+  -v "./vol/ccache:/vol/ccache" \
+  --env-file .env-vmangos-build \
   --rm \
-  vmangos_build
+  "$COMPILER_IMAGE" || handle_error "Compilation failed"
 
 echo "[VMaNGOS]: Compiling complete!"
 
-docker compose up --build -d
+# Start the environment with rebuild
+echo "[VMaNGOS]: Starting environment..."
+docker compose up --build -d || handle_error "Failed to start environment"
+
+echo "[VMaNGOS]: Environment started successfully."

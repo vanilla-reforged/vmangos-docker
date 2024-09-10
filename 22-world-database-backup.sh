@@ -1,14 +1,26 @@
 #!/bin/bash
 
-source .env
+# Load environment variables
+source .env-script
 
-# Date and Time
+# Define variables
+CONTAINER_NAME="vmangos-database"
+BACKUP_DIR="./vol/backup"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+DATABASE="mangos"
 
-timestamp=$(date +%Y%m%d_%H%M%S)
+# Create backup directory if it doesn't exist
+mkdir -p "$BACKUP_DIR"
 
-# Start
+# Function to back up a database
+backup_database() {
+  local db_name=$1
+  echo "[VMaNGOS]: Backing up $db_name database..."
+  docker exec "$CONTAINER_NAME" mariadb-dump -h 127.0.0.1 -u mangos -p"$MARIADB_ROOT_PASSWORD" --single-transaction "$db_name" > "$BACKUP_DIR/${db_name}_${TIMESTAMP}.sql" \
+    || { echo "Failed to back up $db_name"; exit 1; }
+}
 
-echo "[VMaNGOS]: Backing up world database..."
-docker exec vmangos_database mariadb-dump -h 127.0.0.1 -u mangos -p$MYSQL_ROOT_PASSWORD --single-transaction mangos > ./vol/backup/mangos_"$timestamp".sql
+# Backup the database
+backup_database "$DATABASE"
 
 echo "[VMaNGOS]: Backup complete!"

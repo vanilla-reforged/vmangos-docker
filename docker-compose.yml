@@ -1,87 +1,73 @@
-version: "3.7"
-
 networks:
    vmangos-network:
      external: true
 
 services:
-  vmangos_database:
+  vmangos-database:
     container_name: vmangos-database
     build:
       context: .
       dockerfile: docker/database/Dockerfile
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD} # Set this in your .env file or environment
     restart: unless-stopped
     command: --max_allowed_packet=32505856
     ports:
       - 3306:3306
     volumes:
       - ./vol/backup:/vol/backup
-      - ./vol/core_github:/vol/core_github
-      - ./vol/database_github:/vol/database_github
+      - ./vol/core-github:/vol/core-github
+      - ./vol/database-github:/vol/database-github
       - ./vol/database:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - VMANGOS_WORLD_DATABASE=${VMANGOS_WORLD_DATABASE}
-      - VMANGOS_REALM_NAME=${VMANGOS_REALM_NAME}
-      - VMANGOS_REALM_IP=${VMANGOS_REALM_IP}
-      - VMANGOS_REALM_PORT=${VMANGOS_REALM_PORT}
-      - VMANGOS_REALM_ICON=${VMANGOS_REALM_ICON}
-      - VMANGOS_REALM_FLAGS=${VMANGOS_REALM_FLAGS}
-      - VMANGOS_TIMEZONE=${VMANGOS_TIMEZONE}
-      - VMANGOS_ALLOWED_SECURITY_LEVEL=${VMANGOS_ALLOWED_SECURITY_LEVEL}
-      - VMANGOS_POPULATION=${VMANGOS_POPULATION}
-      - VMANGOS_GAMEBUILD_MIN=${VMANGOS_GAMEBUILD_MIN}
-      - VMANGOS_GAMEBUILD_MAX=${VMANGOS_GAMEBUILD_MAX}
-      - VMANGOS_FLAG=${VMANGOS_FLAG}
+    user: "vmangos-database-user:vmangos-database-user"
     networks:
       - vmangos-network
 
-  vmangos_realmd:
+  vmangos-realmd:
     container_name: vmangos-realmd
     build:
       context: .
-      args: 
-        - VMANGOS_USER_ID=${VMANGOS_USER_ID}
-        - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       dockerfile: docker/realmd/Dockerfile
     depends_on:
-      - vmangos_database
+      - vmangos-database
     ports:
       - 3724:3724
     restart: unless-stopped
     volumes:
       - ./vol/configuration/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
+      - ./vol/logs/realmd:/opt/vmangos/logs
     environment:
       - TZ=${TZ}
-      - WAIT_HOSTS=vmangos_database:3306
+      - WAIT_HOSTS=vmangos-database:3306
       - WAIT_TIMEOUT=120
+    user: "vmangos-realmd-user:vmangos-realmd-user"
     networks:
       - vmangos-network
 
-  vmangos_mangos:
+  vmangos-mangos:
     container_name: vmangos-mangos
     tty: true
     stdin_open: true
     build:
       context: .
-      args: 
-        - VMANGOS_USER_ID=${VMANGOS_USER_ID}
-        - VMANGOS_GROUP_ID=${VMANGOS_GROUP_ID}
       dockerfile: docker/mangos/Dockerfile
     depends_on:
-      - vmangos_database
+      - vmangos-database
     ports:
       - 8085:8085
     restart: unless-stopped
     volumes:
       - ./vol/configuration/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro
-      - ./vol/client_data_extracted/${VMANGOS_CLIENT}:/opt/vmangos/bin/${VMANGOS_CLIENT}:ro
-      - ./vol/client_data_extracted/maps:/opt/vmangos/bin/maps:ro
-      - ./vol/client_data_extracted/mmaps:/opt/vmangos/bin/mmaps:ro
-      - ./vol/client_data_extracted/vmaps:/opt/vmangos/bin/vmaps:ro
+      - ./vol/client-data-extracted/${VMANGOS_CLIENT}:/opt/vmangos/bin/${VMANGOS_CLIENT}:ro
+      - ./vol/client-data-extracted/maps:/opt/vmangos/bin/maps:ro
+      - ./vol/client-data-extracted/mmaps:/opt/vmangos/bin/mmaps:ro
+      - ./vol/client-data-extracted/vmaps:/opt/vmangos/bin/vmaps:ro
+      - ./vol/logs/mangos:/opt/vmangos/logs
+      - ./vol/logs/mangos/honor:/opt/vmangos/honor
     environment:
       - TZ=${TZ}
-      - WAIT_HOSTS=vmangos_database:3306
+      - WAIT_HOSTS=vmangos-database:3306
       - WAIT_TIMEOUT=120
+    user: "vmangos-mangos-user:vmangos-mangos-user"
     networks:
       - vmangos-network

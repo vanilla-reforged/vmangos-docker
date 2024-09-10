@@ -1,21 +1,20 @@
 FROM mariadb
 
-RUN \
-  apt-get update -y && \
-  apt-get install -y \
-  sudo 
+# Create the group and user 'vmangos-database-user' with specific UID and GID
+RUN groupadd -r vmangos-database-user && \
+    useradd -r -g vmangos-database-user -d /home/vmangos-database-user -s /bin/false -u 1001 vmangos-database-user
 
-RUN \
-  mkdir -p /vol/backup && \
-  mkdir -p /vol/core_github && \
-  mkdir -p /vol/database_github
+# Install required packages
+RUN apt-get update -y && \
+    apt-get install -y sudo && \
+    mkdir -p /vol/backup /vol/core-github /vol/database-github && \
+    chown -R vmangos-database-user:vmangos-database-user /vol/backup /vol/core-github /vol/database-github
 
-COPY ./docker/database/generate-db.sh /
-COPY ./docker/database/import-world-db-migrations.sh /
-COPY ./docker/database/recreate-world-db.sh /
-COPY ./docker/database/export-population-balance.sh /
+# Switch to the newly created user
+USER vmangos-database-user
 
-RUN chmod +x /generate-db.sh
-RUN chmod +x /import-world-db-migrations.sh
-RUN chmod +x /recreate-world-db.sh
-RUN chmod +x /export-population-balance.sh
+# Set the working directory
+WORKDIR /home/vmangos-database-user
+
+# Default command
+CMD ["mysqld"]

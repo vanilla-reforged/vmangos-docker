@@ -14,8 +14,8 @@ RUN \
 
 RUN \
   mkdir -p /vol/core && \
-  mkdir -p /vol/client_data
+  mkdir -p /vol/client-data
 
 RUN chmod +x /vol/core
 
-WORKDIR /vol/client_data
+WORKDIR /vol/client-data

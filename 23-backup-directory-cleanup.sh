@@ -1,2 +1,10 @@
-#deletes files found in the /backup directory after they reach an age of +7 days
-find ./vol/backup/* -mtime +7 -exec rm {} \;
+#!/bin/bash
+
+# Define the backup directory and age threshold
+BACKUP_DIR="./vol/backup"
+AGE_DAYS=7
+
+# Delete files older than the specified age
+find "$BACKUP_DIR" -type f -mtime +$AGE_DAYS -exec rm -f {} +
+
+echo "[Backup Cleanup]: Deleted files older than $AGE_DAYS days from $BACKUP_DIR."

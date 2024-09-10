@@ -1,42 +1,31 @@
 #!/bin/bash
 
-# Get variables defined in .env
-
-source .env
-
-# Handle script call from other directory
-
-get_script_path() {
-  [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
-}
-repository_path=$(dirname "$(get_script_path "$0")")
-cd "$repository_path"
-
-# Start
+# Define Docker image and container details
+IMAGE_NAME="vmangos-build"
+DOCKERFILE_PATH="./docker/build/Dockerfile"
+VOLUMES=(
+  "./vol/ccache:/vol/ccache"
+  "./vol/core:/vol/core"
+  "./vol/core-github:/vol/core-github"
+)
+ENV_FILE=".env-vmangos-build"
 
 echo "[VMaNGOS]: Building compiler image..."
+
+# Build the Docker image and handle errors
 docker build \
   --build-arg DEBIAN_FRONTEND=noninteractive \
   --no-cache \
-  -t vmangos-build \
-  -f ./docker/build/Dockerfile .
+  -t "$IMAGE_NAME" \
+  -f "$DOCKERFILE_PATH" . || { echo "Failed to build Docker image."; exit 1; }
 
 echo "[VMaNGOS]: Compiling VMaNGOS..."
+
+# Compile using the Docker image
 docker run \
-  -v "$repository_path/vol/ccache:/vol/ccache" \
-  -v "$repository_path/vol/core:/vol/core" \
-  -v "$repository_path/vol/core_github:/vol/core_github" \
-  -e CCACHE_DIR=$CCACHE_DIR \
-  -e VMANGOS_ANTICHEAT=$VMANGOS_ANTICHEAT \
-  -e VMANGOS_CLIENT=$VMANGOS_CLIENT \
-  -e VMANGOS_DEBUG=$VMANGOS_DEBUG \
-  -e VMANGOS_EXTRACTORS=$VMANGOS_EXTRACTORS \
-  -e VMANGOS_LIBCURL=$VMANGOS_LIBCURL \
-  -e VMANGOS_MALLOC=$VMANGOS_MALLOC \
-  -e VMANGOS_SCRIPTS=$VMANGOS_SCRIPTS \
-  -e VMANGOS_THREADS=$VMANGOS_THREADS \
-  -e VMANGOS_WORLD_DATABASE=$VMANGOS_WORLD_DATABASE \
+  $(printf '%s ' "${VOLUMES[@]/#/ -v }") \
+  --env-file "$ENV_FILE" \
   --rm \
-  vmangos-build
+  "$IMAGE_NAME" || { echo "Compilation failed."; exit 1; }
 
 echo "[VMaNGOS]: Compiling complete!"
