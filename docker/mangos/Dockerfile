@@ -21,10 +21,6 @@ RUN groupadd -r vmangos-mangos-user && \
 RUN mkdir -p /opt/vmangos && \
     chown -R vmangos-mangos-user:vmangos-mangos-user /opt/vmangos
 
-# Copy the mangosd.conf file into the appropriate directory
-COPY ./vol/core/etc/mangosd.conf /opt/vmangos/etc/mangosd.conf
-RUN chown vmangos-mangos-user:vmangos-mangos-user /opt/vmangos/etc/mangosd.conf
-
 # Copy the mangosd binary into the appropriate directory
 COPY ./vol/core/bin/mangosd /opt/vmangos/bin/mangosd
 
