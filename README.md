@@ -129,15 +129,6 @@ Clear the MySQL root password and restart the database:
 docker compose down
 docker compose up -d
 ```
-## Mangos and realmd logs
-
-Update your ```mangosd.conf```
-/opt/vmangos/logs
-/opt/vmangos/honor
-
-and ```realmd.conf``` f
-/opt/vmangos/logs
-
 
 ## Scripts
 
