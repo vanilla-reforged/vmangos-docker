@@ -152,8 +152,9 @@ and ```realmd.conf``` f
 - `21-database-backup.sh` - Backup dynamic databases.
 - `22-world-database-backup.sh` - Backup world database.
 - `23-backup-directory-cleanup.sh` - Cleanup old backups.
-- `24-collect-population-balance.sh` - Collect faction balance data.
-- `25-faction-specific-xp-rates.sh` - Set faction-specific XP rates.
+- `24-logs-directory-cleanup.sh` - Cleanup old logs.
+- `30-collect-population-balance.sh` - Collect faction balance data.
+- `31-faction-specific-xp-rates.sh` - Set faction-specific XP rates.
 
 ## Vanilla Reforged Links
 
