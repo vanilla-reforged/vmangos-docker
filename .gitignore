@@ -1,1 +1,5 @@
 ﻿/.vs
+.env
+.env-script
+.env-vmangos-build
+vol/*
