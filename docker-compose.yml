@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./vol/configuration/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
-      - ./vol/logs/realmd:/opt/vmangos/logs
+      - ./vol/logs/realmd:/opt/vmangos/storage/logs
     environment:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos-database:3306
