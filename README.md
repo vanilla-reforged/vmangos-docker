@@ -1,39 +1,40 @@
-### vmangos-docker
 
-A Docker setup for VMaNGOS.
+# VMaNGOS Docker Setup
 
-### Todo
+## A Docker setup for VMaNGOS.
 
-Use docker swarm to leverage docker secrets.
+## Todo
 
-### dependencies
+- Use docker swarm to leverage docker secrets.
+
+## Dependencies
 
 - Docker
 - Docker compose 2
 - p7zip-full
 - A POSIX-compliant shell as well as various core utilities (such as `cp` and `rm`) if you intend to use the provided scripts to install, update, and manage VMaNGOS.
 
-### security
+## Security
 
 Secure your system by understanding the following information: [ufw-docker](https://github.com/chaifeng/ufw-docker).
 
 The ufw commands you will need to secure your installation:
 
-Management:
+### Management:
 
 ```sh
 ufw allow from [your client ip]
 ufw route allow proto tcp from [your client ip] to any
 ```
 
-Vmangos public access:
+### Vmangos public access:
 
 ```sh
 ufw route allow proto tcp from any to any port 3724
 ufw route allow proto tcp from any to any port 8085
 ```
 
-### docker setup
+## Docker Setup
 
 The assumed client version is `5875` (patch `1.12.1`); if you want to set up VMaNGOS to use a different version, modify the `VMANGOS_CLIENT` entry in the `.env` file accordingly.
 
@@ -41,28 +42,30 @@ The user that is used inside the persistent containers (VMANGOS_DATABASE, VMANGO
 
 Also, please be aware that `./vol/client-data-extracted` gets mounted directly into the mangos server to provide dbc and map data.
 
-First, clone the repository and move into it:
+### Clone the Repository
 
 ```sh
 git clone https://github.com/vanilla-reforged/vmangos-docker
 cd vmangos-docker
 ```
 
-At this point, you have to adjust the .env files for your desired setup:
+### Adjust .env Files
 
-`.env` For Docker Compose
-`.env-script` For Scripts
-`.env-vmangos-build` For compiler image build / to set the cmake options.
+Adjust the .env files for your desired setup:
 
-The default setup will only allow local connections (from the same machine). To make the server public, it is required to change the `VMANGOS_REALM_IP` environment variable in the `.env-vmangos-database` file.
+- `.env` For Docker Compose
+- `.env-script` For Scripts
+- `.env-vmangos-build` For compiler image build / to set the cmake options.
 
-VMaNGOS also requires some data generated/extracted from the client to work correctly. To generate that data with the provided shell script, copy the contents of your World of Warcraft client directory into `./vol/client-data`.
+To make the server public, change the `VMANGOS_REALM_IP` environment variable in the `.env-vmangos-database` file.
 
-Note that generating the required data will take many hours (depending on your hardware). Some notices/errors during the generation are normal and nothing to worry about.
+### Generate/Extract Client Data
 
-Alternatively, if you have already extracted the client data, you may place it directly in `./vol/client-data-extracted` and skip the "03-extract-client-data.sh" script.
+Copy the contents of your World of Warcraft client directory into `./vol/client-data`. Generating the required data will take many hours. If you have already extracted the client data, place it in `./vol/client-data-extracted` and skip the "03-extract-client-data.sh" script.
 
-To do the installation, execute the scripts in order from 01 to 04:
+### Installation
+
+Execute the scripts in order:
 
 ```sh
 ./01-create-dockeruser-and-set-permissions.sh
@@ -71,83 +74,85 @@ To do the installation, execute the scripts in order from 01 to 04:
 ./04-extract-client-data.sh
 ```
 
-Then create the vmangos network:
+Create the vmangos network:
 
-```
+```sh
 docker network create vmangos-network
 ```
 
-Then start your environment:
+Start your environment:
 
 ```sh
 docker compose up -d
 ```
 
-Then create the database with the script 04:
+Create the database:
 
 ```sh
 ./05-create-database-mangos.sh
 ```
 
-If you used a custom MySQL root password, you need to update your `mangosd.conf` and `realmd.conf` with that new password.
+### Configure MySQL Password
 
-After the scripts have finished and you updated your configuration files, you should have a running installation and can create your first account by attaching to the `vmangos_mangos` service:
+Update `mangosd.conf` and `realmd.conf` with your MySQL root password if changed.
+
+### Create Account
+
+Attach to the `vmangos_mangos` service:
 
 ```sh
 docker attach vmangos-mangos
 ```
 
-After attaching, create the account and assign an account level:
+Create the account:
 
 ```sh
 account create <account name> <account password>
-account set gmlevel <account name> <account level> # see https://github.com/vmangos/core/blob/79efe80ae39d94a5e52b71179583509b1df75899/src/shared/Common.h#L184-L191
+account set gmlevel <account name> <account level>
 ```
 
-When you are done, detach from the Docker container by pressing <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
+Detach from the Docker container:
 
-Finally, clear the mysql root password from the .env variable and restart the database container by executing:
+Press <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
+
+### Clear MySQL Root Password
+
+Clear the MySQL root password and restart the database:
 
 ```sh
 06-remove-root-env-database.sh
 ```
 
-### starting and stopping vmangos
-
-Vmangos can be stopped and stated using the following commands:
+## Starting and Stopping VMaNGOS
 
 ```sh
 docker compose down
 docker compose up -d
 ```
 
-### scripts
+## Scripts
 
-scripts for manual tasks
+### Manual Tasks
 
-11-import-world-db-migrations.sh can be used to import new migrations after running 02-update-github-and-database.sh
+- `11-import-world-db-migrations.sh` - Import new migrations.
+- `12-recreate-world-db.sh` - Recreate the world database.
+- `13-recompile-core.sh` - Recompile the core.
 
-12-recreate-world-db.sh can be used to recreate the world database if needed
+### Cronjobs
 
-13-recompile-core.sh allows you to recompile the core without touching the database
+- `21-database-backup.sh` - Backup dynamic databases.
+- `22-world-database-backup.sh` - Backup world database.
+- `23-backup-directory-cleanup.sh` - Cleanup old backups.
+- `24-collect-population-balance.sh` - Collect faction balance data.
+- `25-faction-specific-xp-rates.sh` - Set faction-specific XP rates.
 
-scripts for cronjobs
+## Vanilla Reforged Links
 
-21-database-backup.sh, backups the more dynamic characters, reaqlmd and logs dbs
-
-22-world-database-backup.sh backups the more static world database
-
-23-backup-directory-cleanup.sh, deletes old backups (7days adjust as needed)
-
-24-collect-population-balance.sh, collect horde/alliance ratio in your preferd timerframe (for example hourly)
-
-25-faction-specific-xp-rates.sh, set the xp rates and restart the server to make them active (necessitates changes in core sett github.com/vanilla-reforged)
-
-## vanilla reforged links
 - [Vanilla Reforged Website](https://vanillareforged.org/)
 - [Vanilla Reforged Discord](https://discord.gg/KkkDV5zmPb)
 - [Vanilla Reforged Patreon](https://www.patreon.com/vanillareforged)
 
-## this work is based upon these projects
+## Based Upon
+
 - [tonymmm1 vmangos-docker](https://github.com/tonymmm1/vmangos-docker)
 - [mserajnik vmangos-docker](https://github.com/mserajnik/vmangos-deploy)
