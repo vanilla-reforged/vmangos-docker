@@ -26,7 +26,7 @@ echo "[VMaNGOS]: Recreating world database..."
 docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MARIADB_ROOT_PASSWORD" -e "DROP DATABASE IF EXISTS mangos; CREATE DATABASE mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;" || { echo "[VMaNGOS]: Failed to recreate world database."; exit 1; }
 
 # Import databases
-echo "[VMaNGOS]: Importing databases…"
+echo "[VMaNGOS]: Importing databasesâ€¦"
 import_files=(
   "mangos:./vol/database-github/$VMANGOS_WORLD_DATABASE.sql"
   "mangos:./vol/core-github/sql/migrations/world_db_updates.sql"
@@ -39,3 +39,7 @@ for entry in "${import_files[@]}"; do
 done
 
 echo "[VMaNGOS]: World database recreation complete."
+
+echo "[VMaNGOS]: Restarting environment..."
+docker compose down
+docker compose up -d
