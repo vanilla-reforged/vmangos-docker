@@ -20,6 +20,10 @@ RUN groupadd -r vmangos-realmd-user && \
 RUN mkdir -p /opt/vmangos && \
     chown -R vmangos-realmd-user:vmangos-realmd-user /opt/vmangos
 
+# Copy the realmd.conf file into the appropriate directory
+COPY ./vol/core/etc/realmd.conf /opt/vmangos/etc/realmd.conf
+RUN chown vmangos-realmd-user:vmangos-realmd-user /opt/vmangos/etc/realmd.conf
+
 # Copy the realmd binary into the appropriate directory
 COPY ./vol/core/bin/realmd /opt/vmangos/bin/realmd
 
