@@ -48,7 +48,7 @@ git clone https://github.com/vanilla-reforged/vmangos-docker
 
 ### Move into the repository and make all scripts executable
 
-```
+```sh
 cd vmangos-docker
 find ./* -type f -iname "*.sh" -exec chmod +x {} \;
 ```
@@ -72,7 +72,7 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 
 Execute the scripts in order:
 
-```
+```sh
 ./01-create-dockeruser-and-set-permissions.sh
 ./02-update-github-and-database.sh
 ./03-compile-core.sh
@@ -161,6 +161,23 @@ docker compose up -d
 - `./26-adjust-ressource-limits.sh` - Adjust ressource allocations in docker-compose.yaml based on 7 day averages from Data collected with `25-collect-ressource-usage.sh`. Suggested schedule: Weekly.
 - `./30-collect-population-balance.sh` - Collect faction balance data. Suggested schedule: Hourly.
 - `./31-faction-specific-xp-rates.sh` - Set faction-specific XP rates and restart server to activate them. Suggested schedule: Daily. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
+
+#### Edit the crontab using the command below:
+```sh
+crontab -e
+```
+
+#### Add the following lines to the crontab file:
+
+```sh
+0 * * * * /path/to/21-database-backup.sh >> /path/to/logs/21-database-backup.log 2>&1
+0 2 * * * /path/to/22-world-database-backup.sh >> /path/to/logs/22-world-database-backup.log 2>&1
+5 * * * * /path/to/23-backup-directory-cleanup.sh >> /path/to/logs/23-backup-directory-cleanup.log 2>&1
+0 3 * * * /path/to/24-logs-directory-cleanup.sh >> /path/to/logs/24-logs-directory-cleanup.log 2>&1
+0 * * * * /path/to/25-collect-ressource-usage.sh >> /path/to/logs/25-collect-ressource-usage.log 2>&1
+0 4 * * 0 /path/to/26-adjust-ressource-limits.sh >> /path/to/logs/26-adjust-ressource-limits.log 2>&1
+0 * * * * /path/to/30-collect-population-balance.sh >> /path/to/logs/30-collect-population-balance.log 2>&1
+0 5 * * * /path/to/31-faction-specific-xp-rates.sh >> /path/to/logs/31-faction-specific-xp-rates.log 2>&1```
 
 ## Vanilla Reforged Links
 
