@@ -21,9 +21,13 @@ CPU_SHARE_MULTIPLIER_DB=1.0
 CPU_SHARE_MULTIPLIER_MANGOS=1.0
 CPU_SHARE_MULTIPLIER_REALMD=1.0
 
-
 # Enable swap limit support (true/false)
 ENABLE_SWAP_LIMIT_SUPPORT=true
+
+# Minimum memory reservations based on docker-compose configuration
+MIN_MEM_DB=524288000  # 500 MB in bytes
+MIN_MEM_MANGOS=1073741824  # 1 GB in bytes
+MIN_MEM_REALMD=104857600  # 100 MB in bytes
 
 # ==============================
 # Script Logic (No Need to Modify Below)
@@ -100,22 +104,27 @@ mem_db=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_DB / $total_parts}")
 mem_mangos=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_MANGOS / $total_parts}")
 mem_realmd=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_REALMD / $total_parts}")
 
-# 5. Convert memory limits to bytes with 'b' suffix
+# 5. Ensure memory limits are not lower than the minimum reservations
+mem_db=$(awk "BEGIN {print ($mem_db < $MIN_MEM_DB) ? $MIN_MEM_DB : $mem_db}")
+mem_mangos=$(awk "BEGIN {print ($mem_mangos < $MIN_MEM_MANGOS) ? $MIN_MEM_MANGOS : $mem_mangos}")
+mem_realmd=$(awk "BEGIN {print ($mem_realmd < $MIN_MEM_REALMD) ? $MIN_MEM_REALMD : $mem_realmd}")
+
+# 6. Convert memory limits to bytes with 'b' suffix
 mem_db_limit="${mem_db}b"
 mem_mangos_limit="${mem_mangos}b"
 mem_realmd_limit="${mem_realmd}b"
 
-# 6. Set swap limits equal to memory limits
+# 7. Set swap limits equal to memory limits
 memswap_db_limit="${mem_db_limit}"
 memswap_mangos_limit="${mem_mangos_limit}"
 memswap_realmd_limit="${mem_realmd_limit}"
 
-# 7. Calculate CPU shares for each container
+# 8. Calculate CPU shares for each container
 cpu_shares_db=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_DB}")
 cpu_shares_mangos=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_MANGOS}")
 cpu_shares_realmd=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_REALMD}")
 
-# 8. Update or add variables in the .env file
+# 9. Update or add variables in the .env file
 
 # Function to update or add a variable in the .env file
 update_env_variable() {
