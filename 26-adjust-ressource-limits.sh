@@ -13,6 +13,13 @@ SEVEN_DAYS_AGO=$(date -d '7 days ago' +%s)
 calculate_average() {
   log_file=$1
 
+  # Check if log file exists and is not empty
+  if [ ! -f "$log_file" ] || [ ! -s "$log_file" ]; then
+    echo "Warning: Log file $log_file is missing or empty."
+    echo "0,0"
+    return
+  fi
+
   # Filter entries within the last 7 days
   data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold' "$log_file")
 
@@ -28,10 +35,21 @@ calculate_average() {
   count=0
 
   while IFS=',' read -r timestamp cpu_usage mem_usage; do
+    # Validate the data format
+    if ! [[ "$cpu_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]] || ! [[ "$mem_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+      continue
+    fi
+
     total_cpu=$(awk "BEGIN {print $total_cpu + $cpu_usage}")
     total_mem=$(awk "BEGIN {print $total_mem + $mem_usage}")
     count=$((count + 1))
   done <<< "$data"
+
+  # Avoid division by zero
+  if [ "$count" -eq 0 ]; then
+    echo "0,0"
+    return
+  fi
 
   avg_cpu=$(awk "BEGIN {printf \"%.2f\", $total_cpu / $count}")
   avg_mem=$(awk "BEGIN {printf \"%.2f\", $total_mem / $count}")

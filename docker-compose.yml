@@ -23,10 +23,9 @@ services:
     networks:
       - vmangos-network
     oom_kill_disable: true
-    mem_limit: ${MEM_LIMIT_DB}
-    memswap_limit: ${MEMSWAP_LIMIT_DB}
-    mem_reservation: 500m
-    cpu_shares: ${CPU_SHARES_DB}
+    mem_reservation: ${MEM_RESERVATION_DB}  # Use the dynamically set reservation value
+    memswap_limit: ${MEMSWAP_LIMIT_DB}     # Use the swap limit value calculated in the script
+    cpu_shares: ${CPU_SHARES_DB}           # CPU shares based on the script's calculation
 
   vmangos-realmd:
     container_name: vmangos-realmd
@@ -49,10 +48,9 @@ services:
     networks:
       - vmangos-network
     oom_kill_disable: true
-    mem_limit: ${MEM_LIMIT_REALMD}
-    memswap_limit: ${MEMSWAP_LIMIT_REALMD}
-    mem_reservation: 100m
-    cpu_shares: ${CPU_SHARES_REALMD}
+    mem_reservation: ${MEM_RESERVATION_REALMD}  # Use the dynamically set reservation value
+    memswap_limit: ${MEMSWAP_LIMIT_REALMD}      # Use the swap limit value calculated in the script
+    cpu_shares: ${CPU_SHARES_REALMD}            # CPU shares based on the script's calculation
 
   vmangos-mangos:
     container_name: vmangos-mangos
@@ -82,7 +80,6 @@ services:
     networks:
       - vmangos-network
     oom_kill_disable: true
-    mem_limit: ${MEM_LIMIT_MANGOS}
-    memswap_limit: ${MEMSWAP_LIMIT_MANGOS}
-    mem_reservation: 1g
-    cpu_shares: ${CPU_SHARES_MANGOS}
+    mem_reservation: ${MEM_RESERVATION_MANGOS}  # Use the dynamically set reservation value
+    memswap_limit: ${MEMSWAP_LIMIT_MANGOS}      # Use the swap limit value calculated in the script
+    cpu_shares: ${CPU_SHARES_MANGOS}            # CPU shares based on the script's calculation

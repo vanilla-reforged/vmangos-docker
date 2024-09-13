@@ -17,17 +17,38 @@ collect_usage() {
   container_name=$1
   log_file=$2
 
+  # Check if the container is running
+  if ! docker ps --format "{{.Names}}" | grep -q "^${container_name}$"; then
+    echo "Warning: Container $container_name is not running."
+    return
+  fi
+
   # Get container stats in JSON format
-  stats=$(docker stats --no-stream --format "{{json .}}" "$container_name")
+  stats=$(docker stats --no-stream --format "{{json .}}" "$container_name" 2>/dev/null)
+
+  # Check if stats were successfully retrieved
+  if [ -z "$stats" ]; then
+    echo "Warning: Unable to collect stats for $container_name."
+    return
+  fi
 
   # Extract CPU and memory usage
-  cpu_usage=$(echo "$stats" | jq -r '.CPUPerc' | tr -d '%')
+  cpu_usage=$(echo "$stats" | jq -r '.CPUPerc' | tr -d '%' || echo "0")
   mem_usage=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' | tr -d 'MiB' | tr -d 'GiB')
+
+  # Handle potential errors in CPU or memory parsing
+  if ! [[ "$cpu_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+    cpu_usage="0"  # Default to 0 if parsing failed
+  fi
 
   # Convert memory usage to MiB if necessary
   mem_unit=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' | grep -o '[A-Za-z]*$')
   if [ "$mem_unit" == "GiB" ]; then
     mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage * 1024}")
+  elif [ "$mem_unit" == "KiB" ]; then
+    mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage / 1024}")
+  elif [ "$mem_unit" == "B" ]; then
+    mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage / 1048576}")
   fi
 
   # Append data to log file

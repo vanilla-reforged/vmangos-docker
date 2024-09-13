@@ -104,20 +104,21 @@ mem_db=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_DB / $total_parts}")
 mem_mangos=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_MANGOS / $total_parts}")
 mem_realmd=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_REALMD / $total_parts}")
 
-# 5. Ensure memory limits are not lower than the minimum reservations
-mem_db=$(awk "BEGIN {print ($mem_db < $MIN_MEM_DB) ? $MIN_MEM_DB : $mem_db}")
-mem_mangos=$(awk "BEGIN {print ($mem_mangos < $MIN_MEM_MANGOS) ? $MIN_MEM_MANGOS : $mem_mangos}")
-mem_realmd=$(awk "BEGIN {print ($mem_realmd < $MIN_MEM_REALMD) ? $MIN_MEM_REALMD : $mem_realmd}")
+# 5. Ensure memory reservations are not lower than the minimum values
+# Set the memory reservation to the maximum of the calculated value or the minimum defined
+mem_reservation_db=$(awk "BEGIN {print ($mem_db < $MIN_MEM_DB) ? $MIN_MEM_DB : $mem_db}")
+mem_reservation_mangos=$(awk "BEGIN {print ($mem_mangos < $MIN_MEM_MANGOS) ? $MIN_MEM_MANGOS : $mem_mangos}")
+mem_reservation_realmd=$(awk "BEGIN {print ($mem_realmd < $MIN_MEM_REALMD) ? $MIN_MEM_REALMD : $mem_realmd}")
 
-# 6. Convert memory limits to bytes with 'b' suffix
-mem_db_limit="${mem_db}b"
-mem_mangos_limit="${mem_mangos}b"
-mem_realmd_limit="${mem_realmd}b"
+# 6. Convert memory reservations to bytes with 'b' suffix
+mem_reservation_db_limit="${mem_reservation_db}b"
+mem_reservation_mangos_limit="${mem_reservation_mangos}b"
+mem_reservation_realmd_limit="${mem_reservation_realmd}b"
 
-# 7. Set swap limits equal to memory limits
-memswap_db_limit="${mem_db_limit}"
-memswap_mangos_limit="${mem_mangos_limit}"
-memswap_realmd_limit="${mem_realmd_limit}"
+# 7. Set swap limits equal to memory reservations
+memswap_db_limit="${mem_reservation_db_limit}"
+memswap_mangos_limit="${mem_reservation_mangos_limit}"
+memswap_realmd_limit="${mem_reservation_realmd_limit}"
 
 # 8. Calculate CPU shares for each container
 cpu_shares_db=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_DB}")
@@ -146,12 +147,12 @@ update_env_variable() {
 # Ensure the .env file exists
 touch .env
 
-# Update or add resource limit variables
-update_env_variable "MEM_LIMIT_DB" "${mem_db_limit}"
-update_env_variable "MEM_LIMIT_MANGOS" "${mem_mangos_limit}"
-update_env_variable "MEM_LIMIT_REALMD" "${mem_realmd_limit}"
+# Update or add resource reservation variables
+update_env_variable "MEM_RESERVATION_DB" "${mem_reservation_db_limit}"
+update_env_variable "MEM_RESERVATION_MANGOS" "${mem_reservation_mangos_limit}"
+update_env_variable "MEM_RESERVATION_REALMD" "${mem_reservation_realmd_limit}"
 
-# Update or add swap limit variables to be equal to memory limits
+# Update or add swap limit variables to be equal to memory reservations
 update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_db_limit}"
 update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_mangos_limit}"
 update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_realmd_limit}"
@@ -161,7 +162,7 @@ update_env_variable "CPU_SHARES_MANGOS" "${cpu_shares_mangos}"
 update_env_variable "CPU_SHARES_REALMD" "${cpu_shares_realmd}"
 
 echo "Resource limits have been updated in the .env file:"
-grep -E "MEM_LIMIT_DB|MEM_LIMIT_MANGOS|MEM_LIMIT_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env
+grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env
 
 # ==============================
 # Reboot if Required
