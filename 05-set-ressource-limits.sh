@@ -99,7 +99,7 @@ mem_limit=$(awk "BEGIN {printf \"%.0f\", $total_mem_bytes * $MEMORY_USAGE_PERCEN
 # 3. Total ratio parts
 total_parts=$(awk "BEGIN {print $RATIO_DB + $RATIO_MANGOS + $RATIO_REALMD}")
 
-# 4. Calculate memory limits for each container based on the ratio
+# 4. Calculate memory reservations for each container based on the ratio
 mem_db=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_DB / $total_parts}")
 mem_mangos=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_MANGOS / $total_parts}")
 mem_realmd=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_REALMD / $total_parts}")
@@ -115,17 +115,12 @@ mem_reservation_db_limit="${mem_reservation_db}b"
 mem_reservation_mangos_limit="${mem_reservation_mangos}b"
 mem_reservation_realmd_limit="${mem_reservation_realmd}b"
 
-# 7. Set swap limits equal to memory reservations
-memswap_db_limit="${mem_reservation_db_limit}"
-memswap_mangos_limit="${mem_reservation_mangos_limit}"
-memswap_realmd_limit="${mem_reservation_realmd_limit}"
-
-# 8. Calculate CPU shares for each container
+# 7. Calculate CPU shares for each container
 cpu_shares_db=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_DB}")
 cpu_shares_mangos=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_MANGOS}")
 cpu_shares_realmd=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_REALMD}")
 
-# 9. Update or add variables in the .env file
+# 8. Update or add variables in the .env file
 
 # Function to update or add a variable in the .env file
 update_env_variable() {
@@ -152,17 +147,12 @@ update_env_variable "MEM_RESERVATION_DB" "${mem_reservation_db_limit}"
 update_env_variable "MEM_RESERVATION_MANGOS" "${mem_reservation_mangos_limit}"
 update_env_variable "MEM_RESERVATION_REALMD" "${mem_reservation_realmd_limit}"
 
-# Update or add swap limit variables to be equal to memory reservations
-update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_db_limit}"
-update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_mangos_limit}"
-update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_realmd_limit}"
-
 update_env_variable "CPU_SHARES_DB" "${cpu_shares_db}"
 update_env_variable "CPU_SHARES_MANGOS" "${cpu_shares_mangos}"
 update_env_variable "CPU_SHARES_REALMD" "${cpu_shares_realmd}"
 
 echo "Resource limits have been updated in the .env file:"
-grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env
+grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env
 
 # ==============================
 # Reboot if Required

@@ -117,7 +117,7 @@ update_env_variable "RATIO_REALMD" "$RATIO_REALMD"
 
 echo "Updated ratios in .env file."
 
-# Re-run set_resource_limits.sh to apply new ratios and adjust memswap_limit
+# Re-run set_resource_limits.sh to apply new ratios
 ./set_resource_limits.sh
 
 # Function to clean up old entries in a log file
