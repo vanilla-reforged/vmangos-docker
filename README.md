@@ -72,7 +72,7 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 
 Execute the scripts in order:
 
-```sh
+```
 ./01-create-dockeruser-and-set-permissions.sh
 ./02-update-github-and-database.sh
 ./03-compile-core.sh
