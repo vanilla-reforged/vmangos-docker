@@ -56,8 +56,8 @@ for entry in "${import_files[@]}"; do
 done
 
 # Upgrade MariaDB
-echo "[VMaNGOS]: Upgrading MariaDB..."
-docker exec -i "$CONTAINER_NAME" mariadb-upgrade -u root -p"$MYSQL_ROOT_PASSWORD"
+# echo "[VMaNGOS]: Upgrading MariaDB..."
+# docker exec -i "$CONTAINER_NAME" mariadb-upgrade -u root -p"$MYSQL_ROOT_PASSWORD"
 
 # Configure default realm
 echo "[VMaNGOS]: Configuring default realm..."
