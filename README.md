@@ -44,8 +44,15 @@ Also, please be aware that `./vol/client-data-extracted` gets mounted directly i
 
 ```sh
 git clone https://github.com/vanilla-reforged/vmangos-docker
-cd vmangos-docker
 ```
+
+### Move into the repository and make all scripts executable
+
+```
+cd vmangos-docker
+find ./* -type f -iname "*.sh" -exec chmod +x {} \;
+```
+
 
 ### Adjust .env Files
 
