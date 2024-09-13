@@ -79,16 +79,16 @@ Execute the scripts in order:
 ./04-extract-client-data.sh
 ```
 
-Create the vmangos network:
-
-```sh
-docker network create vmangos-network
-```
-
 Set the ressource limits for the vmangos containers to avoid OOME crashes, the values are adjustable in the script.
 
 ```sh
 05-set-ressource-limits.sh
+```
+
+Create the vmangos network:
+
+```sh
+docker network create vmangos-network
 ```
 
 Start your environment:
@@ -152,7 +152,7 @@ docker compose up -d
 ### Cronjobs
 
 - `21-database-backup.sh` - Backup dynamic databases. Suggested schedule: Hourly.
-- `22-world-database-backup.sh` - Backup world database.
+- `22-world-database-backup.sh` - Backup world database. Suggested schedule: Depends on how often you do changes to the world database.
 - `23-backup-directory-cleanup.sh` - Cleanup backups older than 7 days. Run it after `21-database-backup.sh`.
 - `24-logs-directory-cleanup.sh` - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. Suggested schedule: Daily. 
 - `25-collect-ressource-usage.sh` - Collect ressource usage for database, mangos and realmd containers. Suggested schedule: Hourly.
