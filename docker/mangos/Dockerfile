@@ -15,7 +15,7 @@ RUN apt-get update -y && \
 
 # Create a user and group 'vmangos-mangos-user' with UID and GID 1001
 RUN groupadd -r vmangos-mangos-user && \
-    useradd -r -u 1001 -g vmangos-mangos-user -d /home/vmangos-mangos-user -s /bin/false vmangos-mangos-user
+    useradd -r -u 1001 -g vmangos-mangos-user -d /home/vmangos-mangos-user -s /bin/bash vmangos-mangos-user
 
 # Create necessary directories and set permissions
 RUN mkdir -p /opt/vmangos && \
@@ -33,11 +33,16 @@ ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait
 RUN chmod +x /opt/wait && \
     chown vmangos-mangos-user:vmangos-mangos-user /opt/wait
 
+# Copy the entrypoint script into the image
+COPY docker/mangos/entrypoint.sh /opt/entrypoint.sh
+RUN chmod +x /opt/entrypoint.sh && \
+    chown vmangos-mangos-user:vmangos-mangos-user /opt/entrypoint.sh
+
 # Set the working directory
 WORKDIR /opt/vmangos/bin
 
 # Switch to the newly created user
 USER vmangos-mangos-user
 
-# Set the default command to run mangosd with the configuration file
-CMD /opt/wait && ./mangosd -c /opt/vmangos/etc/mangosd.conf
+# Set the entrypoint
+ENTRYPOINT ["/opt/entrypoint.sh"]
