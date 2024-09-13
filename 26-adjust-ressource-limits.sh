@@ -134,7 +134,7 @@ cleanup_log "$REALMD_LOG"
 
 # Restart Docker environment to apply the new variables
 echo "Restarting Docker environment to apply new .env variables..."
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 
 echo "Docker environment restarted with updated variables."
