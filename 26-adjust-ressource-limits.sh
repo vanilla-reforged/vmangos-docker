@@ -115,7 +115,46 @@ update_env_variable "RATIO_DB" "$RATIO_DB"
 update_env_variable "RATIO_MANGOS" "$RATIO_MANGOS"
 update_env_variable "RATIO_REALMD" "$RATIO_REALMD"
 
-echo "Updated ratios in .env file."
+# Update memory limits and swap limits based on new ratios and average usage
+mem_reservation_db=$(awk "BEGIN {printf \"%.0f\", $total_avg_mem * $RATIO_DB}")
+mem_reservation_mangos=$(awk "BEGIN {printf \"%.0f\", $total_avg_mem * $RATIO_MANGOS}")
+mem_reservation_realmd=$(awk "BEGIN {printf \"%.0f\", $total_avg_mem * $RATIO_REALMD}")
+
+mem_limit_db=$mem_reservation_db
+mem_limit_mangos=$mem_reservation_mangos
+mem_limit_realmd=$mem_reservation_realmd
+
+memswap_limit_db=$(awk "BEGIN {print 2 * $mem_limit_db}")
+memswap_limit_mangos=$(awk "BEGIN {print 2 * $mem_limit_mangos}")
+memswap_limit_realmd=$(awk "BEGIN {print 2 * $mem_limit_realmd}")
+
+# Convert memory values to bytes with 'b' suffix
+mem_reservation_db_limit="${mem_reservation_db}b"
+mem_reservation_mangos_limit="${mem_reservation_mangos}b"
+mem_reservation_realmd_limit="${mem_reservation_realmd}b"
+
+mem_limit_db_limit="${mem_limit_db}b"
+mem_limit_mangos_limit="${mem_limit_mangos}b"
+mem_limit_realmd_limit="${mem_limit_realmd}b"
+
+memswap_limit_db_limit="${memswap_limit_db}b"
+memswap_limit_mangos_limit="${memswap_limit_mangos}b"
+memswap_limit_realmd_limit="${memswap_limit_realmd}b"
+
+# Update or add resource reservation, limit, and swap limit variables in the .env file
+update_env_variable "MEM_RESERVATION_DB" "${mem_reservation_db_limit}"
+update_env_variable "MEM_RESERVATION_MANGOS" "${mem_reservation_mangos_limit}"
+update_env_variable "MEM_RESERVATION_REALMD" "${mem_reservation_realmd_limit}"
+
+update_env_variable "MEM_LIMIT_DB" "${mem_limit_db_limit}"
+update_env_variable "MEM_LIMIT_MANGOS" "${mem_limit_mangos_limit}"
+update_env_variable "MEM_LIMIT_REALMD" "${mem_limit_realmd_limit}"
+
+update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_limit_db_limit}"
+update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_limit_mangos_limit}"
+update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_limit_realmd_limit}"
+
+echo "Updated memory reservations, limits, and swap limits in .env file."
 
 # Re-run set_resource_limits.sh to apply new ratios
 ./05-set-ressource-limits.sh

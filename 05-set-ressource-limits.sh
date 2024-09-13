@@ -25,7 +25,7 @@ CPU_SHARE_MULTIPLIER_REALMD=1.0
 ENABLE_SWAP_LIMIT_SUPPORT=true
 
 # Minimum memory reservations based on docker-compose configuration
-MIN_MEM_DB=524288000  # 500 MB in bytes
+MIN_MEM_DB=1073741824  # 1 GB in bytes
 MIN_MEM_MANGOS=1073741824  # 1 GB in bytes
 MIN_MEM_REALMD=104857600  # 100 MB in bytes
 
@@ -105,22 +105,39 @@ mem_mangos=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_MANGOS / $total_pa
 mem_realmd=$(awk "BEGIN {printf \"%.0f\", $mem_limit * $RATIO_REALMD / $total_parts}")
 
 # 5. Ensure memory reservations are not lower than the minimum values
-# Set the memory reservation to the maximum of the calculated value or the minimum defined
 mem_reservation_db=$(awk "BEGIN {print ($mem_db < $MIN_MEM_DB) ? $MIN_MEM_DB : $mem_db}")
 mem_reservation_mangos=$(awk "BEGIN {print ($mem_mangos < $MIN_MEM_MANGOS) ? $MIN_MEM_MANGOS : $mem_mangos}")
 mem_reservation_realmd=$(awk "BEGIN {print ($mem_realmd < $MIN_MEM_REALMD) ? $MIN_MEM_REALMD : $mem_realmd}")
 
-# 6. Convert memory reservations to bytes with 'b' suffix
+# 6. Set mem limits to match reservations
+mem_limit_db=$mem_reservation_db
+mem_limit_mangos=$mem_reservation_mangos
+mem_limit_realmd=$mem_reservation_realmd
+
+# 7. Calculate memswap limits (twice the mem limit)
+memswap_limit_db=$(awk "BEGIN {print 2 * $mem_limit_db}")
+memswap_limit_mangos=$(awk "BEGIN {print 2 * $mem_limit_mangos}")
+memswap_limit_realmd=$(awk "BEGIN {print 2 * $mem_limit_realmd}")
+
+# 8. Convert memory reservations, limits, and swap limits to bytes with 'b' suffix
 mem_reservation_db_limit="${mem_reservation_db}b"
 mem_reservation_mangos_limit="${mem_reservation_mangos}b"
 mem_reservation_realmd_limit="${mem_reservation_realmd}b"
 
-# 7. Calculate CPU shares for each container
+mem_limit_db_limit="${mem_limit_db}b"
+mem_limit_mangos_limit="${mem_limit_mangos}b"
+mem_limit_realmd_limit="${mem_limit_realmd}b"
+
+memswap_limit_db_limit="${memswap_limit_db}b"
+memswap_limit_mangos_limit="${memswap_limit_mangos}b"
+memswap_limit_realmd_limit="${memswap_limit_realmd}b"
+
+# 9. Calculate CPU shares for each container
 cpu_shares_db=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_DB}")
 cpu_shares_mangos=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_MANGOS}")
 cpu_shares_realmd=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_REALMD}")
 
-# 8. Update or add variables in the .env file
+# 10. Update or add variables in the .env file
 
 # Function to update or add a variable in the .env file
 update_env_variable() {
@@ -142,17 +159,25 @@ update_env_variable() {
 # Ensure the .env file exists
 touch .env
 
-# Update or add resource reservation variables
+# Update or add resource reservation, limit, and swap limit variables
 update_env_variable "MEM_RESERVATION_DB" "${mem_reservation_db_limit}"
 update_env_variable "MEM_RESERVATION_MANGOS" "${mem_reservation_mangos_limit}"
 update_env_variable "MEM_RESERVATION_REALMD" "${mem_reservation_realmd_limit}"
+
+update_env_variable "MEM_LIMIT_DB" "${mem_limit_db_limit}"
+update_env_variable "MEM_LIMIT_MANGOS" "${mem_limit_mangos_limit}"
+update_env_variable "MEM_LIMIT_REALMD" "${mem_limit_realmd_limit}"
+
+update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_limit_db_limit}"
+update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_limit_mangos_limit}"
+update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_limit_realmd_limit}"
 
 update_env_variable "CPU_SHARES_DB" "${cpu_shares_db}"
 update_env_variable "CPU_SHARES_MANGOS" "${cpu_shares_mangos}"
 update_env_variable "CPU_SHARES_REALMD" "${cpu_shares_realmd}"
 
 echo "Resource limits have been updated in the .env file:"
-grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env
+grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEM_LIMIT_DB|MEM_LIMIT_MANGOS|MEM_LIMIT_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env
 
 # ==============================
 # Reboot if Required
