@@ -72,8 +72,8 @@ avg_mem_mangos=$(echo "$avg_mangos" | cut -d',' -f2)
 avg_cpu_realmd=$(echo "$avg_realmd" | cut -d',' -f1)
 avg_mem_realmd=$(echo "$avg_realmd" | cut -d',' -f2)
 
-# Total average memory usage
-total_avg_mem=$(awk "BEGIN {print $avg_mem_db + $avg_mem_mangos + $avg_mem_realmd}")
+# Total average memory usage in gigabytes (assuming input in megabytes)
+total_avg_mem=$(awk "BEGIN {print ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024}")
 
 # Avoid division by zero
 if [ "$(echo "$total_avg_mem == 0" | bc)" -eq 1 ]; then
@@ -81,9 +81,9 @@ if [ "$(echo "$total_avg_mem == 0" | bc)" -eq 1 ]; then
 fi
 
 # Calculate new ratios based on average memory usage
-RATIO_DB=$(awk "BEGIN {printf \"%.2f\", $avg_mem_db / $total_avg_mem}")
-RATIO_MANGOS=$(awk "BEGIN {printf \"%.2f\", $avg_mem_mangos / $total_avg_mem}")
-RATIO_REALMD=$(awk "BEGIN {printf \"%.2f\", $avg_mem_realmd / $total_avg_mem}")
+RATIO_DB=$(awk "BEGIN {printf \"%.2f\", $avg_mem_db / ($total_avg_mem * 1024)}")
+RATIO_MANGOS=$(awk "BEGIN {printf \"%.2f\", $avg_mem_mangos / ($total_avg_mem * 1024)}")
+RATIO_REALMD=$(awk "BEGIN {printf \"%.2f\", $avg_mem_realmd / ($total_avg_mem * 1024)}")
 
 echo "Calculated new ratios:"
 echo "RATIO_DB=$RATIO_DB"
@@ -94,6 +94,12 @@ echo "RATIO_REALMD=$RATIO_REALMD"
 update_env_variable() {
   var_name=$1
   var_value=$2
+  # Ensure the value is not empty
+  if [ -z "$var_value" ]; then
+    echo "Warning: Skipping update of $var_name as value is empty."
+    return
+  fi
+
   if grep -q "^${var_name}=" .env; then
     # Variable exists, update it
     sed -i "s|^${var_name}=.*|${var_name}=${var_value}|" .env
@@ -115,10 +121,10 @@ update_env_variable "RATIO_DB" "$RATIO_DB"
 update_env_variable "RATIO_MANGOS" "$RATIO_MANGOS"
 update_env_variable "RATIO_REALMD" "$RATIO_REALMD"
 
-# Update memory limits and swap limits based on new ratios and average usage
-mem_reservation_db=$(awk "BEGIN {printf \"%.0f\", $total_avg_mem * $RATIO_DB}")
-mem_reservation_mangos=$(awk "BEGIN {printf \"%.0f\", $total_avg_mem * $RATIO_MANGOS}")
-mem_reservation_realmd=$(awk "BEGIN {printf \"%.0f\", $total_avg_mem * $RATIO_REALMD}")
+# Update memory limits and swap limits based on new ratios and average usage in gigabytes
+mem_reservation_db=$(awk "BEGIN {printf \"%.2f\", $total_avg_mem * $RATIO_DB}")
+mem_reservation_mangos=$(awk "BEGIN {printf \"%.2f\", $total_avg_mem * $RATIO_MANGOS}")
+mem_reservation_realmd=$(awk "BEGIN {printf \"%.2f\", $total_avg_mem * $RATIO_REALMD}")
 
 mem_limit_db=$mem_reservation_db
 mem_limit_mangos=$mem_reservation_mangos
@@ -128,33 +134,41 @@ memswap_limit_db=$(awk "BEGIN {print 2 * $mem_limit_db}")
 memswap_limit_mangos=$(awk "BEGIN {print 2 * $mem_limit_mangos}")
 memswap_limit_realmd=$(awk "BEGIN {print 2 * $mem_limit_realmd}")
 
-# Convert memory values to bytes with 'b' suffix
-mem_reservation_db_limit="${mem_reservation_db}b"
-mem_reservation_mangos_limit="${mem_reservation_mangos}b"
-mem_reservation_realmd_limit="${mem_reservation_realmd}b"
+# Convert memory values to gigabytes
+update_env_variable "MEM_RESERVATION_DB" "${mem_reservation_db}g"
+update_env_variable "MEM_RESERVATION_MANGOS" "${mem_reservation_mangos}g"
+update_env_variable "MEM_RESERVATION_REALMD" "${mem_reservation_realmd}g"
 
-mem_limit_db_limit="${mem_limit_db}b"
-mem_limit_mangos_limit="${mem_limit_mangos}b"
-mem_limit_realmd_limit="${mem_limit_realmd}b"
+update_env_variable "MEM_LIMIT_DB" "${mem_limit_db}g"
+update_env_variable "MEM_LIMIT_MANGOS" "${mem_limit_mangos}g"
+update_env_variable "MEM_LIMIT_REALMD" "${mem_limit_realmd}g"
 
-memswap_limit_db_limit="${memswap_limit_db}b"
-memswap_limit_mangos_limit="${memswap_limit_mangos}b"
-memswap_limit_realmd_limit="${memswap_limit_realmd}b"
+update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_limit_db}g"
+update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_limit_mangos}g"
+update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_limit_realmd}g"
 
-# Update or add resource reservation, limit, and swap limit variables in the .env file
-update_env_variable "MEM_RESERVATION_DB" "${mem_reservation_db_limit}"
-update_env_variable "MEM_RESERVATION_MANGOS" "${mem_reservation_mangos_limit}"
-update_env_variable "MEM_RESERVATION_REALMD" "${mem_reservation_realmd_limit}"
+# Calculate CPU shares for each container, ensuring they are integers
+cpu_shares_db=$(awk "BEGIN {printf \"%d\", 1024 * $RATIO_DB}")
+cpu_shares_mangos=$(awk "BEGIN {printf \"%d\", 1024 * $RATIO_MANGOS}")
+cpu_shares_realmd=$(awk "BEGIN {printf \"%d\", 1024 * $RATIO_REALMD}")
 
-update_env_variable "MEM_LIMIT_DB" "${mem_limit_db_limit}"
-update_env_variable "MEM_LIMIT_MANGOS" "${mem_limit_mangos_limit}"
-update_env_variable "MEM_LIMIT_REALMD" "${mem_limit_realmd_limit}"
+# Ensure CPU shares are integers and not empty
+if ! [[ "$cpu_shares_db" =~ ^[0-9]+$ ]]; then
+  cpu_shares_db=1024  # Default value
+fi
+if ! [[ "$cpu_shares_mangos" =~ ^[0-9]+$ ]]; then
+  cpu_shares_mangos=1024  # Default value
+fi
+if ! [[ "$cpu_shares_realmd" =~ ^[0-9]+$ ]]; then
+  cpu_shares_realmd=1024  # Default value
+fi
 
-update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_limit_db_limit}"
-update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_limit_mangos_limit}"
-update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_limit_realmd_limit}"
+# Update or add the CPU shares variables in the .env file
+update_env_variable "CPU_SHARES_DB" "$cpu_shares_db"
+update_env_variable "CPU_SHARES_MANGOS" "$cpu_shares_mangos"
+update_env_variable "CPU_SHARES_REALMD" "$cpu_shares_realmd"
 
-echo "Updated memory reservations, limits, and swap limits in .env file."
+echo "Updated memory reservations, limits, swap limits, and CPU shares in .env file."
 
 # Re-run set_resource_limits.sh to apply new ratios
 ./05-set-ressource-limits.sh
