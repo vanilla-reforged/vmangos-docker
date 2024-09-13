@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directories for storing logs
-LOG_DIR="./resource_logs"
+LOG_DIR=".vol/resource_logs"
 DB_LOG="$LOG_DIR/db_usage.log"
 MANGOS_LOG="$LOG_DIR/mangos_usage.log"
 REALMD_LOG="$LOG_DIR/realmd_usage.log"

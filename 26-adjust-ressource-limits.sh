@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directories for logs
-LOG_DIR="./resource_logs"
+LOG_DIR="./vol/resource_logs"
 DB_LOG="$LOG_DIR/db_usage.log"
 MANGOS_LOG="$LOG_DIR/mangos_usage.log"
 REALMD_LOG="$LOG_DIR/realmd_usage.log"
@@ -118,7 +118,7 @@ update_env_variable "RATIO_REALMD" "$RATIO_REALMD"
 echo "Updated ratios in .env file."
 
 # Re-run set_resource_limits.sh to apply new ratios
-./set_resource_limits.sh
+./05-set-ressource-limits.sh
 
 # Function to clean up old entries in a log file
 cleanup_log() {
@@ -131,3 +131,10 @@ cleanup_log() {
 cleanup_log "$DB_LOG"
 cleanup_log "$MANGOS_LOG"
 cleanup_log "$REALMD_LOG"
+
+# Restart Docker environment to apply the new variables
+echo "Restarting Docker environment to apply new .env variables..."
+docker-compose down
+docker-compose up -d
+
+echo "Docker environment restarted with updated variables."
