@@ -172,18 +172,25 @@ crontab -e
 ```sh
 # Runs every hour on the hour
 0 * * * * /path/to/21-database-backup.sh >> /path/to/logs/21-database-backup.log 2>&1
+
 # Runs daily at 2:00 AM
 0 2 * * * /path/to/22-world-database-backup.sh >> /path/to/logs/22-world-database-backup.log 2>&1
+
 # Runs every hour at 5 minutes past the hour
 5 * * * * /path/to/23-backup-directory-cleanup.sh >> /path/to/logs/23-backup-directory-cleanup.log 2>&1
+
 # Runs daily at 3:00 AM
 0 3 * * * /path/to/24-logs-directory-cleanup.sh >> /path/to/logs/24-logs-directory-cleanup.log 2>&1
+
 # Runs every hour on the hour
 0 * * * * /path/to/25-collect-ressource-usage.sh >> /path/to/logs/25-collect-ressource-usage.log 2>&1
+
 # Runs weekly on Sunday at 4:00 AM
 0 4 * * 0 /path/to/26-adjust-ressource-limits.sh >> /path/to/logs/26-adjust-ressource-limits.log 2>&1
+
 # Runs every hour on the hour
 0 * * * * /path/to/30-collect-population-balance.sh >> /path/to/logs/30-collect-population-balance.log 2>&1
+
 # Runs daily at 5:00 AM
 0 5 * * * /path/to/31-faction-specific-xp-rates.sh >> /path/to/logs/31-faction-specific-xp-rates.log 2>&1
 ```
