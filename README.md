@@ -153,14 +153,14 @@ docker compose up -d
 
 ### Cronjobs
 
-- `./21-database-backup.sh` - Backup dynamic databases. Suggested schedule: Hourly.
-- `./22-world-database-backup.sh` - Backup world database. Suggested schedule: Depends on how often you do changes to the world database.
+- `./21-database-backup.sh` - Backup dynamic databases.
+- `./22-world-database-backup.sh` - Backup world database.
 - `./23-backup-directory-cleanup.sh` - Cleanup backups older than 7 days. Run it after `21-database-backup.sh`.
-- `./24-logs-directory-cleanup.sh` - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. Suggested schedule: Daily. 
-- `./25-collect-ressource-usage.sh` - Collect ressource usage for database, mangos and realmd containers. Suggested schedule: Hourly.
-- `./26-adjust-ressource-limits.sh` - Adjust ressource allocations in docker-compose.yaml based on 7 day averages from Data collected with `25-collect-ressource-usage.sh`. Suggested schedule: Weekly.
-- `./30-collect-population-balance.sh` - Collect faction balance data. Suggested schedule: Hourly.
-- `./31-faction-specific-xp-rates.sh` - Set faction-specific XP rates and restart server to activate them. Suggested schedule: Daily. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
+- `./24-logs-directory-cleanup.sh` - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. 
+- `./25-collect-ressource-usage.sh` - Collect ressource usage for database, mangos and realmd containers.
+- `./26-adjust-ressource-limits.sh` - Adjust ressource allocations in docker-compose.yaml based on 7 day averages from Data collected with `25-collect-ressource-usage.sh`.
+- `./30-collect-population-balance.sh` - Collect faction balance data.
+- `./31-faction-specific-xp-rates.sh` - Set faction-specific XP rates and restart server to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
 
 #### Edit the crontab using the command below:
 ```sh
