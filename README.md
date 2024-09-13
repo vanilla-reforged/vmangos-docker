@@ -167,7 +167,7 @@ docker compose up -d
 crontab -e
 ```
 
-#### Add the following lines to the crontab file:
+#### Add the following lines to the crontab file, change the paths to fit your installation:
 
 ```sh
 0 * * * * /path/to/21-database-backup.sh >> /path/to/logs/21-database-backup.log 2>&1
