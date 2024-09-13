@@ -9,7 +9,7 @@ MEMORY_USAGE_PERCENTAGE=75
 
 # Resource ratio for the containers (can be decimal numbers)
 RATIO_DB=3.0
-RATIO_MANGOS=1.0
+RATIO_MANGOS=2.0
 RATIO_REALMD=1.0
 
 # CPU share multipliers to ensure higher priority over default containers
@@ -18,7 +18,7 @@ BASE_CPU_SHARES=1024
 
 # Multiplier to adjust CPU shares above the default (e.g., 1.5 for 150%)
 CPU_SHARE_MULTIPLIER_MANGOS=1.5
-CPU_SHARE_MULTIPLIER_REALMD=1.5
+CPU_SHARE_MULTIPLIER_REALMD=3.0
 CPU_SHARE_MULTIPLIER_DB=4.5  # To maintain the ratio
 
 # Enable swap limit support (true/false)
@@ -104,12 +104,17 @@ mem_db_limit="${mem_db}b"
 mem_mangos_limit="${mem_mangos}b"
 mem_realmd_limit="${mem_realmd}b"
 
-# 6. Calculate CPU shares for each container
+# 6. Set swap limits equal to memory limits
+memswap_db_limit="${mem_db_limit}"
+memswap_mangos_limit="${mem_mangos_limit}"
+memswap_realmd_limit="${mem_realmd_limit}"
+
+# 7. Calculate CPU shares for each container
 cpu_shares_db=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_DB}")
 cpu_shares_mangos=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_MANGOS}")
 cpu_shares_realmd=$(awk "BEGIN {printf \"%.0f\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_REALMD}")
 
-# 7. Update or add variables in the .env file
+# 8. Update or add variables in the .env file
 
 # Function to update or add a variable in the .env file
 update_env_variable() {
@@ -136,12 +141,17 @@ update_env_variable "MEM_LIMIT_DB" "${mem_db_limit}"
 update_env_variable "MEM_LIMIT_MANGOS" "${mem_mangos_limit}"
 update_env_variable "MEM_LIMIT_REALMD" "${mem_realmd_limit}"
 
+# Update or add swap limit variables to be equal to memory limits
+update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_db_limit}"
+update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_mangos_limit}"
+update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_realmd_limit}"
+
 update_env_variable "CPU_SHARES_DB" "${cpu_shares_db}"
 update_env_variable "CPU_SHARES_MANGOS" "${cpu_shares_mangos}"
 update_env_variable "CPU_SHARES_REALMD" "${cpu_shares_realmd}"
 
 echo "Resource limits have been updated in the .env file:"
-grep -E "MEM_LIMIT_DB|MEM_LIMIT_MANGOS|MEM_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env
+grep -E "MEM_LIMIT_DB|MEM_LIMIT_MANGOS|MEM_LIMIT_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env
 
 # ==============================
 # Reboot if Required
