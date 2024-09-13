@@ -178,6 +178,7 @@ crontab -e
 0 4 * * 0 /path/to/26-adjust-ressource-limits.sh >> /path/to/logs/26-adjust-ressource-limits.log 2>&1
 0 * * * * /path/to/30-collect-population-balance.sh >> /path/to/logs/30-collect-population-balance.log 2>&1
 0 5 * * * /path/to/31-faction-specific-xp-rates.sh >> /path/to/logs/31-faction-specific-xp-rates.log 2>&1```
+```
 
 ## Vanilla Reforged Links
 
