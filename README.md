@@ -93,7 +93,7 @@ docker compose up -d
 Create the database:
 
 ```sh
-./05-create-database-mangos.sh
+./06-create-database-mangos.sh
 ```
 
 ### Configure MySQL Password
@@ -124,7 +124,7 @@ Press <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 Clear the MySQL root password and restart the database:
 
 ```sh
-06-remove-root-env-database.sh
+07-remove-root-env-database.sh
 ```
 
 ## Starting and Stopping VMaNGOS
