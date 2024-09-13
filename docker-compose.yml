@@ -25,6 +25,7 @@ services:
     oom_kill_disable: true
     mem_limit: ${MEM_LIMIT_DB}
     memswap_limit: ${MEMSWAP_LIMIT_DB}
+    mem_reservation: 500m  # Set minimum memory to 500 MB
     cpu_shares: ${CPU_SHARES_DB}
 
   vmangos-realmd:
@@ -50,6 +51,7 @@ services:
     oom_kill_disable: true
     mem_limit: ${MEM_LIMIT_REALMD}
     memswap_limit: ${MEMSWAP_LIMIT_REALMD}
+    mem_reservation: 100m  # Set minimum memory to 100 MB
     cpu_shares: ${CPU_SHARES_REALMD}
 
   vmangos-mangos:
@@ -82,4 +84,5 @@ services:
     oom_kill_disable: true
     mem_limit: ${MEM_LIMIT_MANGOS}
     memswap_limit: ${MEMSWAP_LIMIT_MANGOS}
+    mem_reservation: 1g  # Set minimum memory to 1 GB
     cpu_shares: ${CPU_SHARES_MANGOS}

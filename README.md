@@ -79,7 +79,7 @@ Execute the scripts in order:
 ./04-extract-client-data.sh
 ```
 
-Set the ressource limits for the vmangos containers to avoid OOME crashes, the values are adjustable in the script.
+Set the ressource limits for the vmangos containers to avoid OOME crashes, the values are adjustable in the script, minimal values set in the docker-compose.yaml are ensuring the containers come up anyways.
 
 Attention: If Swap Limit Support is not enabled in /etc/default/grub this script will automatically do it and reboot the server to activate it.
 
