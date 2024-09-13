@@ -14,10 +14,24 @@ HORDE_AVG=$(awk -v date="$SEVEN_DAYS_AGO" -F, '$1 >= date { total += $3; count++
 
 echo "Alliance average: $ALLIANCE_AVG, Horde average: $HORDE_AVG"
 
-# Determine which faction is underpopulated
-if (( $(echo "$ALLIANCE_AVG > $HORDE_AVG" | bc -l) )); then
+# Calculate total average population
+TOTAL_AVG=$(echo "$ALLIANCE_AVG + $HORDE_AVG" | bc -l)
+
+if (( $(echo "$TOTAL_AVG > 0" | bc -l) )); then
+    # Calculate percentages
+    ALLIANCE_PERCENT=$(echo "scale=2; ($ALLIANCE_AVG / $TOTAL_AVG) * 100" | bc -l)
+    HORDE_PERCENT=$(echo "scale=2; ($HORDE_AVG / $TOTAL_AVG) * 100" | bc -l)
+else
+    ALLIANCE_PERCENT=0
+    HORDE_PERCENT=0
+fi
+
+echo "Alliance percentage: $ALLIANCE_PERCENT%, Horde percentage: $HORDE_PERCENT%"
+
+# Determine if the ratio is worse than 55% to 45%
+if (( $(echo "$ALLIANCE_PERCENT > 55" | bc -l) )) && (( $(echo "$HORDE_PERCENT < 45" | bc -l) )); then
     BALANCE_STATUS="Horde"
-elif (( $(echo "$HORDE_AVG > $ALLIANCE_AVG" | bc -l) )); then
+elif (( $(echo "$HORDE_PERCENT > 55" | bc -l) )) && (( $(echo "$ALLIANCE_PERCENT < 45" | bc -l) )); then
     BALANCE_STATUS="Alliance"
 else
     BALANCE_STATUS="Balanced"
@@ -29,10 +43,10 @@ echo "Balance status: $BALANCE_STATUS"
 update_config_file() {
     if [ "$BALANCE_STATUS" == "Alliance" ]; then
         echo "Horde is underpopulated. Updating XP rates for Horde to 1 and Alliance to 2."
-        sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 2/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 2/' "$CONFIG_FILE"
+        sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 2/' "$CONFIG_FILE"
+        sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 2/' "$CONFIG_FILE"
+        sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 1/' "$CONFIG_FILE"
+        sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 1/' "$CONFIG_FILE"
     elif [ "$BALANCE_STATUS" == "Horde" ]; then
         echo "Alliance is underpopulated. Updating XP rates for Alliance to 2 and Horde to 1."
         sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 2/' "$CONFIG_FILE"
