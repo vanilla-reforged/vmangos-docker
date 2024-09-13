@@ -8,8 +8,8 @@
 MEMORY_USAGE_PERCENTAGE=75
 
 # Resource ratio for the containers (can be decimal numbers)
-RATIO_DB=3.0
-RATIO_MANGOS=2.0
+RATIO_DB=5.0
+RATIO_MANGOS=5.0
 RATIO_REALMD=1.0
 
 # CPU share multipliers to ensure higher priority over default containers
@@ -17,9 +17,10 @@ RATIO_REALMD=1.0
 BASE_CPU_SHARES=1024
 
 # Multiplier to adjust CPU shares above the default (e.g., 1.5 for 150%)
-CPU_SHARE_MULTIPLIER_MANGOS=1.5
-CPU_SHARE_MULTIPLIER_REALMD=3.0
-CPU_SHARE_MULTIPLIER_DB=4.5  # To maintain the ratio
+CPU_SHARE_MULTIPLIER_DB=5.0
+CPU_SHARE_MULTIPLIER_MANGOS=5.0
+CPU_SHARE_MULTIPLIER_REALMD=1.0
+
 
 # Enable swap limit support (true/false)
 ENABLE_SWAP_LIMIT_SUPPORT=true
