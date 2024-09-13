@@ -1,5 +1,6 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
+﻿﻿/.vs
+.env
+.env-script
+.env-vmangos-build
+vol/*
 /.vs
