@@ -173,8 +173,8 @@ crontab -e
 # Runs every hour on the hour
 0 * * * * /path/to/21-database-backup.sh >> /path/to/logs/21-database-backup.log 2>&1
 
-# Runs daily at 2:00 AM
-0 2 * * * /path/to/22-world-database-backup.sh >> /path/to/logs/22-world-database-backup.log 2>&1
+# Runs weekly on Sunday at 5:00 AM if outcommented
+# 0 5 * * 0 /path/to/22-world-database-backup.sh >> /path/to/logs/22-world-database-backup.log 2>&1
 
 # Runs every hour at 5 minutes past the hour
 5 * * * * /path/to/23-backup-directory-cleanup.sh >> /path/to/logs/23-backup-directory-cleanup.log 2>&1
