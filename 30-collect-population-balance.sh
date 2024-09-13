@@ -5,7 +5,7 @@ source .env-script
 
 # Database connection details
 DB_USER="root"
-DB_PASS="$MARIADB_ROOT_PASSWORD"
+DB_PASS="$MYSQL_ROOT_PASSWORD"
 CHAR_DB="characters"
 REALM_DB="realmd"
 TABLE_NAME="characters"
@@ -41,7 +41,7 @@ AND c.guid = (SELECT MIN(c2.guid) FROM ${CHAR_DB}.${TABLE_NAME} c2 WHERE c2.acco
 CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S')
 
 # Run the SQL query inside the MariaDB container and output the result
-RESULT=$(docker exec -i vmangos-database mariadb -u $DB_USER -p$DB_PASS -sN -e "$SQL_QUERY")
+RESULT=$(docker exec -i vmangos-database mysql -u $DB_USER -p$DB_PASS -sN -e "$SQL_QUERY")
 
 # Debugging: Print the result to check if it is captured correctly
 echo "DEBUG: Result from SQL query: '$RESULT'"

@@ -1,4 +1,4 @@
-FROM mariadb
+FROM mariadb:11.5.2
 
 # Create the group and user 'vmangos-database-user' with specific UID and GID
 RUN groupadd -r vmangos-database-user && \

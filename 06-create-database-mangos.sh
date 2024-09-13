@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Load environment variables
-source .env
 source .env-script
 
 # Define the container name
@@ -10,7 +9,7 @@ CONTAINER_NAME="vmangos-database"
 # Function to execute commands inside the Docker container
 exec_docker() {
   local command=$1
-  docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MARIADB_ROOT_PASSWORD" -e "$command"
+  docker exec -i "$CONTAINER_NAME" mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "$command"
 }
 
 # Check if databases exist and abort if they do
@@ -31,11 +30,11 @@ done
 
 # Create user and grant privileges
 echo "[VMaNGOS]: Creating user…"
-exec_docker "CREATE USER 'mangos'@'localhost' IDENTIFIED BY '$MARIADB_ROOT_PASSWORD';"
-exec_docker "SET PASSWORD FOR 'mangos'@'localhost' = PASSWORD('$MARIADB_ROOT_PASSWORD');"
+exec_docker "CREATE USER 'mangos'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';"
+exec_docker "SET PASSWORD FOR 'mangos'@'localhost' = PASSWORD('$MYSQL_ROOT_PASSWORD');"
 
 echo "[VMaNGOS]: Granting privileges for user…"
-exec_docker "GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'%' IDENTIFIED BY '$MARIADB_ROOT_PASSWORD';"
+exec_docker "GRANT ALL PRIVILEGES ON *.* TO 'mangos'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';"
 exec_docker "FLUSH PRIVILEGES;"
 for db in "${databases[@]}"; do
   exec_docker "GRANT ALL ON $db.* TO 'mangos'@'localhost' WITH GRANT OPTION;"
@@ -58,12 +57,12 @@ for entry in "${import_files[@]}"; do
   db=$(echo $entry | cut -d: -f1)
   file=$(echo $entry | cut -d: -f2)
   echo "[VMaNGOS]: Importing $db from $file"
-  docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "$db" < "$file"
+  docker exec -i "$CONTAINER_NAME" MYSQL -u root -p"$MYSQL_ROOT_PASSWORD" "$db" < "$file"
 done
 
 # Upgrade MySQL
 echo "[VMaNGOS]: Upgrading MySQL…"
-docker exec -i "$CONTAINER_NAME" mariadb-upgrade -u root -p"$MARIADB_ROOT_PASSWORD"
+docker exec -i "$CONTAINER_NAME" MYSQL-upgrade -u root -p"$MYSQL_ROOT_PASSWORD"
 
 # Configure default realm
 echo "[VMaNGOS]: Configuring default realm…"

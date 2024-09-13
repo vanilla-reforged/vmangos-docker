@@ -12,7 +12,7 @@ cd "$repository_path"
 
 # Start
 echo "[VMaNGOS]: Importing migrations…"
-docker exec -i vmangos-database mariadb -u root -p$MARIADB_ROOT_PASSWORD mangos < ./vol/core-github/sql/migrations/world_db_updates.sql
+docker exec -i vmangos-database mysql -u root -p$MYSQL_ROOT_PASSWORD mangos < ./vol/core-github/sql/migrations/world_db_updates.sql
 
 echo "[VMaNGOS]: Restarting environment..."
 docker compose down

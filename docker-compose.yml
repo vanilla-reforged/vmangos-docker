@@ -1,6 +1,8 @@
+version: '2'
+
 networks:
-   vmangos-network:
-     external: true
+  vmangos-network:
+    external: true
 
 services:
   vmangos-database:
@@ -9,7 +11,7 @@ services:
       context: .
       dockerfile: docker/database/Dockerfile
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD} # Set this in your .env file or environment
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     restart: unless-stopped
     command: --max_allowed_packet=32505856
     ports:
@@ -22,6 +24,9 @@ services:
     user: "vmangos-database-user:vmangos-database-user"
     networks:
       - vmangos-network
+    oom_kill_disable: true
+    mem_limit: ${MEM_LIMIT_DB}
+    cpu_shares: ${CPU_SHARES_DB}
 
   vmangos-realmd:
     container_name: vmangos-realmd
@@ -43,6 +48,9 @@ services:
     user: "vmangos-realmd-user:vmangos-realmd-user"
     networks:
       - vmangos-network
+    oom_kill_disable: true
+    mem_limit: ${MEM_LIMIT_REALMD}
+    cpu_shares: ${CPU_SHARES_REALMD}
 
   vmangos-mangos:
     container_name: vmangos-mangos
@@ -71,3 +79,6 @@ services:
     user: "vmangos-mangos-user:vmangos-mangos-user"
     networks:
       - vmangos-network
+    oom_kill_disable: true
+    mem_limit: ${MEM_LIMIT_MANGOS}
+    cpu_shares: ${CPU_SHARES_MANGOS}

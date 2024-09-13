@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Get variables defined in .env
-
+# Load environment variables
 source .env-script
 
 # Handle script call from other directory
