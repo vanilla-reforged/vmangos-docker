@@ -133,7 +133,7 @@ Press <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 Clear the MySQL root password and restart the database:
 
 ```sh
-07-remove-root-env-database.sh
+./07-remove-root-env-database.sh
 ```
 
 ## Starting and Stopping VMaNGOS
