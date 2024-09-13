@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Load environment variables
+source .env
+
 # Define paths and Docker image
 CLIENT_DATA_DIR="./vol/client-data/Data"
 EXTRACTORS_IMAGE="vmangos_extractors"

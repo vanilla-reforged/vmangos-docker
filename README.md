@@ -81,6 +81,8 @@ Execute the scripts in order:
 
 Set the ressource limits for the vmangos containers to avoid OOME crashes, the values are adjustable in the script.
 
+Attention: If Swap Limit Support is not enabled in /etc/default/grub this script will automatically do it and reboot the server to activate it.
+
 ```sh
 05-set-ressource-limits.sh
 ```

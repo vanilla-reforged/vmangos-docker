@@ -26,6 +26,7 @@ services:
       - vmangos-network
     oom_kill_disable: true
     mem_limit: ${MEM_LIMIT_DB}
+    memswap_limit: ${MEM_LIMIT_DB}
     cpu_shares: ${CPU_SHARES_DB}
 
   vmangos-realmd:
@@ -50,6 +51,7 @@ services:
       - vmangos-network
     oom_kill_disable: true
     mem_limit: ${MEM_LIMIT_REALMD}
+    memswap_limit: ${MEM_LIMIT_REALMD}
     cpu_shares: ${CPU_SHARES_REALMD}
 
   vmangos-mangos:
@@ -81,4 +83,5 @@ services:
       - vmangos-network
     oom_kill_disable: true
     mem_limit: ${MEM_LIMIT_MANGOS}
+    memswap_limit: ${MEM_LIMIT_MANGOS}
     cpu_shares: ${CPU_SHARES_MANGOS}
