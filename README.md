@@ -84,7 +84,7 @@ Set the ressource limits for the vmangos containers to avoid OOME crashes, the v
 Attention: If Swap Limit Support is not enabled in /etc/default/grub this script will automatically do it and reboot the server to activate it.
 
 ```sh
-05-set-ressource-limits.sh
+./05-set-ressource-limits.sh
 ```
 
 Create the vmangos network:
@@ -147,20 +147,20 @@ docker compose up -d
 
 ### Manual Tasks
 
-- `11-import-world-db-migrations.sh` - Import new migrations.
-- `12-recreate-world-db.sh` - Recreate the world database.
-- `13-recompile-core.sh` - Recompile the core.
+- `./11-import-world-db-migrations.sh` - Import new migrations.
+- `./12-recreate-world-db.sh` - Recreate the world database.
+- `./13-recompile-core.sh` - Recompile the core.
 
 ### Cronjobs
 
-- `21-database-backup.sh` - Backup dynamic databases. Suggested schedule: Hourly.
-- `22-world-database-backup.sh` - Backup world database. Suggested schedule: Depends on how often you do changes to the world database.
-- `23-backup-directory-cleanup.sh` - Cleanup backups older than 7 days. Run it after `21-database-backup.sh`.
-- `24-logs-directory-cleanup.sh` - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. Suggested schedule: Daily. 
-- `25-collect-ressource-usage.sh` - Collect ressource usage for database, mangos and realmd containers. Suggested schedule: Hourly.
-- `26-adjust-ressource-limits.sh` - Adjust ressource allocations in docker-compose.yaml based on 7 day averages from Data collected with `25-collect-ressource-usage.sh`. Suggested schedule: Weekly.
-- `30-collect-population-balance.sh` - Collect faction balance data. Suggested schedule: Hourly.
-- `31-faction-specific-xp-rates.sh` - Set faction-specific XP rates and restart server to activate them. Suggested schedule: Daily. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
+- `./21-database-backup.sh` - Backup dynamic databases. Suggested schedule: Hourly.
+- `./22-world-database-backup.sh` - Backup world database. Suggested schedule: Depends on how often you do changes to the world database.
+- `./23-backup-directory-cleanup.sh` - Cleanup backups older than 7 days. Run it after `21-database-backup.sh`.
+- `./24-logs-directory-cleanup.sh` - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. Suggested schedule: Daily. 
+- `./25-collect-ressource-usage.sh` - Collect ressource usage for database, mangos and realmd containers. Suggested schedule: Hourly.
+- `./26-adjust-ressource-limits.sh` - Adjust ressource allocations in docker-compose.yaml based on 7 day averages from Data collected with `25-collect-ressource-usage.sh`. Suggested schedule: Weekly.
+- `./30-collect-population-balance.sh` - Collect faction balance data. Suggested schedule: Hourly.
+- `./31-faction-specific-xp-rates.sh` - Set faction-specific XP rates and restart server to activate them. Suggested schedule: Daily. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
 
 ## Vanilla Reforged Links
 
