@@ -7,7 +7,6 @@
 
 ## Dependencies
 
-- Azure-CLI
 - Docker
 - Docker compose 2
 - p7zip-full
