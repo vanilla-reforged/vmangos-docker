@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script installs Docker, Docker Compose, Azure CLI, 7zip, and sets up ufw-docker on an Ubuntu system
+# This script installs Docker, Docker Compose, 7zip, and sets up ufw-docker on an Ubuntu system
 
 # Step 1: Update the package index
 echo "Updating package index..."
@@ -60,10 +60,6 @@ sudo systemctl restart docker
 # Step 11: Install 7zip
 echo "Installing 7zip..."
 sudo apt-get install -y p7zip-full
-
-# Step 12: Install Azure CLI
-echo "Installing Azure CLI..."
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # Step 13: Clone and run the ufw-docker script
 echo "Setting up ufw-docker..."
