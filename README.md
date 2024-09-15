@@ -153,9 +153,14 @@ docker compose up -d
 
 ### Manual Tasks
 
-- `./11-import-world-db-migrations.sh` - Import new migrations.
-- `./12-recreate-world-db.sh` - Recreate the world database.
-- `./13-recompile-core.sh` - Recompile the core.
+- `./11-import-world-db-migrations.sh`
+
+  - Import new migrations.
+- `./12-recreate-world-db.sh`
+  - Recreate the world database.
+
+- `./13-recompile-core.sh`
+  - Recompile the core.
 
 ### Cronjobs
 
