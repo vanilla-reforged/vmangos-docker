@@ -159,14 +159,23 @@ docker compose up -d
 
 ### Cronjobs
 
-- `./21-database-backup.sh` - Backup dynamic databases.
-- `./22-world-database-backup.sh` - Backup world database.
-- `./23-backup-directory-cleanup.sh` - Cleanup backups older than 7 days. Run it after `21-database-backup.sh`.
-- `./24-logs-directory-cleanup.sh` - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. 
-- `./25-collect-ressource-usage.sh` - Collect ressource usage for database, mangos and realmd containers.
-- `./26-adjust-ressource-limits.sh` - Adjust ressource allocations in docker-compose.yaml based on 7 day averages from Data collected with `25-collect-ressource-usage.sh`.
-- `./30-collect-population-balance.sh` - Collect faction balance data.
-- `./31-faction-specific-xp-rates.sh` - Set faction-specific XP rates and restart server to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
+- `./21-collect-ressource-usage.sh` - Collect ressource usage for database, mangos and realmd containers.
+- `./22-adjust-ressource-limits.sh` - Adjust ressource allocations in docker-compose.yaml based on 7 day averages from Data collected with `25-collect-ressource-usage.sh`.
+
+- `./31-database-backup.sh` - Backup dynamic databases.
+    
+    Features:
+  - Daily Full Backup
+  - Configurable Incremental Backups
+  - Weekly Log Database truncation
+  - S3 Offload - Attention: API calls/immutability are a financial risk. You must know what you are doing with this.
+  - Cleanup of old backups
+ 
+- `./32-world-database-backup.sh` - Backup world database.
+- `./33-logs-directory-cleanup.sh` - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. 
+
+- `./41-collect-population-balance.sh` - Collect faction balance data.
+- `./42-faction-specific-xp-rates.sh` - Set faction-specific XP rates and restart server to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
 
 #### Edit the crontab using the command below:
 ```sh

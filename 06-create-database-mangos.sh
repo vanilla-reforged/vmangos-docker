@@ -55,9 +55,13 @@ for entry in "${import_files[@]}"; do
   docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MYSQL_ROOT_PASSWORD" "$db" < "$file"
 done
 
-# Upgrade MariaDB
-# echo "[VMaNGOS]: Upgrading MariaDB..."
-# docker exec -i "$CONTAINER_NAME" mariadb-upgrade -u root -p"$MYSQL_ROOT_PASSWORD"
+# Configure expire_logs_days to prevent binary logs from filling up the disk
+echo "[VMaNGOS]: Configuring expire_logs_days to 8 days..."
+docker exec -i "$CONTAINER_NAME" bash -c "echo -e '[mysqld]\nexpire_logs_days=8' > /etc/mysql/conf.d/expire_logs.cnf"
+
+# Restart MariaDB service to apply configuration changes
+echo "[VMaNGOS]: Restarting MariaDB service to apply changes..."
+docker exec -i "$CONTAINER_NAME" bash -c "service mysql restart || service mariadb restart"
 
 # Configure default realm
 echo "[VMaNGOS]: Configuring default realm..."
