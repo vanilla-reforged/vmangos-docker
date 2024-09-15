@@ -7,6 +7,7 @@
 
 ## Dependencies
 
+- Azure-CLI
 - Docker
 - Docker compose 2
 - p7zip-full
@@ -69,6 +70,11 @@ To make the server public, change the `VMANGOS_REALM_IP` environment variable in
 Copy the contents of your World of Warcraft client directory into `./vol/client-data`. Generating the required data will take many hours. If you have already extracted the client data, place it in `./vol/client-data-extracted` and skip the "03-extract-client-data.sh" script.
 
 ### Installation
+
+Install the dependencies with the script:
+```sh
+00-setup-dependencies.sh
+```
 
 Execute the scripts in order:
 
