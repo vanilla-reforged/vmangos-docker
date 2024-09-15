@@ -1,0 +1,3 @@
+[submodule "vol/warden"]
+	path = vol/warden
+	url = https://github.com/vmangos/warden_modules
