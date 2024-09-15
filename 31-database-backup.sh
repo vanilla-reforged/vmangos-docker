@@ -32,8 +32,19 @@ create_full_backup() {
         echo "Full backup created successfully inside the container."
         mkdir -p $FULL_BACKUP_DIR
         docker cp $CONTAINER_NAME:$CONTAINER_BACKUP_DIR/. $FULL_BACKUP_DIR
-        if [[ "$USE_S3" == true ]]; then
-            copy_to_s3 $FULL_BACKUP_DIR || return 1
+        # Compress the backup directory
+        echo "Compressing full backup directory..."
+        7z a "$FULL_BACKUP_DIR.7z" "$FULL_BACKUP_DIR"
+        if [[ $? -eq 0 ]]; then
+            echo "Backup directory compressed successfully."
+            # Remove the uncompressed backup directory
+            rm -rf "$FULL_BACKUP_DIR"
+            if [[ "$USE_S3" == true ]]; then
+                copy_to_s3 "$FULL_BACKUP_DIR.7z" || return 1
+            fi
+        else
+            echo "Failed to compress backup directory!"
+            exit 1
         fi
     else
         echo "Failed to create full backup!"
@@ -55,8 +66,19 @@ create_incremental_backup() {
         echo "Incremental backup created successfully inside the container."
         mkdir -p $INCREMENTAL_BACKUP_DIR
         docker cp $CONTAINER_NAME:$CONTAINER_BACKUP_DIR/. $INCREMENTAL_BACKUP_DIR
-        if [[ "$USE_S3" == true ]]; then
-            copy_to_s3 $INCREMENTAL_BACKUP_DIR || return 1
+        # Compress the backup directory
+        echo "Compressing incremental backup directory..."
+        7z a "$INCREMENTAL_BACKUP_DIR.7z" "$INCREMENTAL_BACKUP_DIR"
+        if [[ $? -eq 0 ]]; then
+            echo "Backup directory compressed successfully."
+            # Remove the uncompressed backup directory
+            rm -rf "$INCREMENTAL_BACKUP_DIR"
+            if [[ "$USE_S3" == true ]]; then
+                copy_to_s3 "$INCREMENTAL_BACKUP_DIR.7z" || return 1
+            fi
+        else
+            echo "Failed to compress backup directory!"
+            exit 1
         fi
     else
         echo "Failed to create incremental backup!"
@@ -68,7 +90,7 @@ create_incremental_backup() {
 copy_to_s3() {
     local BACKUP_PATH=$1
     echo "Uploading $BACKUP_PATH to S3..."
-    aws s3 cp --recursive $BACKUP_PATH $S3_BUCKET
+    aws s3 cp "$BACKUP_PATH" "$S3_BUCKET"
     if [[ $? -eq 0 ]]; then
         echo "$BACKUP_PATH uploaded to S3 successfully."
         return 0
@@ -81,7 +103,7 @@ copy_to_s3() {
 # Function to clean up backups older than 8 days
 clean_up_old_backups() {
     echo "Cleaning up local backups older than 8 days..."
-    find $HOST_BACKUP_DIR -type d -mtime +8 -exec rm -rf {} \;
+    find $HOST_BACKUP_DIR -type f -name "*.7z" -mtime +8 -exec rm -f {} \;
     echo "Old backups cleaned up successfully."
 }
 
