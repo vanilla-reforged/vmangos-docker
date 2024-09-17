@@ -61,10 +61,50 @@ sudo systemctl restart docker
 echo "Installing 7zip..."
 sudo apt-get install -y p7zip-full
 
-# Step 13: Clone and run the ufw-docker script
-echo "Setting up ufw-docker..."
-git clone https://github.com/chaifeng/ufw-docker.git ./ufw-docker
-sudo ./ufw-docker/ufw-docker
+# Step 13: Revoke the original modification and apply new UFW configuration
+
+echo "Reverting any previous modifications and applying UFW configuration..."
+
+# Revert changes to Docker and UFW configurations
+sudo sed -i '/--iptables=false/d' /etc/docker/daemon.json
+sudo sed -i '/FORWARD/d' /etc/ufw/after.rules
+sudo systemctl restart docker
+
+# Modify the UFW configuration file to add Docker rules
+sudo tee -a /etc/ufw/after.rules > /dev/null <<EOF
+
+# BEGIN UFW AND DOCKER
+*filter
+:ufw-user-forward - [0:0]
+:ufw-docker-logging-deny - [0:0]
+:DOCKER-USER - [0:0]
+-A DOCKER-USER -j ufw-user-forward
+
+-A DOCKER-USER -j RETURN -s 10.0.0.0/8
+-A DOCKER-USER -j RETURN -s 172.16.0.0/12
+-A DOCKER-USER -j RETURN -s 192.168.0.0/16
+
+-A DOCKER-USER -p udp -m udp --sport 53 --dport 1024:65535 -j RETURN
+
+-A DOCKER-USER -j ufw-docker-logging-deny -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 192.168.0.0/16
+-A DOCKER-USER -j ufw-docker-logging-deny -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 10.0.0.0/8
+-A DOCKER-USER -j ufw-docker-logging-deny -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 172.16.0.0/12
+-A DOCKER-USER -j ufw-docker-logging-deny -p udp -m udp --dport 0:32767 -d 192.168.0.0/16
+-A DOCKER-USER -j ufw-docker-logging-deny -p udp -m udp --dport 0:32767 -d 10.0.0.0/8
+-A DOCKER-USER -j ufw-docker-logging-deny -p udp -m udp --dport 0:32767 -d 172.16.0.0/12
+
+-A DOCKER-USER -j RETURN
+
+-A ufw-docker-logging-deny -m limit --limit 3/min --limit-burst 10 -j LOG --log-prefix "[UFW DOCKER BLOCK] "
+-A ufw-docker-logging-deny -j DROP
+
+COMMIT
+# END UFW AND DOCKER
+EOF
+
+# Restart UFW and enable it before rebooting
+sudo systemctl restart ufw
+sudo ufw enable
 
 # Clean up temporary files
 sudo rm -rf ./ufw-docker
