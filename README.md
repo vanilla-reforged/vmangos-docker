@@ -70,7 +70,7 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 
 ### Installation
 
-Install the dependencies with the script:
+Install the dependencies, configure and enable a ufw setup that works with docker and limit docker logs with the script:
 ```sh
 ./00-setup-dependencies.sh
 ```
