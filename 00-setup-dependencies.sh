@@ -63,7 +63,7 @@ sudo apt-get install -y p7zip-full
 
 # Step 13: Clone and run the ufw-docker script
 echo "Setting up ufw-docker..."
-git clone https://github.com/chaifeng/ufw-docker.git ./*
+git clone https://github.com/chaifeng/ufw-docker.git ./ufw-docker
 ufw-docker install
 
 # Clean up temporary files
