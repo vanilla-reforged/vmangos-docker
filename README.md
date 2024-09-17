@@ -72,7 +72,7 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 
 Install the dependencies with the script:
 ```sh
-00-setup-dependencies.sh
+./00-setup-dependencies.sh
 ```
 
 Execute the scripts in order:
