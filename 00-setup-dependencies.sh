@@ -63,13 +63,12 @@ sudo apt-get install -y p7zip-full
 
 # Step 13: Clone and run the ufw-docker script
 echo "Setting up ufw-docker..."
-git clone https://github.com/chaifeng/ufw-docker.git /tmp/ufw-docker
-cd /tmp/ufw-docker
+git clone https://github.com/chaifeng/ufw-docker.git ./*
 ufw-docker install
 
 # Clean up temporary files
 cd ~
-sudo rm -rf /tmp/ufw-docker
+sudo rm -rf ./ufw-docker
 
 # Step 14: Notify the user about Docker usage
 echo "Installation complete! Note: Since you are not added to the Docker group, you will need to use 'sudo' when running Docker commands."
