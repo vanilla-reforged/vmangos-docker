@@ -41,10 +41,11 @@ sudo docker --version
 echo "Verifying Docker Compose installation..."
 sudo docker compose version
 
-# Step 9: Configure Docker log rotation
-echo "Configuring Docker log rotation..."
+# Step 9: Configure Docker options
+echo "Configuring Docker options..."
 sudo tee /etc/docker/daemon.json > /dev/null <<EOF
 {
+  "oom-kill-disable": true,
   "log-driver": "json-file",
   "log-opts": {
     "max-size": "10m",
