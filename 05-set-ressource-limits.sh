@@ -77,6 +77,12 @@ mem_limit_gb=$(awk "BEGIN {printf \"%.2f\", $total_mem_gb * $MEMORY_USAGE_PERCEN
 
 # Calculate memory reservations based on the ratio
 total_parts=$(awk "BEGIN {print $RATIO_DB + $RATIO_MANGOS + $RATIO_REALMD}")
+
+# Ensure total_parts is not zero to prevent division errors
+if [[ $(echo "$total_parts == 0" | bc -l) -eq 1 ]]; then
+  total_parts=1
+fi
+
 mem_db_gb=$(awk "BEGIN {printf \"%.2f\", $mem_limit_gb * $RATIO_DB / $total_parts}")
 mem_mangos_gb=$(awk "BEGIN {printf \"%.2f\", $mem_limit_gb * $RATIO_MANGOS / $total_parts}")
 mem_realmd_gb=$(awk "BEGIN {printf \"%.2f\", $mem_limit_gb * $RATIO_REALMD / $total_parts}")
