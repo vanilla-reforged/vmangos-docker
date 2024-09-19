@@ -205,6 +205,12 @@ echo "Resource limits have been updated in the .env file:"
 grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEM_LIMIT_DB|MEM_LIMIT_MANGOS|MEM_LIMIT_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env
 
 # ==============================
+# Start Docker Compose services
+# ==============================
+echo "Starting Docker Compose services..."
+sudo docker-compose up -d
+
+# ==============================
 # Reboot if Required
 # ==============================
 
@@ -213,3 +219,4 @@ if [ "$REBOOT_REQUIRED" = true ]; then
   sleep 10
   reboot
 fi
+
