@@ -32,7 +32,7 @@ calculate_average() {
     return
   fi
 
-  data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $2 "," $3}' "$log_file")
+  data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $3 "," $4}' "$log_file")  # Adjusted for correct fields
   if [ -z "$data" ]; then
     echo "0,0"
     return
@@ -42,7 +42,7 @@ calculate_average() {
   total_mem=0
   count=0
 
-  while IFS=',' read -r cpu_usage mem_usage; do
+  while IFS=',' read -r mem_usage cpu_usage; do  # Ensure correct variable assignment
     if ! [[ "$cpu_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]] || ! [[ "$mem_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
       continue
     fi
