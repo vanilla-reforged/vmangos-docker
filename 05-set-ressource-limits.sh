@@ -68,13 +68,15 @@ fi
 # Resource Limit Calculations
 # ==============================
 
-total_mem_gb=$(awk "BEGIN {printf \"%.2f\", $(grep MemTotal /proc/meminfo | awk '{print $2}') / 1048576}")
-mem_limit_gb=$(awk "BEGIN {printf \"%.2f\", $total_mem_gb * $MEMORY_USAGE_PERCENTAGE / 100}")
+# Get total memory in GB
+total_mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+total_mem_gb=$(echo "scale=2; $total_mem_kb / 1024 / 1024" | bc)
+mem_limit_gb=$(echo "scale=2; $total_mem_gb * $MEMORY_USAGE_PERCENTAGE / 100" | bc)
 
 # Calculate memory reservations
-mem_reservation_db=$(awk "BEGIN {print ($MIN_MEM_DB < $mem_limit_gb / 3) ? $MIN_MEM_DB : $mem_limit_gb / 3}")
-mem_reservation_mangos=$(awk "BEGIN {print ($MIN_MEM_MANGOS < $mem_limit_gb / 3) ? $MIN_MEM_MANGOS : $mem_limit_gb / 3}")
-mem_reservation_realmd=$(awk "BEGIN {print ($MIN_MEM_REALMD < $mem_limit_gb / 3) ? $MIN_MEM_REALMD : $mem_limit_gb / 3}")
+mem_reservation_db=$(echo "scale=2; if ($mem_limit_gb / 3 < $MIN_MEM_DB) $MIN_MEM_DB else $mem_limit_gb / 3" | bc)
+mem_reservation_mangos=$(echo "scale=2; if ($mem_limit_gb / 3 < $MIN_MEM_MANGOS) $MIN_MEM_MANGOS else $mem_limit_gb / 3" | bc)
+mem_reservation_realmd=$(echo "scale=2; if ($mem_limit_gb / 3 < $MIN_MEM_REALMD) $MIN_MEM_REALMD else $mem_limit_gb / 3" | bc)
 
 # Set limits to match reservations
 mem_limit_db=$mem_reservation_db
@@ -82,16 +84,16 @@ mem_limit_mangos=$mem_reservation_mangos
 mem_limit_realmd=$mem_reservation_realmd
 
 # Calculate memswap limits (twice the mem limit)
-memswap_limit_db=$(awk "BEGIN {print 2 * $mem_limit_db}")
-memswap_limit_mangos=$(awk "BEGIN {print 2 * $mem_limit_mangos}")
-memswap_limit_realmd=$(awk "BEGIN {print 2 * $mem_limit_realmd}")
+memswap_limit_db=$(echo "scale=2; 2 * $mem_limit_db" | bc)
+memswap_limit_mangos=$(echo "scale=2; 2 * $mem_limit_mangos" | bc)
+memswap_limit_realmd=$(echo "scale=2; 2 * $mem_limit_realmd" | bc)
 
 # ==============================
 # CPU Shares Calculation
 # ==============================
-cpu_shares_db=$(awk "BEGIN {printf \"%d\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_DB}")
-cpu_shares_mangos=$(awk "BEGIN {printf \"%d\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_MANGOS}")
-cpu_shares_realmd=$(awk "BEGIN {printf \"%d\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_REALMD}")
+cpu_shares_db=$(echo "scale=0; $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_DB / 1" | bc)
+cpu_shares_mangos=$(echo "scale=0; $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_MANGOS / 1" | bc)
+cpu_shares_realmd=$(echo "scale=0; $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_REALMD / 1" | bc)
 
 # Ensure CPU shares are integers and not empty
 cpu_shares_db=${cpu_shares_db:-1024}
