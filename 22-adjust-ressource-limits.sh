@@ -80,6 +80,24 @@ if [[ -z "$avg_mem_db" || "$avg_mem_db" == "0" ]]; then avg_mem_db=0.01; fi
 if [[ -z "$avg_mem_mangos" || "$avg_mem_mangos" == "0" ]]; then avg_mem_mangos=0.01; fi
 if [[ -z "$avg_mem_realmd" || "$avg_mem_realmd" == "0" ]]; then avg_mem_realmd=0.01; fi
 
+# Debugging output
+echo "Average Memory Values: DB=$avg_mem_db, Mangos=$avg_mem_mangos, Realmd=$avg_mem_realmd"
+
+total_avg_mem=$(awk "BEGIN {print ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024}")
+
+# Ensure total_avg_mem is a valid number
+if [[ -z "$total_avg_mem" || "$total_avg_mem" == "NaN" ]]; then
+  echo "Error: total_avg_mem calculation failed."
+  total_avg_mem=1
+fi
+
+if [ "$(echo "$total_avg_mem == 0" | bc)" -eq 1 ]; then
+  total_avg_mem=1
+fi
+
+# Continue with calculations...
+
+
 total_avg_mem=$(awk "BEGIN {print ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024}")
 if [ "$(echo "$total_avg_mem == 0" | bc)" -eq 1 ]; then
   total_avg_mem=1
