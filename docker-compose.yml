@@ -22,7 +22,7 @@ services:
     user: "vmangos-database-user:vmangos-database-user"
     networks:
       - vmangos-network
-    oom_kill_disable: true
+    #oom_kill_disable: true
     mem_reservation: ${MEM_RESERVATION_DB}
     mem_limit: ${MEM_LIMIT_DB}
     memswap_limit: ${MEMSWAP_LIMIT_DB}
@@ -48,7 +48,7 @@ services:
     user: "vmangos-realmd-user:vmangos-realmd-user"
     networks:
       - vmangos-network
-    oom_kill_disable: true
+    #oom_kill_disable: true
     mem_reservation: ${MEM_RESERVATION_REALMD}
     mem_limit: ${MEM_LIMIT_REALMD}
     memswap_limit: ${MEMSWAP_LIMIT_REALMD}
@@ -82,7 +82,7 @@ services:
     user: "vmangos-mangos-user:vmangos-mangos-user"
     networks:
       - vmangos-network
-    oom_kill_disable: true
+    #oom_kill_disable: true
     mem_reservation: ${MEM_RESERVATION_MANGOS}
     mem_limit: ${MEM_LIMIT_MANGOS}
     memswap_limit: ${MEMSWAP_LIMIT_MANGOS}
