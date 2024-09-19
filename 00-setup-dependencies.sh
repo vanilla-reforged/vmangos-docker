@@ -41,27 +41,11 @@ sudo docker --version
 echo "Verifying Docker Compose installation..."
 sudo docker compose version
 
-# Step 9: Configure Docker options
-echo "Configuring Docker options..."
-sudo tee /etc/docker/daemon.json > /dev/null <<EOF
-{
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "10m",
-    "max-file": "3"
-  }
-}
-EOF
-
-# Step 10: Restart Docker to apply changes
-echo "Restarting Docker..."
-sudo systemctl restart docker
-
-# Step 11: Install 7zip
+# Step 9: Install 7zip
 echo "Installing 7zip..."
 sudo apt-get install -y p7zip-full
 
-# Step 13: Revoke the original modification and apply new UFW configuration
+# Step 10: Revoke the original modification and apply new UFW configuration
 
 echo "Reverting any previous modifications and applying UFW configuration..."
 
@@ -109,7 +93,7 @@ sudo ufw enable
 # Clean up temporary files
 sudo rm -rf ./ufw-docker
 
-# Step 14: Notify the user about Docker usage
+# Step 11: Notify the user about Docker usage
 echo "Installation complete! Note: Since you are not added to the Docker group, you will need to use 'sudo' when running Docker commands."
 
 # End of script
