@@ -27,9 +27,9 @@ MIN_MEM_REALMD=0.1
 # Script Logic
 # ==============================
 
-# Stop all running containers
+# Stop all running Docker containers using docker compose
 echo "Stopping all running Docker containers..."
-if ! sudo docker stop $(sudo docker ps -q); then
+if ! sudo docker compose down; then
   echo "Error: Failed to stop Docker containers."
   exit 1
 fi
