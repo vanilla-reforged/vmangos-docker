@@ -32,7 +32,8 @@ calculate_average() {
     return
   fi
 
-  data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $3 "," $4}' "$log_file")  # Adjusted for correct fields
+  # Adjusting the fields: $3 for CPU and $4 for Memory
+  data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $3 "," $4}' "$log_file")
   if [ -z "$data" ]; then
     echo "0,0"
     return
@@ -42,7 +43,7 @@ calculate_average() {
   total_mem=0
   count=0
 
-  while IFS=',' read -r mem_usage cpu_usage; do  # Ensure correct variable assignment
+  while IFS=',' read -r cpu_usage mem_usage; do
     if ! [[ "$cpu_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]] || ! [[ "$mem_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
       continue
     fi
@@ -60,6 +61,7 @@ calculate_average() {
   avg_mem=$(awk "BEGIN {printf \"%.2f\", $total_mem / $count}")
   echo "$avg_cpu,$avg_mem"
 }
+
 
 # Calculate averages for each container
 avg_db=$(calculate_average "$DB_LOG")
