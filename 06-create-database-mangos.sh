@@ -61,7 +61,7 @@ docker exec -i "$CONTAINER_NAME" bash -c "echo -e '[mysqld]\nexpire_logs_days=8'
 
 # Restart MariaDB service to apply configuration changes
 echo "[VMaNGOS]: Restarting MariaDB service to apply changes..."
-docker exec -i "$CONTAINER_NAME" bash -c "service mysql restart || service mariadb restart"
+docker exec -i "$CONTAINER_NAME" bash -c "service mariadb restart"
 
 # Configure default realm
 echo "[VMaNGOS]: Configuring default realm..."
