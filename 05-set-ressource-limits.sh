@@ -33,6 +33,10 @@ MIN_MEM_REALMD=0.1  # 100 MB
 # Script Logic (No Need to Modify Below)
 # ==============================
 
+# Stop all running containers
+echo "Stopping all running Docker containers..."
+sudo docker stop $(sudo docker ps -q)
+
 # Initialize a flag to indicate whether a reboot is required
 REBOOT_REQUIRED=false
 
