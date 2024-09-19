@@ -45,7 +45,6 @@ sudo docker compose version
 echo "Configuring Docker options..."
 sudo tee /etc/docker/daemon.json > /dev/null <<EOF
 {
-  "oom-kill-disable": true,
   "log-driver": "json-file",
   "log-opts": {
     "max-size": "10m",
