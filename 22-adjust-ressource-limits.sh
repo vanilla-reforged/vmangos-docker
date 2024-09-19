@@ -32,7 +32,7 @@ calculate_average() {
     return
   fi
 
-  data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold' "$log_file")
+  data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $2 "," $3}' "$log_file")
   if [ -z "$data" ]; then
     echo "0,0"
     return
@@ -42,7 +42,7 @@ calculate_average() {
   total_mem=0
   count=0
 
-  while IFS=',' read -r _ cpu_usage mem_usage; do
+  while IFS=',' read -r cpu_usage mem_usage; do
     if ! [[ "$cpu_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]] || ! [[ "$mem_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
       continue
     fi
@@ -84,21 +84,11 @@ if [[ -z "$avg_mem_realmd" || "$avg_mem_realmd" == "0" ]]; then avg_mem_realmd=0
 echo "Average Memory Values: DB=$avg_mem_db, Mangos=$avg_mem_mangos, Realmd=$avg_mem_realmd"
 
 total_avg_mem=$(awk "BEGIN {print ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024}")
-
-# Ensure total_avg_mem is a valid number
 if [[ -z "$total_avg_mem" || "$total_avg_mem" == "NaN" ]]; then
   echo "Error: total_avg_mem calculation failed."
   total_avg_mem=1
 fi
 
-if [ "$(echo "$total_avg_mem == 0" | bc)" -eq 1 ]; then
-  total_avg_mem=1
-fi
-
-# Continue with calculations...
-
-
-total_avg_mem=$(awk "BEGIN {print ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024}")
 if [ "$(echo "$total_avg_mem == 0" | bc)" -eq 1 ]; then
   total_avg_mem=1
 fi
@@ -109,9 +99,9 @@ RATIO_MANGOS=$(awk "BEGIN {printf \"%.2f\", $avg_mem_mangos / ($total_avg_mem * 
 RATIO_REALMD=$(awk "BEGIN {printf \"%.2f\", $avg_mem_realmd / ($total_avg_mem * 1024)}")
 
 # Ensure ratios are not zero
-if (( $(echo "$RATIO_DB == 0" | bc -l) )); then RATIO_DB=0.01; fi
-if (( $(echo "$RATIO_MANGOS == 0" | bc -l) )); then RATIO_MANGOS=0.01; fi
-if (( $(echo "$RATIO_REALMD == 0" | bc -l) )); then RATIO_REALMD=0.01; fi
+RATIO_DB=${RATIO_DB:-0.01}
+RATIO_MANGOS=${RATIO_MANGOS:-0.01}
+RATIO_REALMD=${RATIO_REALMD:-0.01}
 
 # Update memory and swap limits based on new ratios
 mem_reservation_db=$(awk "BEGIN {printf \"%.2f\", ($total_avg_mem * $RATIO_DB < $MIN_RESERVATION_DB) ? $MIN_RESERVATION_DB : $total_avg_mem * $RATIO_DB}")
