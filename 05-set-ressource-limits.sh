@@ -7,10 +7,16 @@
 # Percentage of total host memory to allocate (e.g., 75 for 75%)
 MEMORY_USAGE_PERCENTAGE=75
 
-# Base CPU shares (default is 1024)
+# Fixed memory reservations (in gigabytes)
+MEM_RESERVATION_DB=2  # Example: 2 GB
+MEM_RESERVATION_MANGOS=2  # Example: 2 GB
+MEM_RESERVATION_REALMD=0.5  # Example: 500 MB
+
+# CPU share multipliers to ensure higher priority over default containers
+# Set the base CPU shares (default is 1024)
 BASE_CPU_SHARES=1024
 
-# Multiplier to adjust CPU shares for each container
+# Multiplier to adjust CPU shares above the default
 CPU_SHARE_MULTIPLIER_DB=10
 CPU_SHARE_MULTIPLIER_MANGOS=10
 CPU_SHARE_MULTIPLIER_REALMD=5
@@ -18,28 +24,24 @@ CPU_SHARE_MULTIPLIER_REALMD=5
 # Enable swap limit support (true/false)
 ENABLE_SWAP_LIMIT_SUPPORT=true
 
-# Minimum memory reservations (in gigabytes)
-MIN_MEM_DB=1
-MIN_MEM_MANGOS=1
-MIN_MEM_REALMD=0.1
-
 # ==============================
-# Script Logic
+# Script Logic (No Need to Modify Below)
 # ==============================
 
-# Stop all running Docker containers using docker compose
+# Stop all running containers
 echo "Stopping all running Docker containers..."
-if ! sudo docker compose down; then
-  echo "Error: Failed to stop Docker containers."
-  exit 1
-fi
+sudo docker stop $(sudo docker ps -q)
 
 # Initialize a flag to indicate whether a reboot is required
 REBOOT_REQUIRED=false
 
 # Function to check if swap limit support is enabled
 is_swap_limit_enabled() {
-  grep -q "swapaccount=1" /proc/cmdline
+  if grep -q "swapaccount=1" /proc/cmdline; then
+    return 0  # Swap limit support is enabled
+  else
+    return 1  # Swap limit support is not enabled
+  fi
 }
 
 # Check if swap limit support needs to be enabled
@@ -47,58 +49,57 @@ if [ "$ENABLE_SWAP_LIMIT_SUPPORT" = true ]; then
   if is_swap_limit_enabled; then
     echo "Swap limit support is already enabled."
   else
+    # Check if running as root
     if [ "$EUID" -ne 0 ]; then
       echo "Error: Root privileges are required to enable swap limit support."
+      echo "Please run this script as root or with sudo."
       exit 1
     fi
 
     echo "Enabling swap limit support..."
+
+    # Backup the current grub file
     cp /etc/default/grub /etc/default/grub.backup.$(date +%F_%T)
 
-    sed -i 's/^\(GRUB_CMDLINE_LINUX=".*\)"$/\1 cgroup_enable=memory swapaccount=1"/' /etc/default/grub
-    echo "Updated /etc/default/grub with swap limit support."
-    
+    # Check if the grub parameter already exists
+    if grep -q "swapaccount=1" /etc/default/grub; then
+      echo "Swap limit support is already configured in /etc/default/grub."
+    else
+      # Update the GRUB_CMDLINE_LINUX parameter
+      if grep -q '^GRUB_CMDLINE_LINUX="' /etc/default/grub; then
+        # GRUB_CMDLINE_LINUX exists, append the parameter
+        sed -i 's/^\(GRUB_CMDLINE_LINUX=".*\)"$/\1 cgroup_enable=memory swapaccount=1"/' /etc/default/grub
+      else
+        # GRUB_CMDLINE_LINUX does not exist, add it
+        echo 'GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"' >> /etc/default/grub
+      fi
+      echo "Updated /etc/default/grub with swap limit support."
+    fi
+
     echo "Running update-grub..."
-    update-grub || { echo "Error: Failed to run update-grub."; exit 1; }
+    update-grub
+
+    # Set the flag to indicate that a reboot is required
     REBOOT_REQUIRED=true
   fi
 fi
 
 # ==============================
-# Resource Limit Calculations
+# Configure Docker options
 # ==============================
+echo "Configuring Docker options..."
+sudo tee /etc/docker/daemon.json > /dev/null <<EOF
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+EOF
 
-# Get total memory in GB
-total_mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-total_mem_gb=$(echo "scale=2; $total_mem_kb / 1024 / 1024" | bc)
-mem_limit_gb=$(echo "scale=2; $total_mem_gb * $MEMORY_USAGE_PERCENTAGE / 100" | bc)
-
-# Calculate memory reservations
-mem_reservation_db=$(echo "scale=2; if ($mem_limit_gb / 3 < $MIN_MEM_DB) $MIN_MEM_DB else $mem_limit_gb / 3" | bc)
-mem_reservation_mangos=$(echo "scale=2; if ($mem_limit_gb / 3 < $MIN_MEM_MANGOS) $MIN_MEM_MANGOS else $mem_limit_gb / 3" | bc)
-mem_reservation_realmd=$(echo "scale=2; if ($mem_limit_gb / 3 < $MIN_MEM_REALMD) $MIN_MEM_REALMD else $mem_limit_gb / 3" | bc)
-
-# Set limits to match reservations
-mem_limit_db=$mem_reservation_db
-mem_limit_mangos=$mem_reservation_mangos
-mem_limit_realmd=$mem_reservation_realmd
-
-# Calculate memswap limits (twice the mem limit)
-memswap_limit_db=$(echo "scale=2; 2 * $mem_limit_db" | bc)
-memswap_limit_mangos=$(echo "scale=2; 2 * $mem_limit_mangos" | bc)
-memswap_limit_realmd=$(echo "scale=2; 2 * $mem_limit_realmd" | bc)
-
-# ==============================
-# CPU Shares Calculation
-# ==============================
-cpu_shares_db=$(echo "scale=0; $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_DB / 1" | bc)
-cpu_shares_mangos=$(echo "scale=0; $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_MANGOS / 1" | bc)
-cpu_shares_realmd=$(echo "scale=0; $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_REALMD / 1" | bc)
-
-# Ensure CPU shares are integers and not empty
-cpu_shares_db=${cpu_shares_db:-1024}
-cpu_shares_mangos=${cpu_shares_mangos:-1024}
-cpu_shares_realmd=${cpu_shares_realmd:-1024}
+# Restart Docker to apply changes
+sudo systemctl restart docker
 
 # ==============================
 # Update or add variables in the .env file
@@ -114,8 +115,14 @@ update_env_variable() {
   fi
 
   if grep -q "^${var_name}=" .env; then
+    # Variable exists, update it
     sed -i "s|^${var_name}=.*|${var_name}=${var_value}|" .env
   else
+    # Variable doesn't exist, append it
+    # Ensure the .env file ends with a newline before appending
+    if [ -s .env ] && [ -n "$(tail -c1 .env)" ]; then
+      echo "" >> .env
+    fi
     echo "${var_name}=${var_value}" >> .env
   fi
 }
@@ -124,9 +131,35 @@ update_env_variable() {
 touch .env
 
 # Update or add resource reservation, limit, and swap limit variables in gigabytes
-update_env_variable "MEM_RESERVATION_DB" "${mem_reservation_db}g"
-update_env_variable "MEM_RESERVATION_MANGOS" "${mem_reservation_mangos}g"
-update_env_variable "MEM_RESERVATION_REALMD" "${mem_reservation_realmd}g"
+mem_limit_db=$MEM_RESERVATION_DB
+mem_limit_mangos=$MEM_RESERVATION_MANGOS
+mem_limit_realmd=$MEM_RESERVATION_REALMD
+
+# Calculate memswap limits (twice the mem limit)
+memswap_limit_db=$(awk "BEGIN {print 2 * $mem_limit_db}")
+memswap_limit_mangos=$(awk "BEGIN {print 2 * $mem_limit_mangos}")
+memswap_limit_realmd=$(awk "BEGIN {print 2 * $mem_limit_realmd}")
+
+# Calculate CPU shares for each container
+cpu_shares_db=$(awk "BEGIN {printf \"%d\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_DB}")
+cpu_shares_mangos=$(awk "BEGIN {printf \"%d\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_MANGOS}")
+cpu_shares_realmd=$(awk "BEGIN {printf \"%d\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_REALMD}")
+
+# Ensure CPU shares are integers and not empty
+if ! [[ "$cpu_shares_db" =~ ^[0-9]+$ ]]; then
+  cpu_shares_db=1024  # Default value
+fi
+if ! [[ "$cpu_shares_mangos" =~ ^[0-9]+$ ]]; then
+  cpu_shares_mangos=1024  # Default value
+fi
+if ! [[ "$cpu_shares_realmd" =~ ^[0-9]+$ ]]; then
+  cpu_shares_realmd=1024  # Default value
+fi
+
+# Update or add variables to the .env file
+update_env_variable "MEM_RESERVATION_DB" "${MEM_RESERVATION_DB}g"
+update_env_variable "MEM_RESERVATION_MANGOS" "${MEM_RESERVATION_MANGOS}g"
+update_env_variable "MEM_RESERVATION_REALMD" "${MEM_RESERVATION_REALMD}g"
 
 update_env_variable "MEM_LIMIT_DB" "${mem_limit_db}g"
 update_env_variable "MEM_LIMIT_MANGOS" "${mem_limit_mangos}g"
@@ -147,10 +180,7 @@ grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEM_LI
 # Start Docker Compose services
 # ==============================
 echo "Starting Docker Compose services..."
-if ! sudo docker compose up -d; then
-  echo "Error: Failed to start Docker Compose services."
-  exit 1
-fi
+sudo docker compose up -d
 
 # ==============================
 # Reboot if Required
