@@ -43,7 +43,7 @@ Also, please be aware that `./vol/client-data-extracted` gets mounted directly i
 ### Clone the Repository
 
 ```sh
-git clone https://github.com/vanilla-reforged/vmangos-docker
+git clone --recurse-submodules https://github.com/vanilla-reforged/vmangos-docker
 ```
 
 ### Move into the repository and make all scripts executable
