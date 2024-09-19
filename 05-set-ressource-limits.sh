@@ -35,7 +35,10 @@ MIN_MEM_REALMD=0.1  # 100 MB
 
 # Stop all running containers
 echo "Stopping all running Docker containers..."
-sudo docker stop $(sudo docker ps -q)
+if ! sudo docker stop $(sudo docker ps -q); then
+  echo "Error: Failed to stop Docker containers."
+  exit 1
+fi
 
 # Initialize a flag to indicate whether a reboot is required
 REBOOT_REQUIRED=false
