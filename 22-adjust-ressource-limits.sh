@@ -11,9 +11,12 @@ CHANGE_LOG="$LOG_DIR/change_log.log"
 SEVEN_DAYS_AGO=$(date -d '7 days ago' +%s)
 
 # Define minimum reservations in gigabytes
-MIN_RESERVATION_DB=1  # Example: 1 GB
-MIN_RESERVATION_MANGOS=1  # Example: 1 GB
-MIN_RESERVATION_REALMD=0.1  # Example: 100 MB
+MIN_RESERVATION_DB=1      # 1 GB
+MIN_RESERVATION_MANGOS=1  # 1 GB
+MIN_RESERVATION_REALMD=0.1 # 100 MB
+
+# Base CPU shares (default is 1024)
+BASE_CPU_SHARES=1024
 
 # Function to log changes
 log_change() {
@@ -73,7 +76,7 @@ avg_cpu_realmd=$(echo "$avg_realmd" | cut -d',' -f1)
 avg_mem_realmd=$(echo "$avg_realmd" | cut -d',' -f2)
 
 # Ensure average memory values are valid
-if [[ -z "$avg_mem_db" || "$avg_mem_db" == "0" ]]; then avg_mem_db=0.01; fi  # Small default to avoid zero
+if [[ -z "$avg_mem_db" || "$avg_mem_db" == "0" ]]; then avg_mem_db=0.01; fi
 if [[ -z "$avg_mem_mangos" || "$avg_mem_mangos" == "0" ]]; then avg_mem_mangos=0.01; fi
 if [[ -z "$avg_mem_realmd" || "$avg_mem_realmd" == "0" ]]; then avg_mem_realmd=0.01; fi
 
@@ -121,11 +124,6 @@ update_env_variable() {
 # Ensure the .env file exists
 touch .env
 
-# Update ratio variables
-update_env_variable "RATIO_DB" "$RATIO_DB"
-update_env_variable "RATIO_MANGOS" "$RATIO_MANGOS"
-update_env_variable "RATIO_REALMD" "$RATIO_REALMD"
-
 # Update memory limits and swap limits
 update_env_variable "MEM_RESERVATION_DB" "${mem_reservation_db}g"
 update_env_variable "MEM_RESERVATION_MANGOS" "${mem_reservation_mangos}g"
@@ -143,10 +141,19 @@ update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_limit_db}g"
 update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_limit_mangos}g"
 update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_limit_realmd}g"
 
+# Calculate dynamic CPU shares for each container based on usage ratios
 cpu_shares_db=$(awk "BEGIN {printf \"%d\", 1024 * $RATIO_DB}")
 cpu_shares_mangos=$(awk "BEGIN {printf \"%d\", 1024 * $RATIO_MANGOS}")
 cpu_shares_realmd=$(awk "BEGIN {printf \"%d\", 1024 * $RATIO_REALMD}")
 
+# Apply minimum constraint to ensure they are at least 5 times the base value
+min_cpu_shares=$((5 * BASE_CPU_SHARES))
+
+cpu_shares_db=$(awk "BEGIN {print ($cpu_shares_db < $min_cpu_shares) ? $min_cpu_shares : $cpu_shares_db}")
+cpu_shares_mangos=$(awk "BEGIN {print ($cpu_shares_mangos < $min_cpu_shares) ? $min_cpu_shares : $cpu_shares_mangos}")
+cpu_shares_realmd=$(awk "BEGIN {print ($cpu_shares_realmd < $min_cpu_shares) ? $min_cpu_shares : $cpu_shares_realmd}")
+
+# Update CPU shares in the .env file
 update_env_variable "CPU_SHARES_DB" "$cpu_shares_db"
 update_env_variable "CPU_SHARES_MANGOS" "$cpu_shares_mangos"
 update_env_variable "CPU_SHARES_REALMD" "$cpu_shares_realmd"
