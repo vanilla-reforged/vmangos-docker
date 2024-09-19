@@ -134,7 +134,27 @@ if ! [[ "$cpu_shares_realmd" =~ ^[0-9]+$ ]]; then
   cpu_shares_realmd=1024  # Default value
 fi
 
-# 9. Update or add variables in the .env file
+# ==============================
+# Configure Docker options
+# ==============================
+echo "Configuring Docker options..."
+sudo tee /etc/docker/daemon.json > /dev/null <<EOF
+{
+  "oom-kill-disable": true,
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+EOF
+
+# Restart Docker to apply changes
+sudo systemctl restart docker
+
+# ==============================
+# Update or add variables in the .env file
+# ==============================
 
 # Function to update or add a variable in the .env file
 update_env_variable() {
