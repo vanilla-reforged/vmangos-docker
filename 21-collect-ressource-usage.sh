@@ -50,7 +50,7 @@ collect_usage() {
 
   # Check if the container is running
   if ! docker ps --format "{{.Names}}" | grep -q "^${container_name}$"; then
-    echo "Warning: Container $container_name is not running."
+    echo "Warning: Container $container_name is not running." >> "${LOG_DIR}/error.log"
     return
   fi
 
@@ -59,7 +59,7 @@ collect_usage() {
 
   # Check if stats were successfully retrieved
   if [ -z "$stats" ]; then
-    echo "Warning: Unable to collect stats for $container_name."
+    echo "Warning: Unable to collect stats for $container_name." >> "${LOG_DIR}/error.log"
     return
   fi
 
@@ -67,25 +67,21 @@ collect_usage() {
   cpu_usage=$(echo "$stats" | jq -r '.CPUPerc' | tr -d '%' || echo "0")
   mem_usage=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' | tr -d 'MiB' | tr -d 'GiB')
 
-  # Handle potential errors in CPU or memory parsing
-  if ! [[ "$cpu_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-    cpu_usage="0"  # Default to 0 if parsing failed
-  fi
-
   # Convert memory usage to MiB if necessary
   mem_unit=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' | grep -o '[A-Za-z]*$')
-  if [ "$mem_unit" == "GiB" ]; then
-    mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage * 1024}")
-  elif [ "$mem_unit" == "KiB" ]; then
-    mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage / 1024}")
-  elif [ "$mem_unit" == "B" ]; then
-    mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage / 1048576}")
-  fi
+  case "$mem_unit" in
+    GiB) mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage * 1024}") ;;
+    KiB) mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage / 1024}") ;;
+    B)   mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage / 1048576}") ;;
+  esac
+
+  # Get human-readable timestamp
+  human_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
 
   # Append data to log file
-  echo "$timestamp,$cpu_usage,$mem_usage" >> "$log_file"
+  echo "$human_timestamp,$timestamp,$cpu_usage,$mem_usage" >> "$log_file"
 
-  # Clean up old entries (e.g., older than 8 days)
+  # Clean up old entries
   clean_old_entries "$log_file"
 }
 
