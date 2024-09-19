@@ -208,7 +208,7 @@ grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEM_LI
 # Start Docker Compose services
 # ==============================
 echo "Starting Docker Compose services..."
-sudo docker-compose up -d
+sudo docker compose up -d
 
 # ==============================
 # Reboot if Required
