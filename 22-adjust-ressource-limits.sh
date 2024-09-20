@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+
 # Directories for logs
 LOG_DIR="./vol/resource_logs"
 DB_LOG="$LOG_DIR/db_usage.log"
@@ -86,6 +86,7 @@ avg_mem_db=${avg_mem_db:-0.01}
 avg_mem_mangos=${avg_mem_mangos:-0.01}
 avg_mem_realmd=${avg_mem_realmd:-0.01}
 
+# Convert to total average memory in GB
 total_avg_mem=$(awk "BEGIN {print ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024}")
 if [[ -z "$total_avg_mem" || "$total_avg_mem" == "NaN" ]]; then
   echo "Error: total_avg_mem calculation failed."
