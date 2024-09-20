@@ -32,7 +32,10 @@ calculate_average() {
     return
   fi
 
+  # Extracting CPU and Memory usage
   data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $3 "," $4}' "$log_file")
+  echo "Data extracted from log file: $data"  # Debug output
+
   if [ -z "$data" ]; then
     echo "0,0"
     return
@@ -86,6 +89,11 @@ for mem in "$avg_mem_db" "$avg_mem_mangos" "$avg_mem_realmd"; do
     mem=0.01
   fi
 done
+
+# Reassign valid memory values
+avg_mem_db=${avg_mem_db:-0.01}
+avg_mem_mangos=${avg_mem_mangos:-0.01}
+avg_mem_realmd=${avg_mem_realmd:-0.01}
 
 total_avg_mem=$(awk "BEGIN {print ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024}")
 if [[ -z "$total_avg_mem" || "$total_avg_mem" == "NaN" ]]; then
