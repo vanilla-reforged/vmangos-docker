@@ -32,10 +32,7 @@ calculate_average() {
     return
   fi
 
-  # Extracting CPU and Memory usage
   data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $3 "," $4}' "$log_file")
-  echo "Data extracted from log file: $data"  # Debug output
-
   if [ -z "$data" ]; then
     echo "0,0"
     return
