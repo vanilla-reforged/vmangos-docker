@@ -24,6 +24,13 @@ CURRENT_DAY=$(date +%u)
 CURRENT_HOUR=$(date +%H)
 CURRENT_MINUTE=$(date +%M)
 
+# Check for the --now flag
+FORCE_BACKUP=false
+if [[ "$1" == "--now" ]]; then
+    FORCE_BACKUP=true
+    echo "Force backup triggered."
+fi
+
 # Function to create a full backup (daily)
 create_full_backup() {
     echo "Creating full backup inside the container..."
@@ -143,11 +150,16 @@ truncate_tables() {
 
 # Main script logic to decide between full and incremental backups and truncation
 echo "Current Hour: $CURRENT_HOUR, Current Minute: $CURRENT_MINUTE, Current Day: $CURRENT_DAY"
-if [[ "$CURRENT_HOUR" == "$FULL_BACKUP_HOUR" && "$CURRENT_MINUTE" == "00" ]]; then
+if [[ "$FORCE_BACKUP" == true ]]; then
+    echo "Force backup triggered."
+    create_full_backup
+    if [[ "$CURRENT_DAY" == "$TRUNCATION_DAY" ]]; then
+        truncate_tables
+    fi
+elif [[ "$CURRENT_HOUR" == "$FULL_BACKUP_HOUR" && "$CURRENT_MINUTE" == "00" ]]; then
     echo "Performing full backup..."
     create_full_backup
     if [[ "$CURRENT_DAY" == "$TRUNCATION_DAY" ]]; then
-        echo "Performing table truncation..."
         truncate_tables
     fi
 elif (( $((10#$CURRENT_MINUTE)) % $INCREMENTAL_BACKUP_INTERVAL_MINUTES == 0 )); then
