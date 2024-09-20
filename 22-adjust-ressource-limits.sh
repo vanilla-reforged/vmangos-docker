@@ -34,8 +34,7 @@ calculate_average() {
 
   # Extracting CPU and Memory usage
   data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $3 "," $4}' "$log_file")
-  echo "Data extracted from log file: $data"  # Debug output
-
+  
   if [ -z "$data" ]; then
     echo "0,0"
     return
@@ -51,7 +50,7 @@ calculate_average() {
       total_mem=$(awk "BEGIN {print $total_mem + $mem_usage}")
       count=$((count + 1))
     else
-      echo "Warning: Invalid entry skipped: CPU=$cpu_usage, Memory=$mem_usage" # Debug output
+      echo "Warning: Invalid entry skipped: CPU=$cpu_usage, Memory=$mem_usage"
     fi
   done <<< "$data"
 
@@ -83,14 +82,6 @@ avg_mem_realmd=$(echo "$avg_realmd" | cut -d',' -f2)
 echo "Average Memory Values: DB=$avg_mem_db, Mangos=$avg_mem_mangos, Realmd=$avg_mem_realmd"
 
 # Ensure average memory values are valid
-for mem in "$avg_mem_db" "$avg_mem_mangos" "$avg_mem_realmd"; do
-  if [[ -z "$mem" || ! "$mem" =~ ^[0-9]+(\.[0-9]+)?$ || "$mem" == "0" ]]; then
-    echo "Warning: Invalid memory value detected, setting to 0.01"
-    mem=0.01
-  fi
-done
-
-# Reassign valid memory values
 avg_mem_db=${avg_mem_db:-0.01}
 avg_mem_mangos=${avg_mem_mangos:-0.01}
 avg_mem_realmd=${avg_mem_realmd:-0.01}
