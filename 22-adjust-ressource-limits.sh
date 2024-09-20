@@ -34,6 +34,8 @@ calculate_average() {
 
   # Adjusting the fields: $3 for CPU and $4 for Memory
   data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $3 "," $4}' "$log_file")
+  echo "Data extracted from log file: $data"  # Debug output
+
   if [ -z "$data" ]; then
     echo "0,0"
     return
@@ -62,7 +64,6 @@ calculate_average() {
   echo "$avg_cpu,$avg_mem"
 }
 
-
 # Calculate averages for each container
 avg_db=$(calculate_average "$DB_LOG")
 avg_mangos=$(calculate_average "$MANGOS_LOG")
@@ -78,9 +79,12 @@ avg_cpu_realmd=$(echo "$avg_realmd" | cut -d',' -f1)
 avg_mem_realmd=$(echo "$avg_realmd" | cut -d',' -f2)
 
 # Ensure average memory values are valid
-if [[ -z "$avg_mem_db" || "$avg_mem_db" == "0" ]]; then avg_mem_db=0.01; fi
-if [[ -z "$avg_mem_mangos" || "$avg_mem_mangos" == "0" ]]; then avg_mem_mangos=0.01; fi
-if [[ -z "$avg_mem_realmd" || "$avg_mem_realmd" == "0" ]]; then avg_mem_realmd=0.01; fi
+for mem in "$avg_mem_db" "$avg_mem_mangos" "$avg_mem_realmd"; do
+  if [[ -z "$mem" || ! "$mem" =~ ^[0-9]+(\.[0-9]+)?$ || "$mem" == "0" ]]; then
+    echo "Warning: Invalid memory value detected, setting to 0.01"
+    mem=0.01
+  fi
+done
 
 # Debugging output
 echo "Average Memory Values: DB=$avg_mem_db, Mangos=$avg_mem_mangos, Realmd=$avg_mem_realmd"
