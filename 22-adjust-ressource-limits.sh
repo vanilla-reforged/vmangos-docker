@@ -55,7 +55,6 @@ avg_db=$(calculate_average "$DB_LOG")
 avg_mangos=$(calculate_average "$MANGOS_LOG")
 avg_realmd=$(calculate_average "$REALMD_LOG")
 
-# Extract values from averages
 avg_cpu_db=$(echo "$avg_db" | cut -d',' -f1)
 avg_mem_db=$(echo "$avg_db" | cut -d',' -f2)
 
@@ -65,17 +64,14 @@ avg_mem_mangos=$(echo "$avg_mangos" | cut -d',' -f2)
 avg_cpu_realmd=$(echo "$avg_realmd" | cut -d',' -f1)
 avg_mem_realmd=$(echo "$avg_realmd" | cut -d',' -f2)
 
-# Debugging output
-echo "Average Memory Values: DB=$avg_mem_db, Mangos=$avg_mem_mangos, Realmd=$avg_mem_realmd"
-
-# Ensure average memory values are valid
+# Ensure average memory values are valid, avoid divide by zero
 avg_mem_db=${avg_mem_db:-0.01}
 avg_mem_mangos=${avg_mem_mangos:-0.01}
 avg_mem_realmd=${avg_mem_realmd:-0.01}
 
 # Calculate total average memory in GB
 total_avg_mem=$(echo "scale=2; ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024" | bc)
-if [[ -z "$total_avg_mem" || "$total_avg_mem" == "NaN" ]]; then
+if [[ "$total_avg_mem" == "0.00" || "$total_avg_mem" == "NaN" ]]; then
   total_avg_mem=1
 fi
 
@@ -104,6 +100,7 @@ update_env_variable() {
   var_name=$1
   var_value=$2
   if [ -z "$var_value" ]; then
+    echo "Warning: Skipping update of $var_name as value is empty."
     return
   fi
 
