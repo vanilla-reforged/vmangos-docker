@@ -46,12 +46,13 @@ calculate_average() {
   count=0
 
   while IFS=',' read -r cpu_usage mem_usage; do
-    if ! [[ "$cpu_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]] || ! [[ "$mem_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-      continue
+    if [[ "$cpu_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]] && [[ "$mem_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+      total_cpu=$(awk "BEGIN {print $total_cpu + $cpu_usage}")
+      total_mem=$(awk "BEGIN {print $total_mem + $mem_usage}")
+      count=$((count + 1))
+    else
+      echo "Warning: Invalid entry skipped: CPU=$cpu_usage, Memory=$mem_usage" # Debug output
     fi
-    total_cpu=$(awk "BEGIN {print $total_cpu + $cpu_usage}")
-    total_mem=$(awk "BEGIN {print $total_mem + $mem_usage}")
-    count=$((count + 1))
   done <<< "$data"
 
   if [ "$count" -eq 0 ]; then
@@ -78,6 +79,9 @@ avg_mem_mangos=$(echo "$avg_mangos" | cut -d',' -f2)
 avg_cpu_realmd=$(echo "$avg_realmd" | cut -d',' -f1)
 avg_mem_realmd=$(echo "$avg_realmd" | cut -d',' -f2)
 
+# Debugging output
+echo "Average Memory Values: DB=$avg_mem_db, Mangos=$avg_mem_mangos, Realmd=$avg_mem_realmd"
+
 # Ensure average memory values are valid
 for mem in "$avg_mem_db" "$avg_mem_mangos" "$avg_mem_realmd"; do
   if [[ -z "$mem" || ! "$mem" =~ ^[0-9]+(\.[0-9]+)?$ || "$mem" == "0" ]]; then
@@ -85,9 +89,6 @@ for mem in "$avg_mem_db" "$avg_mem_mangos" "$avg_mem_realmd"; do
     mem=0.01
   fi
 done
-
-# Debugging output
-echo "Average Memory Values: DB=$avg_mem_db, Mangos=$avg_mem_mangos, Realmd=$avg_mem_realmd"
 
 total_avg_mem=$(awk "BEGIN {print ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024}")
 if [[ -z "$total_avg_mem" || "$total_avg_mem" == "NaN" ]]; then
