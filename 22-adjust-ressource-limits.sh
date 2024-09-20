@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#
 # Directories for logs
 LOG_DIR="./vol/resource_logs"
 DB_LOG="$LOG_DIR/db_usage.log"
