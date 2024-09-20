@@ -19,7 +19,7 @@ BASE_CPU_SHARES=1024
 
 # Function to calculate average usage
 calculate_average() {
-  log_file=$1
+  local log_file=$1
   if [ ! -f "$log_file" ] || [ ! -s "$log_file" ]; then
     echo "0,0"
     return
@@ -28,9 +28,9 @@ calculate_average() {
   # Extracting CPU and Memory usage
   data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $3 "," $4}' "$log_file")
   
-  total_cpu=0
-  total_mem=0
-  count=0
+  local total_cpu=0
+  local total_mem=0
+  local count=0
 
   while IFS=',' read -r cpu_usage mem_usage; do
     if [[ "$cpu_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]] && [[ "$mem_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
@@ -55,6 +55,7 @@ avg_db=$(calculate_average "$DB_LOG")
 avg_mangos=$(calculate_average "$MANGOS_LOG")
 avg_realmd=$(calculate_average "$REALMD_LOG")
 
+# Extract values from averages
 avg_cpu_db=$(echo "$avg_db" | cut -d',' -f1)
 avg_mem_db=$(echo "$avg_db" | cut -d',' -f2)
 
@@ -64,14 +65,14 @@ avg_mem_mangos=$(echo "$avg_mangos" | cut -d',' -f2)
 avg_cpu_realmd=$(echo "$avg_realmd" | cut -d',' -f1)
 avg_mem_realmd=$(echo "$avg_realmd" | cut -d',' -f2)
 
-# Ensure average memory values are valid, avoid divide by zero
+# Check for valid memory values
 avg_mem_db=${avg_mem_db:-0.01}
 avg_mem_mangos=${avg_mem_mangos:-0.01}
 avg_mem_realmd=${avg_mem_realmd:-0.01}
 
 # Calculate total average memory in GB
 total_avg_mem=$(echo "scale=2; ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024" | bc)
-if [[ "$total_avg_mem" == "0.00" || "$total_avg_mem" == "NaN" ]]; then
+if [ "$(echo "$total_avg_mem <= 0" | bc)" -eq 1 ]; then
   total_avg_mem=1
 fi
 
@@ -86,9 +87,9 @@ RATIO_MANGOS=${RATIO_MANGOS:-0.01}
 RATIO_REALMD=${RATIO_REALMD:-0.01}
 
 # Update memory and swap limits based on new ratios
-mem_reservation_db=$(echo "scale=2; ($total_avg_mem * $RATIO_DB < $MIN_RESERVATION_DB) ? $MIN_RESERVATION_DB : $total_avg_mem * $RATIO_DB" | bc)
-mem_reservation_mangos=$(echo "scale=2; ($total_avg_mem * $RATIO_MANGOS < $MIN_RESERVATION_MANGOS) ? $MIN_RESERVATION_MANGOS : $total_avg_mem * $RATIO_MANGOS" | bc)
-mem_reservation_realmd=$(echo "scale=2; ($total_avg_mem * $RATIO_REALMD < $MIN_RESERVATION_REALMD) ? $MIN_RESERVATION_REALMD : $total_avg_mem * $RATIO_REALMD" | bc)
+mem_reservation_db=$(echo "scale=2; if ($total_avg_mem * $RATIO_DB < $MIN_RESERVATION_DB) $MIN_RESERVATION_DB else $total_avg_mem * $RATIO_DB" | bc)
+mem_reservation_mangos=$(echo "scale=2; if ($total_avg_mem * $RATIO_MANGOS < $MIN_RESERVATION_MANGOS) $MIN_RESERVATION_MANGOS else $total_avg_mem * $RATIO_MANGOS" | bc)
+mem_reservation_realmd=$(echo "scale=2; if ($total_avg_mem * $RATIO_REALMD < $MIN_RESERVATION_REALMD) $MIN_RESERVATION_REALMD else $total_avg_mem * $RATIO_REALMD" | bc)
 
 # Convert reservations to memory limits
 mem_limit_db=$mem_reservation_db
@@ -139,9 +140,9 @@ cpu_shares_realmd=$(echo "scale=0; 1024 * $RATIO_REALMD" | bc)
 # Apply minimum constraint to ensure they are at least 5 times the base value
 min_cpu_shares=$((5 * BASE_CPU_SHARES))
 
-cpu_shares_db=$(echo "$cpu_shares_db < $min_cpu_shares ? $min_cpu_shares : $cpu_shares_db" | bc)
-cpu_shares_mangos=$(echo "$cpu_shares_mangos < $min_cpu_shares ? $min_cpu_shares : $cpu_shares_mangos" | bc)
-cpu_shares_realmd=$(echo "$cpu_shares_realmd < $min_cpu_shares ? $min_cpu_shares : $cpu_shares_realmd" | bc)
+cpu_shares_db=$(echo "if ($cpu_shares_db < $min_cpu_shares) $min_cpu_shares else $cpu_shares_db" | bc)
+cpu_shares_mangos=$(echo "if ($cpu_shares_mangos < $min_cpu_shares) $min_cpu_shares else $cpu_shares_mangos" | bc)
+cpu_shares_realmd=$(echo "if ($cpu_shares_realmd < $min_cpu_shares) $min_cpu_shares else $cpu_shares_realmd" | bc)
 
 # Update CPU shares in the .env file
 update_env_variable "CPU_SHARES_DB" "$cpu_shares_db"
