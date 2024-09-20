@@ -175,6 +175,7 @@ docker compose up -d
   - Weekly Log Database truncation
   - S3 Offload - Attention: API calls/immutability are a financial risk. You must know what you are doing with this.
   - Cleanup of old local backups
+  - use with flag --now to run independent of current hour.
  
 - `./32-world-database-backup.sh`
   - Backup world database.
