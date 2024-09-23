@@ -4,6 +4,7 @@
 source "$(dirname "$0")/.env-script"
 
 # Configuration
+HOST_BACKUP_DIR="./vol/backup"  # Backup directory on the host
 CONTAINER_BACKUP_DIR="/vol/backup"  # Backup directory inside the Docker container
 CONTAINER_NAME="vmangos-database"  # Docker container name
 BINARY_LOGS_RETENTION_DAYS=7  # Retain binary logs for 7 days
@@ -19,28 +20,30 @@ send_discord_message() {
 
 # Function to create an incremental backup using binary logs
 create_incremental_backup() {
-    echo "Creating incremental backup using binary logs inside the container..."
-    
-    # Copy binary logs from container to the backup directory
-    docker exec $CONTAINER_NAME bash -c "cp /var/lib/mysql/mysql-bin.* $CONTAINER_BACKUP_DIR/"
+    echo "Creating incremental backup using binary logs..."
+
+    # Copy binary logs from the container to the host backup directory
+    docker cp "$CONTAINER_NAME:/var/lib/mysql/mysql-bin.*" "$HOST_BACKUP_DIR/"
 
     if [[ $? -eq 0 ]]; then
-        echo "Binary logs copied successfully."
-        
-        # Compress the binary logs
-        echo "Compressing binary logs..."
-        docker exec $CONTAINER_NAME bash -c "7z a $CONTAINER_BACKUP_DIR/binary_logs.7z $CONTAINER_BACKUP_DIR/mysql-bin.*"
-        
+        echo "Binary logs copied to host successfully."
+
+        # Compress the binary logs on the host
+        echo "Compressing binary logs on the host..."
+        7z a "$HOST_BACKUP_DIR/binary_logs_$(date +%Y%m%d%H%M%S).7z" "$HOST_BACKUP_DIR/mysql-bin.*"
+
         if [[ $? -eq 0 ]]; then
             echo "Binary logs compressed successfully."
+            # Remove the uncompressed binary logs
+            rm -f "$HOST_BACKUP_DIR/mysql-bin.*"
             send_discord_message "Incremental binary logs backup completed successfully."
         else
-            echo "Failed to compress binary logs!"
+            echo "Failed to compress binary logs on the host!"
             send_discord_message "Incremental binary logs backup failed during compression."
             exit 1
         fi
     else
-        echo "Failed to copy binary logs!"
+        echo "Failed to copy binary logs from container!"
         send_discord_message "Incremental binary logs backup failed."
         exit 1
     fi
