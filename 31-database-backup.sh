@@ -41,8 +41,15 @@ send_discord_message() {
          "$DISCORD_WEBHOOK_URL"
 }
 
+# Function to clean the backup directory in the container
+clean_container_backup_directory() {
+    echo "Cleaning backup directory in the container..."
+    docker exec $CONTAINER_NAME bash -c "rm -rf $CONTAINER_BACKUP_DIR/*"
+}
+
 # Function to create a full backup (daily)
 create_full_backup() {
+    clean_container_backup_directory
     echo "Creating full backup inside the container..."
     docker exec $CONTAINER_NAME bash -c "mariabackup --backup --target-dir=$CONTAINER_BACKUP_DIR --user=$DB_USER --password=$DB_PASS"
     
@@ -77,6 +84,7 @@ create_full_backup() {
 
 # Function to create an incremental backup (hourly or minutely)
 create_incremental_backup() {
+    clean_container_backup_directory
     echo "Creating incremental backup inside the container..."
     LATEST_FULL_BACKUP=$(ls -td "$HOST_BACKUP_DIR/full_*" | head -1)
     
