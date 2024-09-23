@@ -46,14 +46,6 @@ Also, please be aware that `./vol/client-data-extracted` gets mounted directly i
 git clone --recurse-submodules https://github.com/vanilla-reforged/vmangos-docker
 ```
 
-### Move into the scripts folder and make all scripts executable
-
-```sh
-cd vmangos-docker/scripts
-find ./* -type f -iname "*.sh" -exec chmod +x {} \;
-```
-
-
 ### Adjust .env Files
 
 Adjust the .env files for your desired setup:
@@ -67,53 +59,48 @@ To make the server public, change the `VMANGOS_REALM_IP` environment variable in
 
 ### Generate/Extract Client Data
 
-Copy the contents of your World of Warcraft client directory into `./vol/client-data`. Generating the required data will take many hours. If you have already extracted the client data, place it in `./vol/client-data-extracted` and skip the "03-extract-client-data.sh" script.
+Copy the contents of your World of Warcraft client directory into `./vol/client-data`. Generating the required data will take many hours. If you have already extracted the client data, place it in `./vol/client-data-extracted` and skip the `04` script.
 
-### Installation
+### /script/setup/
 
-Install the dependencies, configure and enable a ufw setup that works with docker and limit docker logs with the script:
-```sh
-./00-setup-dependencies.sh
-```
+Execute scripts 01 to 05:
 
-Execute the scripts in order:
+- `01`
+  - Install and modify Docker, 7zip and ufw.
 
-```sh
-./01-create-dockeruser-and-set-permissions.sh
-./02-update-github-and-database.sh
-./03-compile-core.sh
-./04-extract-client-data.sh
-```
+- `02`
+  - Update the github directories in ./vol/.
 
-Set the ressource limits for the vmangos containers to avoid OOME crashes, the values are adjustable in the script, minimal values are set in the script to ensure the containers start even on shitboxes.
+- `03`
+  - Compile the core.
 
-Attention: If Swap Limit Support is not enabled in /etc/default/grub this script will automatically do it and reboot the server to activate it.
+- `04`
+  - Extract the Client Data.
 
-```sh
-./05-set-ressource-limits.sh
-```
+- `05`
+  - Initialize the ressource limits, based on the current hardware.
 
-Create the vmangos network:
+Then create the vmangos network:
 
 ```sh
 docker network create vmangos-network
 ```
 
-Start your environment:
+Then start your environment (execute from the directory where the docker-compose.yml is located):
 
 ```sh
 docker compose up -d
 ```
 
-Create the database:
+- `06...`
+  - Create and modify the vmangos databases.
 
-```sh
-./06-create-database-mangos.sh
-```
+- `07...`
+  - Clear the mysql root pw from the database containers .env variable.
 
 ### Configure MySQL Password
 
-Update `mangosd.conf` and `realmd.conf` with your MySQL root password if changed.
+Update `mangosd.conf` and `realmd.conf` with your MySQL root password if you changed it.
 
 ### Create Account
 
@@ -134,13 +121,6 @@ Detach from the Docker container:
 
 Press <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 
-### Clear MySQL Root Password
-
-Clear the MySQL root password and restart the database:
-
-```sh
-./07-remove-root-env-database.sh
-```
 
 ## Starting and Stopping VMaNGOS
 
@@ -149,20 +129,30 @@ docker compose down
 docker compose up -d
 ```
 
+
+#BELOW IS CURRENTLY DEPRECATED, IT IS IN WORK
+
 ## Scripts
 
-### Manual Tasks
+### (/script/backup)
 
-- `./11-import-world-db-migrations.sh`
+### (/script/docker-resources)
 
+### (/script/faction-balancer)
+
+### (/script/logs)
+
+### (/script/management)
+
+- `01...`
   - Import new migrations.
-- `./12-recreate-world-db.sh`
+
+- `02...`
   - Recreate the world database.
 
-- `./13-recompile-core.sh`
+- `03...`
   - Recompile the core.
 
-### Cronjobs
 
 - `./21-collect-ressource-usage.sh`
    - Collect ressource usage for database, mangos and realmd containers.
