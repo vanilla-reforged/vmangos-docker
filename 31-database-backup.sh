@@ -51,7 +51,9 @@ clean_container_backup_directory() {
 create_full_backup() {
     clean_container_backup_directory
     echo "Creating full backup inside the container..."
-    docker exec $CONTAINER_NAME bash -c "mariabackup --backup --target-dir=$CONTAINER_BACKUP_DIR --user=$DB_USER --password=$DB_PASS"
+    
+    # Backup only specific databases: characters, logs, realmd
+    docker exec $CONTAINER_NAME bash -c "mariabackup --backup --target-dir=$CONTAINER_BACKUP_DIR --user=$DB_USER --password=$DB_PASS --databases='characters logs realmd'"
     
     if [[ $? -eq 0 ]]; then
         echo "Full backup created successfully inside the container."
@@ -97,7 +99,8 @@ create_incremental_backup() {
     echo "Copying latest full backup to container..."
     docker cp "$LATEST_FULL_BACKUP/." "$CONTAINER_NAME:$CONTAINER_BACKUP_DIR"
     
-    docker exec $CONTAINER_NAME bash -c "mariabackup --backup --target-dir=$CONTAINER_BACKUP_DIR --incremental-basedir=$CONTAINER_BACKUP_DIR --user=$DB_USER --password=$DB_PASS"
+    # Perform the incremental backup only for the specific databases
+    docker exec $CONTAINER_NAME bash -c "mariabackup --backup --target-dir=$CONTAINER_BACKUP_DIR --incremental-basedir=$CONTAINER_BACKUP_DIR --user=$DB_USER --password=$DB_PASS --databases='characters logs realmd'"
     
     if [[ $? -eq 0 ]]; then
         echo "Incremental backup created successfully inside the container."
