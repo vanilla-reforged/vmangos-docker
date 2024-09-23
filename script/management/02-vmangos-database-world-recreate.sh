@@ -3,15 +3,6 @@
 # Load environment variables
 source .env-script
 
-# Function to handle script call from another directory
-get_script_path() {
-  [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
-}
-
-# Determine the script directory and navigate to it
-repository_path=$(dirname "$(get_script_path "$0")")
-cd "$repository_path" || { echo "[VMaNGOS]: Failed to navigate to script directory."; exit 1; }
-
 # Define the container name
 CONTAINER_NAME="vmangos-database"
 
