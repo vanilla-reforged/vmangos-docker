@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Load environment variables from .env-script
-source "$(dirname "$0")/.env-script"
+source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
 
 # Configuration
 CONTAINER_BACKUP_DIR="/vol/backup"  # Backup directory inside the Docker container
-HOST_BACKUP_DIR="./vol/backup"  # Backup directory on the host
+HOST_BACKUP_DIR="$DOCKER_DIRECTORY/vol/backup"  # Backup directory on the host using $DOCKER_DIRECTORY
 CONTAINER_NAME="vmangos-database"  # Docker container name
 
 # Function to send a message to Discord
@@ -35,13 +35,13 @@ create_incremental_backup() {
             echo "Binary logs compressed successfully on the host."
             send_discord_message "Incremental binary logs backup completed successfully."
 
-                # Clean up the uncompressed binary logs on the host
-                rm "$HOST_BACKUP_DIR/mysql-bin.*"
-                if [[ $? -eq 0 ]]; then
-                    echo "Uncompressed binary logs cleaned up."
-                else
-                    echo "Failed to clean up binary logs! Please check file permissions."
-                fi
+            # Clean up the uncompressed binary logs on the host
+            rm "$HOST_BACKUP_DIR/mysql-bin.*"
+            if [[ $? -eq 0 ]]; then
+                echo "Uncompressed binary logs cleaned up."
+            else
+                echo "Failed to clean up binary logs! Please check file permissions."
+            fi
 
         else
             echo "Failed to compress binary logs on the host!"

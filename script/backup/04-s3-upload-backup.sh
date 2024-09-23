@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Load environment variables from .env-script
-source "$(dirname "$0")/.env-script"
+source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
 
 # Configuration
 S3_BUCKET="s3://your-s3-bucket-name"  # S3 bucket name
-HOST_BACKUP_DIR="./vol/backup"  # Local backup directory on the host
+HOST_BACKUP_DIR="$DOCKER_DIRECTORY/vol/backup"  # Local backup directory on the host using $DOCKER_DIRECTORY
 
 # Function to send a message to Discord
 send_discord_message() {
