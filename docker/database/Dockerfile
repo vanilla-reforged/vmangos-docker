@@ -1,19 +1,19 @@
 FROM mariadb:11.5.2
 
-# Create the group and user 'vmangos-database-user'
-RUN groupadd -r vmangos-database-user && \
-    useradd -r -g vmangos-database-user -d /home/vmangos-database-user -s /bin/false -u 1001 vmangos-database-user && \
-    apt-get update -y && \
+# Install sudo and other necessary packages
+RUN apt-get update -y && \
     apt-get install -y sudo && \
-    mkdir -p /vol/backup /vol/core-github /vol/database-github /etc/mysql/conf.d && \
-    chown -R vmangos-database-user:vmangos-database-user /vol/backup /vol/core-github /vol/database-github /etc/mysql/conf.d && \
-    echo "vmangos-database-user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    mkdir -p /vol/backup /vol/core-github /vol/database-github /etc/mysql/conf.d /vol/faction-balancer
 
-# Switch to the newly created user
-USER vmangos-database-user
+# Set ownership to default user 1000:1000 if needed, though likely not necessary
+# You can remove the next line if the default user already owns the volumes.
+# chown -R 1000:1000 /vol/backup /vol/core-github /vol/database-github /etc/mysql/conf.d
+
+# Switch to default user 1000:1000 if not already set in the base image
+USER 1000:1000
 
 # Set the working directory
-WORKDIR /home/vmangos-database-user
+WORKDIR /home/default
 
 # Default command
 CMD ["mysqld"]

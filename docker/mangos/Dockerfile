@@ -13,36 +13,28 @@ RUN apt-get update -y && \
     zlib1g-dev \
     libreadline-dev
 
-# Create a user and group 'vmangos-mangos-user' with UID and GID 1001
-RUN groupadd -r vmangos-mangos-user && \
-    useradd -r -u 1001 -g vmangos-mangos-user -d /home/vmangos-mangos-user -s /bin/bash vmangos-mangos-user
-
-# Create necessary directories and set permissions
-RUN mkdir -p /opt/vmangos && \
-    chown -R vmangos-mangos-user:vmangos-mangos-user /opt/vmangos
+# Create necessary directories
+RUN mkdir -p /opt/vmangos
 
 # Copy the mangosd binary into the appropriate directory
 COPY ./vol/core/bin/mangosd /opt/vmangos/bin/mangosd
 
 # Set executable permissions for the binaries
-RUN chmod +x /opt/vmangos/bin/mangosd && \
-    chown -R vmangos-mangos-user:vmangos-mangos-user /opt/vmangos/bin
+RUN chmod +x /opt/vmangos/bin/mangosd
 
 # Download the wait script and set permissions
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /opt/wait
-RUN chmod +x /opt/wait && \
-    chown vmangos-mangos-user:vmangos-mangos-user /opt/wait
+RUN chmod +x /opt/wait
 
 # Copy the entrypoint script into the image
 COPY docker/mangos/entrypoint.sh /opt/entrypoint.sh
-RUN chmod +x /opt/entrypoint.sh && \
-    chown vmangos-mangos-user:vmangos-mangos-user /opt/entrypoint.sh
+RUN chmod +x /opt/entrypoint.sh
 
 # Set the working directory
 WORKDIR /opt/vmangos/bin
 
-# Switch to the newly created user
-USER vmangos-mangos-user
+# Switch to the default user (1000:1000)
+USER 1000:1000
 
 # Set the entrypoint
 ENTRYPOINT ["/opt/entrypoint.sh"]
