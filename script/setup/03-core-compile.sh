@@ -8,7 +8,7 @@ VOLUMES=(
   "./vol/core:/vol/core"
   "./vol/core-github:/vol/core-github"
 )
-ENV_FILE=".env-vmangos-build"
+ENV_FILE="./../../.env-vmangos-build"  # Adjusted to point to the correct location
 
 echo "[VMaNGOS]: Building compiler image..."
 

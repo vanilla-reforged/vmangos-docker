@@ -1,9 +1,12 @@
 #!/bin/bash
 
+# Load environment variables
+source ./../../.env-script  # Adjusted path to environment file
+
 # Define variables
-COMPOSE_FILE="docker-compose.yml"
+COMPOSE_FILE="$DOCKER_DIRECTORY/docker-compose.yml"  # Adjusted path to use $DOCKER_DIRECTORY
 SERVICE_NAME="vmangos-database"
-ENV_FILE=".env"
+ENV_FILE="$DOCKER_DIRECTORY/.env"  # Adjusted path to use $DOCKER_DIRECTORY
 
 # Comment out MYSQL_ROOT_PASSWORD in the .env file
 echo "Clearing MYSQL_ROOT_PASSWORD in the $ENV_FILE file..."

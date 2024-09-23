@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Load environment variables
-source .env-script
+source ./../../.env-script  # Adjusted path
 
 # Define the container name
 CONTAINER_NAME="vmangos-database"
@@ -39,14 +39,14 @@ exec_docker "FLUSH PRIVILEGES;"
 # Import databases
 echo "[VMaNGOS]: Importing databases..."
 import_files=(
-  "mangos:./vol/database-github/$VMANGOS_WORLD_DATABASE.sql"
-  "realmd:./vol/core-github/sql/logon.sql"
-  "logs:./vol/core-github/sql/logs.sql"
-  "characters:./vol/core-github/sql/characters.sql"
-  "mangos:./vol/core-github/sql/migrations/world_db_updates.sql"
-  "characters:./vol/core-github/sql/migrations/characters_db_updates.sql"
-  "realmd:./vol/core-github/sql/migrations/logon_db_updates.sql"
-  "logs:./vol/core-github/sql/migrations/logs_db_updates.sql"
+  "mangos:$DOCKER_DIRECTORY/vol/database-github/$VMANGOS_WORLD_DATABASE.sql"  # Adjusted path
+  "realmd:$DOCKER_DIRECTORY/vol/core-github/sql/logon.sql"  # Adjusted path
+  "logs:$DOCKER_DIRECTORY/vol/core-github/sql/logs.sql"  # Adjusted path
+  "characters:$DOCKER_DIRECTORY/vol/core-github/sql/characters.sql"  # Adjusted path
+  "mangos:$DOCKER_DIRECTORY/vol/core-github/sql/migrations/world_db_updates.sql"  # Adjusted path
+  "characters:$DOCKER_DIRECTORY/vol/core-github/sql/migrations/characters_db_updates.sql"  # Adjusted path
+  "realmd:$DOCKER_DIRECTORY/vol/core-github/sql/migrations/logon_db_updates.sql"  # Adjusted path
+  "logs:$DOCKER_DIRECTORY/vol/core-github/sql/migrations/logs_db_updates.sql"  # Adjusted path
 )
 for entry in "${import_files[@]}"; do
   db=$(echo $entry | cut -d: -f1)

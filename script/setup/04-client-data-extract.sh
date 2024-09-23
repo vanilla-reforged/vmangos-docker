@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # Load environment variables
-source .env
+source ./../../.env-script
 
 # Define paths and Docker image
-CLIENT_DATA_DIR="./vol/client-data/Data"
+CLIENT_DATA_DIR="$DOCKER_DIRECTORY/vol/client-data/Data"
 EXTRACTORS_IMAGE="vmangos_extractors"
-EXTRACTORS_DOCKERFILE="./docker/extractors/Dockerfile"
+EXTRACTORS_DOCKERFILE="$DOCKER_DIRECTORY/docker/extractors/Dockerfile"
 EXTRACTORS_VOLUMES=(
-  "./vol/client-data:/vol/client-data"
-  "./vol/core:/vol/core"
+  "$DOCKER_DIRECTORY/vol/client-data:/vol/client-data"
+  "$DOCKER_DIRECTORY/vol/core:/vol/core"
 )
 EXTRACTORS_COMMANDS=(
   "/vol/core/bin/mapextractor"
@@ -17,7 +17,7 @@ EXTRACTORS_COMMANDS=(
   "/vol/core/bin/vmap_assembler"
   "/vol/core/bin/MoveMapGen --offMeshInput /vol/core/contrib/mmap/offmesh.txt"
 )
-EXTRACTED_DATA_DIR="./vol/client-data-extracted/$VMANGOS_CLIENT"
+EXTRACTED_DATA_DIR="$DOCKER_DIRECTORY/vol/client-data-extracted/$VMANGOS_CLIENT"
 
 # Check if client data exists
 if [ ! -d "$CLIENT_DATA_DIR" ]; then
@@ -44,16 +44,16 @@ for CMD in "${EXTRACTORS_COMMANDS[@]}"; do
 done
 
 # Clean up unused data
-rm -rf ./vol/client-data/Buildings
+rm -rf $DOCKER_DIRECTORY/vol/client-data/Buildings
 
 # Remove potentially existing partial data and create directories
-rm -rf ./vol/client-data-extracted/*
+rm -rf $DOCKER_DIRECTORY/vol/client-data-extracted/*
 mkdir -p "$EXTRACTED_DATA_DIR"
 
 # Move extracted data to the correct location
-mv ./vol/client-data/dbc "$EXTRACTED_DATA_DIR/"
-mv ./vol/client-data/maps ./vol/client-data-extracted/
-mv ./vol/client-data/mmaps ./vol/client-data-extracted/
-mv ./vol/client-data/vmaps ./vol/client-data-extracted/
+mv $DOCKER_DIRECTORY/vol/client-data/dbc "$EXTRACTED_DATA_DIR/"
+mv $DOCKER_DIRECTORY/vol/client-data/maps $DOCKER_DIRECTORY/vol/client-data-extracted/
+mv $DOCKER_DIRECTORY/vol/client-data/mmaps $DOCKER_DIRECTORY/vol/client-data-extracted/
+mv $DOCKER_DIRECTORY/vol/client-data/vmaps $DOCKER_DIRECTORY/vol/client-data-extracted/
 
 echo "[VMaNGOS]: Client data extraction complete!"
