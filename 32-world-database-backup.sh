@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Load environment variables
-source .env-script
+source "$(dirname "$0")/.env"
 
 # Define variables
 CONTAINER_NAME="vmangos-database"
