@@ -96,4 +96,35 @@ sudo rm -rf ./ufw-docker
 # Step 11: Notify the user about Docker usage
 echo "Installation complete! Note: Since you are not added to the Docker group, you will need to use 'sudo' when running Docker commands."
 
+# Step 12: Check if jq is installed; if not, attempt to install it
+install_jq() {
+  if ! command -v jq &> /dev/null; then
+    echo "jq is not installed. Attempting to install jq..."
+    if [ -x "$(command -v apt-get)" ]; then
+      sudo apt-get update && sudo apt-get install -y jq
+    elif [ -x "$(command -v yum)" ]; then
+      sudo yum install -y jq
+    elif [ -x "$(command -v dnf)" ]; then
+      sudo dnf install -y jq
+    elif [ -x "$(command -v brew)" ]; then
+      brew install jq
+    else
+      echo "Error: Could not determine package manager or install jq. Please install jq manually."
+      exit 1
+    fi
+
+    if ! command -v jq &> /dev/null; then
+      echo "Error: jq installation failed. Please install jq manually."
+      exit 1
+    else
+      echo "jq successfully installed."
+    fi
+  else
+    echo "jq is already installed. Skipping installation."
+  fi
+}
+
+# Install jq if not already installed
+install_jq
+
 # End of script
