@@ -7,15 +7,15 @@ USERNAME=dockeruser
 
 # Directory paths on the host corresponding to your Docker Compose bind mounts
 DIRS=(
-    "$(pwd)/vol/backup"
-    "$(pwd)/vol/core-github"
-    "$(pwd)/vol/database-github"
-    "$(pwd)/vol/database"
-    "$(pwd)/vol/configuration"
-    "$(pwd)/vol/client-data-extracted"
-    "$(pwd)/vol/logs/realmd"
-    "$(pwd)/vol/logs/mangos"
-    "$(pwd)/vol/logs/mangos/honor"
+    "$(pwd)/../vol/backup"
+    "$(pwd)/../vol/core-github"
+    "$(pwd)/../vol/database-github"
+    "$(pwd)/../vol/database"
+    "$(pwd)/../vol/configuration"
+    "$(pwd)/../vol/client-data-extracted"
+    "$(pwd)/../vol/logs/realmd"
+    "$(pwd)/../vol/logs/mangos"
+    "$(pwd)/../vol/logs/mangos/honor"
 )
 
 # Create the user with the specified USER_ID and GROUP_ID if it doesn't already exist
