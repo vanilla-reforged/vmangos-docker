@@ -38,8 +38,6 @@ create_incremental_backup() {
             # Wait for 10 seconds before cleaning up (to ensure the files are available)
             sleep 10
 
-            # Check if the binary logs exist before attempting to remove them
-            if ls "$HOST_BACKUP_DIR/mysql-bin.*" > /dev/null 2>&1; then
                 # Clean up the uncompressed binary logs on the host
                 rm "$HOST_BACKUP_DIR/mysql-bin.*"
                 if [[ $? -eq 0 ]]; then
@@ -47,9 +45,7 @@ create_incremental_backup() {
                 else
                     echo "Failed to clean up binary logs! Please check file permissions."
                 fi
-            else
-                echo "No binary logs found for cleanup!"
-            fi
+
         else
             echo "Failed to compress binary logs on the host!"
             send_discord_message "Incremental binary logs backup failed during compression."
