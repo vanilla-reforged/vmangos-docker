@@ -21,36 +21,25 @@ send_discord_message() {
 create_incremental_backup() {
     echo "Creating incremental backup using binary logs inside the container..."
 
-    # Copy binary logs from container to the host backup directory
+    # Copy binary logs from container to the backup directory (directly, since mounted)
     docker exec $CONTAINER_NAME bash -c "cp /var/lib/mysql/mysql-bin.* $CONTAINER_BACKUP_DIR/"
 
     if [[ $? -eq 0 ]]; then
-        echo "Binary logs copied to container's backup directory successfully."
+        echo "Binary logs copied successfully to mounted directory ($CONTAINER_BACKUP_DIR)."
 
-        # Copy logs from container to host
-        docker cp "$CONTAINER_NAME:$CONTAINER_BACKUP_DIR/mysql-bin.*" "$HOST_BACKUP_DIR/"
+        # Compress the binary logs on the host
+        echo "Compressing binary logs on the host..."
+        7z a "$HOST_BACKUP_DIR/binary_logs_$(date +%Y%m%d%H%M%S).7z" "$HOST_BACKUP_DIR/mysql-bin.*"
 
         if [[ $? -eq 0 ]]; then
-            echo "Binary logs copied to host backup directory successfully."
+            echo "Binary logs compressed successfully on the host."
+            send_discord_message "Incremental binary logs backup completed successfully."
 
-            # Compress the binary logs on the host
-            echo "Compressing binary logs on the host..."
-            7z a "$HOST_BACKUP_DIR/binary_logs_$(date +%Y%m%d%H%M%S).7z" "$HOST_BACKUP_DIR/mysql-bin.*"
-
-            if [[ $? -eq 0 ]]; then
-                echo "Binary logs compressed successfully on the host."
-                send_discord_message "Incremental binary logs backup completed successfully."
-
-                # Clean up the uncompressed binary logs on the host
-                rm "$HOST_BACKUP_DIR/mysql-bin.*"
-            else
-                echo "Failed to compress binary logs on the host!"
-                send_discord_message "Incremental binary logs backup failed during compression."
-                exit 1
-            fi
+            # Clean up the uncompressed binary logs on the host
+            rm "$HOST_BACKUP_DIR/mysql-bin.*"
         else
-            echo "Failed to copy binary logs from container to host!"
-            send_discord_message "Incremental binary logs backup failed during file copy."
+            echo "Failed to compress binary logs on the host!"
+            send_discord_message "Incremental binary logs backup failed during compression."
             exit 1
         fi
     else
