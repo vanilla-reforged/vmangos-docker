@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get variables defined in .env
-source .env-script
+source "$(dirname "$0")/.env"
 
 # Database connection details
 DB_USER="root"
