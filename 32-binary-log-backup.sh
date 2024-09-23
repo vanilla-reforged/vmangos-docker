@@ -35,8 +35,8 @@ create_incremental_backup() {
             echo "Binary logs compressed successfully on the host."
             send_discord_message "Incremental binary logs backup completed successfully."
 
-            # Wait for 2 seconds before cleaning up (to ensure the files are available)
-            sleep 2
+            # Wait for 10 seconds before cleaning up (to ensure the files are available)
+            sleep 10
 
             # Check if the binary logs exist before attempting to remove them
             if ls "$HOST_BACKUP_DIR/mysql-bin.*" > /dev/null 2>&1; then
