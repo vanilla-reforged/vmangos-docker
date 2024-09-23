@@ -6,10 +6,11 @@ source "$(dirname "$0")/.env-script"
 # Configuration
 HOST_BACKUP_DIR="./vol/backup"  # Local backup directory on the host
 CONTAINER_BACKUP_DIR="/vol/backup"  # Backup directory inside the Docker container
-FULL_BACKUP_DIR="$HOST_BACKUP_DIR/full_$(date +%Y%m%d%H%M%S)"  # Directory for full backups on the host
 DB_USER="mangos"  # Database username
 DB_PASS="$MYSQL_ROOT_PASSWORD"  # Database password sourced from .env-script
 CONTAINER_NAME="vmangos-database"  # Docker container name
+TIMESTAMP=$(date +%Y%m%d%H%M%S)  # Generate a timestamp for file naming
+FULL_BACKUP_FILENAME="full_backup_${TIMESTAMP}.7z"  # The final .7z file name
 
 # Function to send a message to Discord
 send_discord_message() {
@@ -31,18 +32,17 @@ create_full_backup() {
         echo "Full SQL dump created successfully inside the container."
 
         # Copy the SQL dump from the container to the host
-        mkdir -p "$FULL_BACKUP_DIR"
-        docker cp "$CONTAINER_NAME:$CONTAINER_BACKUP_DIR/full_backup.sql" "$FULL_BACKUP_DIR/"
+        docker cp "$CONTAINER_NAME:$CONTAINER_BACKUP_DIR/full_backup.sql" "$HOST_BACKUP_DIR/"
 
-        # Compress the SQL dump on the host
+        # Compress the SQL dump on the host with the timestamped name
         echo "Compressing full SQL dump on the host..."
-        7z a "$FULL_BACKUP_DIR/full_backup.7z" "$FULL_BACKUP_DIR/full_backup.sql"
+        7z a "$HOST_BACKUP_DIR/$FULL_BACKUP_FILENAME" "$HOST_BACKUP_DIR/full_backup.sql"
 
         if [[ $? -eq 0 ]]; then
             echo "Full SQL dump compressed successfully on the host."
-            send_discord_message "Daily SQL dump backup completed successfully."
-            # Optionally, remove the uncompressed SQL file
-            rm -f "$FULL_BACKUP_DIR/full_backup.sql"
+            send_discord_message "Daily SQL dump backup completed successfully as $FULL_BACKUP_FILENAME."
+            # Remove the uncompressed SQL file
+            rm -f "$HOST_BACKUP_DIR/full_backup.sql"
         else
             echo "Failed to compress full SQL dump on the host!"
             send_discord_message "Daily SQL dump backup failed during compression."
