@@ -55,9 +55,9 @@ for entry in "${import_files[@]}"; do
   docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MYSQL_ROOT_PASSWORD" "$db" < "$file"
 done
 
-# Configure expire_logs_days to prevent binary logs from filling up the disk
-echo "[VMaNGOS]: Configuring expire_logs_days to 8 days..."
-docker exec -i "$CONTAINER_NAME" bash -c "echo -e '[mysqld]\nexpire_logs_days=8' > /etc/mysql/conf.d/expire_logs.cnf"
+# Enable binary logs and set expire_logs_days to 7 days
+echo "[VMaNGOS]: Enabling binary logs and setting expiration..."
+docker exec -i "$CONTAINER_NAME" bash -c "echo -e '[mysqld]\nlog-bin=mysql-bin\nexpire_logs_days=7' > /etc/mysql/conf.d/binary_logs.cnf"
 
 # Configure default realm
 echo "[VMaNGOS]: Configuring default realm..."
@@ -67,4 +67,3 @@ echo "[VMaNGOS]: Database creation complete!"
 # Restart the vmangos-database container to apply configuration changes
 echo "[VMaNGOS]: Restarting the vmangos-database container to apply changes..."
 docker restart "$CONTAINER_NAME"
-
