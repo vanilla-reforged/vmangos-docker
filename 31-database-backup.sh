@@ -47,26 +47,38 @@ clean_container_backup_directory() {
     docker exec $CONTAINER_NAME bash -c "rm -rf $CONTAINER_BACKUP_DIR/*"
 }
 
+# Function to clean up the /vol/backup directory
+clean_up_backup_directory() {
+    echo "Cleaning up /vol/backup directory..."
+    
+    # Remove all files except population_data.csv and .7z files
+    find "$HOST_BACKUP_DIR" -type f ! -name "population_data.csv" ! -name "*.7z" -exec rm -f {} \;
+    
+    # Clean up .7z files older than 8 days (or adjust retention period as needed)
+    find "$HOST_BACKUP_DIR" -type f -name "*.7z" -mtime +8 -exec rm -f {} \;
+    
+    echo "Backup directory cleaned up successfully."
+}
+
 # Function to create a full backup (daily)
 create_full_backup() {
     clean_container_backup_directory
     echo "Creating full backup inside the container..."
     
-    # Backup only specific databases: characters, logs, realmd
+    # Backup specific databases: characters, logs, realmd
     docker exec $CONTAINER_NAME bash -c "mariabackup --backup --target-dir=$CONTAINER_BACKUP_DIR --user=$DB_USER --password=$DB_PASS --databases='characters logs realmd'"
     
     if [[ $? -eq 0 ]]; then
         echo "Full backup created successfully inside the container."
         mkdir -p "$FULL_BACKUP_DIR"
-        echo "Copying backup from container to host..."
-        docker cp "$CONTAINER_NAME:$CONTAINER_BACKUP_DIR/." "$FULL_BACKUP_DIR"
         
         # Compress the backup directory
         echo "Compressing full backup directory..."
-        7z a "$FULL_BACKUP_DIR.7z" "$FULL_BACKUP_DIR"
+        7z a "$FULL_BACKUP_DIR.7z" "$CONTAINER_BACKUP_DIR"
+        
         if [[ $? -eq 0 ]]; then
             echo "Backup directory compressed successfully."
-            # Remove the uncompressed backup directory
+            # Optionally remove uncompressed backups after compressing
             rm -rf "$FULL_BACKUP_DIR"
             if [[ "$USE_S3" == true ]]; then
                 copy_to_s3 "$FULL_BACKUP_DIR.7z" || return 1
@@ -96,25 +108,18 @@ create_incremental_backup() {
         exit 1
     fi
     
-    echo "Copying latest full backup to container..."
-    docker cp "$LATEST_FULL_BACKUP/." "$CONTAINER_NAME:$CONTAINER_BACKUP_DIR"
-    
-    # Perform the incremental backup only for the specific databases
     docker exec $CONTAINER_NAME bash -c "mariabackup --backup --target-dir=$CONTAINER_BACKUP_DIR --incremental-basedir=$CONTAINER_BACKUP_DIR --user=$DB_USER --password=$DB_PASS --databases='characters logs realmd'"
     
     if [[ $? -eq 0 ]]; then
         echo "Incremental backup created successfully inside the container."
         mkdir -p "$INCREMENTAL_BACKUP_DIR"
-        echo "Copying incremental backup from container to host..."
-        docker cp "$CONTAINER_NAME:$CONTAINER_BACKUP_DIR/." "$INCREMENTAL_BACKUP_DIR"
         
         # Compress the backup directory
         echo "Compressing incremental backup directory..."
-        7z a "$INCREMENTAL_BACKUP_DIR.7z" "$INCREMENTAL_BACKUP_DIR"
+        7z a "$INCREMENTAL_BACKUP_DIR.7z" "$CONTAINER_BACKUP_DIR"
         
         if [[ $? -eq 0 ]]; then
             echo "Backup directory compressed successfully."
-            # Remove the uncompressed backup directory
             rm -rf "$INCREMENTAL_BACKUP_DIR"
             if [[ "$USE_S3" == true ]]; then
                 copy_to_s3 "$INCREMENTAL_BACKUP_DIR.7z" || return 1
@@ -173,6 +178,7 @@ fi
 # Clean up old backups if not using S3 or if S3 operation succeeds
 if [[ "$USE_S3" == false || $? -eq 0 ]]; then
     clean_up_old_backups
+    clean_up_backup_directory
 fi
 
 exit 0
