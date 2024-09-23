@@ -62,7 +62,7 @@ Adjust the .env files for your desired setup:
 - `.env-script` For Scripts
 - `.env-vmangos-build` For compiler image build / to set the cmake options.
 
-To use the scripts change the `DOCKER_DIRECTORY` environment variable in the `.env-script` file to the absolute path to your vmangos-docker folder (f.e. `/home/user/).
+To use the scripts, change the `DOCKER_DIRECTORY` environment variable in the `.env-script` file to the absolute path to your vmangos-docker directory (f.e. `/home/user/`).
 To make the server public, change the `VMANGOS_REALM_IP` environment variable in the `.env-script` file.
 
 ### Generate/Extract Client Data
