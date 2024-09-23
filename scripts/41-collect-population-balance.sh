@@ -4,7 +4,7 @@
 source "$(dirname "$0")/.env"
 
 # Database connection details
-DB_USER="root"
+DB_USER="mangos"
 DB_PASS="$MYSQL_ROOT_PASSWORD"
 CHAR_DB="characters"
 REALM_DB="realmd"
