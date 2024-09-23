@@ -4,6 +4,7 @@
 source "$(dirname "$0")/.env"
 
 # Configuration
+DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/your_webhook_id"  # Replace with your Discord webhook URL
 HOST_BACKUP_DIR="./vol/backup"  # Local backup directory on the host
 CONTAINER_BACKUP_DIR="/vol/backup"  # Backup directory inside the Docker container
 FULL_BACKUP_DIR="$HOST_BACKUP_DIR/full_$(date +%Y%m%d%H%M%S)"  # Directory for full backups on the host
@@ -11,7 +12,7 @@ INCREMENTAL_BACKUP_DIR="$HOST_BACKUP_DIR/incremental_$(date +%Y%m%d%H%M%S)"  # D
 S3_BUCKET="s3://your-s3-bucket-name"  # S3 bucket name
 USE_S3=true  # Set to false if you do not want to use S3
 DB_USER="mangos"  # Database username
-DB_PASS="$MYSQL_ROOT_PASSWORD"  # Database password sourced from .env-script
+DB_PASS="$MYSQL_ROOT_PASSWORD"  # Database password sourced from .env
 CONTAINER_NAME="vmangos-database"  # Docker container name
 
 # Interval Configuration
@@ -30,6 +31,15 @@ if [[ "$1" == "--now" ]]; then
     FORCE_BACKUP=true
     echo "Force backup triggered."
 fi
+
+# Function to send a message to Discord
+send_discord_message() {
+    local message=$1
+    curl -H "Content-Type: application/json" \
+         -X POST \
+         -d "{\"content\": \"$message\"}" \
+         "$DISCORD_WEBHOOK_URL"
+}
 
 # Function to create a full backup (daily)
 create_full_backup() {
@@ -52,12 +62,15 @@ create_full_backup() {
             if [[ "$USE_S3" == true ]]; then
                 copy_to_s3 "$FULL_BACKUP_DIR.7z" || return 1
             fi
+            send_discord_message "Daily backup completed successfully."
         else
             echo "Failed to compress backup directory!"
+            send_discord_message "Daily backup failed during compression."
             exit 1
         fi
     else
         echo "Failed to create full backup!"
+        send_discord_message "Daily backup failed."
         exit 1
     fi
 }
@@ -69,6 +82,7 @@ create_incremental_backup() {
     
     if [ -z "$LATEST_FULL_BACKUP" ]; then
         echo "No full backup found for incremental backup. Aborting."
+        send_discord_message "Hourly backup failed: No full backup found."
         exit 1
     fi
     
@@ -94,12 +108,15 @@ create_incremental_backup() {
             if [[ "$USE_S3" == true ]]; then
                 copy_to_s3 "$INCREMENTAL_BACKUP_DIR.7z" || return 1
             fi
+            send_discord_message "Hourly backup completed successfully."
         else
             echo "Failed to compress backup directory!"
+            send_discord_message "Hourly backup failed during compression."
             exit 1
         fi
     else
         echo "Failed to create incremental backup!"
+        send_discord_message "Hourly backup failed."
         exit 1
     fi
 }
@@ -115,6 +132,7 @@ copy_to_s3() {
         return 0
     else
         echo "Failed to upload $BACKUP_PATH to S3!"
+        send_discord_message "Failed to upload backup to S3."
         return 1
     fi
 }
@@ -126,42 +144,14 @@ clean_up_old_backups() {
     echo "Old backups cleaned up successfully."
 }
 
-# Function to truncate specified tables
-truncate_tables() {
-    echo "Truncating specified tables..."
-    tables_to_truncate=(
-        "logs.instance_creature_kills"
-        "logs.instance_custom_counters"
-    )
-
-    for table in "${tables_to_truncate[@]}"; do
-        echo "Truncating table $table..."
-        docker exec $CONTAINER_NAME mariadb -u "$DB_USER" -p"$DB_PASS" -e "TRUNCATE TABLE $table;"
-        
-        if [[ $? -eq 0 ]]; then
-            echo "Table $table truncated successfully."
-        else
-            echo "Failed to truncate table $table!"
-            exit 1
-        fi
-    done
-    echo "All specified tables truncated successfully."
-}
-
-# Main script logic to decide between full and incremental backups and truncation
+# Main script logic to decide between full and incremental backups
 echo "Current Hour: $CURRENT_HOUR, Current Minute: $CURRENT_MINUTE, Current Day: $CURRENT_DAY"
 if [[ "$FORCE_BACKUP" == true ]]; then
     echo "Force backup triggered."
     create_full_backup
-    if [[ "$CURRENT_DAY" == "$TRUNCATION_DAY" ]]; then
-        truncate_tables
-    fi
 elif [[ "$CURRENT_HOUR" == "$FULL_BACKUP_HOUR" && "$CURRENT_MINUTE" == "00" ]]; then
     echo "Performing full backup..."
     create_full_backup
-    if [[ "$CURRENT_DAY" == "$TRUNCATION_DAY" ]]; then
-        truncate_tables
-    fi
 elif (( $((10#$CURRENT_MINUTE)) % $INCREMENTAL_BACKUP_INTERVAL_MINUTES == 0 )); then
     echo "Performing incremental backup..."
     create_incremental_backup
