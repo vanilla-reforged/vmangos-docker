@@ -15,23 +15,6 @@ DB_USER="mangos"  # Database username
 DB_PASS="$MYSQL_ROOT_PASSWORD"  # Database password sourced from .env
 CONTAINER_NAME="vmangos-database"  # Docker container name
 
-# Interval Configuration
-FULL_BACKUP_HOUR="00"  # Hour to perform full backup (e.g., "00" for midnight)
-INCREMENTAL_BACKUP_INTERVAL_MINUTES=60  # Interval in minutes for incremental backups (e.g., 60 for hourly)
-TRUNCATION_DAY="4"  # Day of the week to perform table truncation (1=Monday, ..., 7=Sunday)
-
-# Get current day, hour, and minute
-CURRENT_DAY=$(date +%u)
-CURRENT_HOUR=$(date +%H)
-CURRENT_MINUTE=$(date +%M)
-
-# Check for the --now flag
-FORCE_BACKUP=false
-if [[ "$1" == "--now" ]]; then
-    FORCE_BACKUP=true
-    echo "Force backup triggered."
-fi
-
 # Function to send a message to Discord
 send_discord_message() {
     local message=$1
@@ -39,25 +22,6 @@ send_discord_message() {
          -X POST \
          -d "{\"content\": \"$message\"}" \
          "$DISCORD_WEBHOOK_URL"
-}
-
-# Function to clean the backup directory in the container
-clean_container_backup_directory() {
-    echo "Cleaning backup directory in the container..."
-    docker exec $CONTAINER_NAME bash -c "rm -rf $CONTAINER_BACKUP_DIR/*"
-}
-
-# Function to clean up the /vol/backup directory
-clean_up_backup_directory() {
-    echo "Cleaning up /vol/backup directory..."
-    
-    # Remove all files except population_data.csv and .7z files
-    find "$HOST_BACKUP_DIR" -type f ! -name "population_data.csv" ! -name "*.7z" -exec rm -f {} \;
-    
-    # Clean up .7z files older than 8 days (or adjust retention period as needed)
-    find "$HOST_BACKUP_DIR" -type f -name "*.7z" -mtime +8 -exec rm -f {} \;
-    
-    echo "Backup directory cleaned up successfully."
 }
 
 # Function to create a full backup (daily)
@@ -72,21 +36,30 @@ create_full_backup() {
         echo "Full backup created successfully inside the container."
         mkdir -p "$FULL_BACKUP_DIR"
         
-        # Compress the backup directory
-        echo "Compressing full backup directory..."
-        7z a "$FULL_BACKUP_DIR.7z" "$CONTAINER_BACKUP_DIR"
-        
-        if [[ $? -eq 0 ]]; then
-            echo "Backup directory compressed successfully."
-            # Optionally remove uncompressed backups after compressing
-            rm -rf "$FULL_BACKUP_DIR"
-            if [[ "$USE_S3" == true ]]; then
-                copy_to_s3 "$FULL_BACKUP_DIR.7z" || return 1
+        # Ensure backup files exist before proceeding
+        if [ "$(ls -A $CONTAINER_BACKUP_DIR)" ]; then
+            echo "Copying backup files from container to host..."
+            cp -r $HOST_BACKUP_DIR/* "$FULL_BACKUP_DIR"
+
+            echo "Compressing full backup directory..."
+            7z a "$FULL_BACKUP_DIR.7z" "$FULL_BACKUP_DIR"
+            
+            if [[ $? -eq 0 ]]; then
+                echo "Backup directory compressed successfully."
+                # Optionally remove uncompressed backups after compressing
+                rm -rf "$FULL_BACKUP_DIR"
+                if [[ "$USE_S3" == true ]]; then
+                    copy_to_s3 "$FULL_BACKUP_DIR.7z" || return 1
+                fi
+                send_discord_message "Daily backup completed successfully."
+            else
+                echo "Failed to compress backup directory!"
+                send_discord_message "Daily backup failed during compression."
+                exit 1
             fi
-            send_discord_message "Daily backup completed successfully."
         else
-            echo "Failed to compress backup directory!"
-            send_discord_message "Daily backup failed during compression."
+            echo "No backup files found in $CONTAINER_BACKUP_DIR!"
+            send_discord_message "Daily backup failed: No backup files found in the container."
             exit 1
         fi
     else
@@ -96,48 +69,7 @@ create_full_backup() {
     fi
 }
 
-# Function to create an incremental backup (hourly or minutely)
-create_incremental_backup() {
-    clean_container_backup_directory
-    echo "Creating incremental backup inside the container..."
-    LATEST_FULL_BACKUP=$(ls -td "$HOST_BACKUP_DIR/full_*" | head -1)
-    
-    if [ -z "$LATEST_FULL_BACKUP" ]; then
-        echo "No full backup found for incremental backup. Aborting."
-        send_discord_message "Hourly backup failed: No full backup found."
-        exit 1
-    fi
-    
-    docker exec $CONTAINER_NAME bash -c "mariabackup --backup --target-dir=$CONTAINER_BACKUP_DIR --incremental-basedir=$CONTAINER_BACKUP_DIR --user=$DB_USER --password=$DB_PASS --databases='characters logs realmd'"
-    
-    if [[ $? -eq 0 ]]; then
-        echo "Incremental backup created successfully inside the container."
-        mkdir -p "$INCREMENTAL_BACKUP_DIR"
-        
-        # Compress the backup directory
-        echo "Compressing incremental backup directory..."
-        7z a "$INCREMENTAL_BACKUP_DIR.7z" "$CONTAINER_BACKUP_DIR"
-        
-        if [[ $? -eq 0 ]]; then
-            echo "Backup directory compressed successfully."
-            rm -rf "$INCREMENTAL_BACKUP_DIR"
-            if [[ "$USE_S3" == true ]]; then
-                copy_to_s3 "$INCREMENTAL_BACKUP_DIR.7z" || return 1
-            fi
-            send_discord_message "Hourly backup completed successfully."
-        else
-            echo "Failed to compress backup directory!"
-            send_discord_message "Hourly backup failed during compression."
-            exit 1
-        fi
-    else
-        echo "Failed to create incremental backup!"
-        send_discord_message "Hourly backup failed."
-        exit 1
-    fi
-}
-
-# Function to copy the backup file to S3
+# Copy to S3
 copy_to_s3() {
     local BACKUP_PATH=$1
     echo "Uploading $BACKUP_PATH to S3..."
@@ -153,32 +85,5 @@ copy_to_s3() {
     fi
 }
 
-# Function to clean up backups older than 8 days
-clean_up_old_backups() {
-    echo "Cleaning up local backups older than 8 days..."
-    find "$HOST_BACKUP_DIR" -type f -name "*.7z" -mtime +8 -exec rm -f {} \;
-    echo "Old backups cleaned up successfully."
-}
-
-# Main script logic to decide between full and incremental backups
-echo "Current Hour: $CURRENT_HOUR, Current Minute: $CURRENT_MINUTE, Current Day: $CURRENT_DAY"
-if [[ "$FORCE_BACKUP" == true ]]; then
-    echo "Force backup triggered."
-    create_full_backup
-elif [[ "$CURRENT_HOUR" == "$FULL_BACKUP_HOUR" && "$CURRENT_MINUTE" == "00" ]]; then
-    echo "Performing full backup..."
-    create_full_backup
-elif (( $((10#$CURRENT_MINUTE)) % $INCREMENTAL_BACKUP_INTERVAL_MINUTES == 0 )); then
-    echo "Performing incremental backup..."
-    create_incremental_backup
-else
-    echo "No backup needed at this time."
-fi
-
-# Clean up old backups if not using S3 or if S3 operation succeeds
-if [[ "$USE_S3" == false || $? -eq 0 ]]; then
-    clean_up_old_backups
-    clean_up_backup_directory
-fi
-
-exit 0
+# Main execution logic (force full backup for testing)
+create_full_backup
