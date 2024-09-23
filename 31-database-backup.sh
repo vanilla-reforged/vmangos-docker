@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Load environment variables
-source .env-script
+source "$(dirname "$0")/.env"
 
 # Configuration
 HOST_BACKUP_DIR="./vol/backup"  # Local backup directory on the host
