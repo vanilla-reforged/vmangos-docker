@@ -19,32 +19,44 @@ send_discord_message() {
 
 # Function to create an incremental backup using binary logs
 create_incremental_backup() {
-    echo "Creating incremental backup using binary logs..."
+    echo "Creating incremental backup using binary logs inside the container..."
 
-    # Copy binary logs from container to the host backup directory
-    docker cp "$CONTAINER_NAME:/var/lib/mysql/mysql-bin.*" "$HOST_BACKUP_DIR/"
+    # Copy binary logs from container to the backup directory (directly, since mounted)
+    docker exec $CONTAINER_NAME bash -c "cp /var/lib/mysql/mysql-bin.* $CONTAINER_BACKUP_DIR/"
 
     if [[ $? -eq 0 ]]; then
-        echo "Binary logs copied to host backup directory successfully."
+        echo "Binary logs copied successfully to mounted directory ($CONTAINER_BACKUP_DIR)."
 
-        # Compress the binary logs
-        echo "Compressing binary logs..."
+        # Compress the binary logs on the host
+        echo "Compressing binary logs on the host..."
         7z a "$HOST_BACKUP_DIR/binary_logs_$(date +%Y%m%d%H%M%S).7z" "$HOST_BACKUP_DIR/mysql-bin.*"
 
         if [[ $? -eq 0 ]]; then
             echo "Binary logs compressed successfully on the host."
             send_discord_message "Incremental binary logs backup completed successfully."
 
-            # Clean up the uncompressed binary logs from the host backup directory
-            echo "Cleaning up uncompressed binary logs..."
-            find "$HOST_BACKUP_DIR" -type f -name "mysql-bin.*" -exec rm -f {} \;
+            # Wait for 2 seconds before cleaning up (to ensure the files are available)
+            sleep 2
+
+            # Check if the binary logs exist before attempting to remove them
+            if ls "$HOST_BACKUP_DIR/mysql-bin.*" > /dev/null 2>&1; then
+                # Clean up the uncompressed binary logs on the host
+                rm "$HOST_BACKUP_DIR/mysql-bin.*"
+                if [[ $? -eq 0 ]]; then
+                    echo "Uncompressed binary logs cleaned up."
+                else
+                    echo "Failed to clean up binary logs! Please check file permissions."
+                fi
+            else
+                echo "No binary logs found for cleanup!"
+            fi
         else
-            echo "Failed to compress binary logs!"
+            echo "Failed to compress binary logs on the host!"
             send_discord_message "Incremental binary logs backup failed during compression."
             exit 1
         fi
     else
-        echo "Failed to copy binary logs from container to host!"
+        echo "Failed to copy binary logs from container!"
         send_discord_message "Incremental binary logs backup failed."
         exit 1
     fi
