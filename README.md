@@ -66,7 +66,7 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 Execute scripts 01 to 05:
 
 - `01`
-  - Install and modify Docker, 7zip and ufw.
+  - Install and modify Docker, 7zip, ufw and jq.
 
 - `02`
   - Update the github directories in ./vol/.

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script installs Docker, Docker Compose, 7zip, and sets up ufw-docker on an Ubuntu system
+# This script installs Docker, Docker Compose, 7zip, jq, and sets up ufw-docker on an Ubuntu system
 
 # Step 1: Update the package index
 echo "Updating package index..."
