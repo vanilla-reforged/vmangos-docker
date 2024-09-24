@@ -1,14 +1,17 @@
 #!/bin/bash
 
+# Load environment variables from .env-script
+source ./../../.env-script  # Adjusted to load .env-script from the project root using $DOCKER_DIRECTORY
+
 # Define Docker image and container details
 IMAGE_NAME="vmangos-build"
-DOCKERFILE_PATH="./docker/build/Dockerfile"
+DOCKERFILE_PATH="$DOCKER_DIRECTORY/docker/build/Dockerfile"  # Use $DOCKER_DIRECTORY for the correct path
 VOLUMES=(
-  "./vol/ccache:/vol/ccache"
-  "./vol/core:/vol/core"
-  "./vol/core-github:/vol/core-github"
+  "$DOCKER_DIRECTORY/vol/ccache:/vol/ccache"
+  "$DOCKER_DIRECTORY/vol/core:/vol/core"
+  "$DOCKER_DIRECTORY/vol/core-github:/vol/core-github"
 )
-ENV_FILE="./../../.env-vmangos-build"  # Adjusted to point to the correct location
+ENV_FILE="$DOCKER_DIRECTORY/.env-vmangos-build"  # Use $DOCKER_DIRECTORY for the env file
 
 echo "[VMaNGOS]: Building compiler image..."
 
