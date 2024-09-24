@@ -1,4 +1,3 @@
-a
 ## A Docker setup for VMaNGOS.
 
 ## Todo
@@ -40,11 +39,9 @@ The user that is used inside the persistent containers (VMANGOS_DATABASE, VMANGO
 
 Also, please be aware that `./vol/client-data-extracted` gets mounted directly into the mangos server to provide dbc and map data.
 
-### Permissions
-
-Use a user with the ID 1000 and GROUPID 1000 for all operations (default ubuntu user already has these ID's), so the container shares the necessary permissions on the host file system from the get go (they run with a user with the id 1000:1000). Run Docker commands and scripts that use docker commands with `sudo`.
-
 ### Clone the Repository
+
+Use a User with ID:GROUPID 1000:1000 for this step (default user on ubuntu).:
 
 ```sh
 git clone --recurse-submodules https://github.com/vanilla-reforged/vmangos-docker
@@ -65,20 +62,18 @@ To make the server public, change the `VMANGOS_REALM_IP` environment variable in
 
 Copy the contents of your World of Warcraft client directory into `./vol/client-data`. Generating the required data will take many hours. If you have already extracted the client data, place it in `./vol/client-data-extracted` and skip the `04` script.
 
-### /script/setup/
+### Setup 
 
-Execute scripts 01 to 05:
-
-- `01`
+- `/script/setup/01-docker-7zip-ufw-ja-install.sh`
   - Install and modify Docker, 7zip, ufw and jq.
 
-- `02`
+- `/script/setup/02-github-core-database-update.sh`
   - Update the github directories in ./vol/.
 
-- `03`
+- `/script/setup/03-core-compile.sh`
   - Compile the core.
 
-- `04`
+- `/script/setup/04-client-data-extract.sh`
   - Extract the Client Data.
 
 Then create the vmangos network:
@@ -87,13 +82,13 @@ Then create the vmangos network:
 docker network create vmangos-network
 ```
 
-- `05`
+- `/script/setup/05-docker-resources-initialize.sh`
   - Initialize the ressource limits, based on the current hardware and start the containers.
 
-- `06...`
+- `/script/setup/06-vmangos-database-create.sh`
   - Create and modify the vmangos databases.
 
-- `07...`
+- `/script/setup/07-vmangos-database-env-pw-clear.sh`
   - Clear the mysql root pw from the database containers .env variable.
 
 ### Configure MySQL Password
@@ -127,58 +122,61 @@ docker compose down
 docker compose up -d
 ```
 
-
 #BELOW IS CURRENTLY DEPRECATED, IT IS IN WORK
 
 ## Scripts
 
-### (/script/backup)
+### Backup
 
-### (/script/docker-resources)
+- `/script/backup/01-mangos-database-backup.sh`
+  - SQL Dump of Database mangos.
 
-### (/script/faction-balancer)
+- `/script/backup/02-characters-logs-realmd-databases-backup.sh`
+  - SQL Dump of Databases characters, logs, realmd.
 
-### (/script/logs)
+- `/script/backup/03-binary-log-backup.sh`
+  - Binary log backup.
+
+- `/script/backup/04-s3-upload-backup.sh`
+  - Upload backups to s3.
+
+- `/script/backup/05-backup-retention-cleanup.sh`
+  - Cleanup old Backups, retention is configurable in script.
+
+### Docker-Resources
+
+- `/script/docker-resources/01-docker-resources-collect.sh`
+   - Collect ressource usage for database, mangos and realmd containers.
+
+- `/script/docker-resources/02-docker-resources-adjust.sh`
+   - Adjust ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `01-docker-resources-collect.sh`.
+
+### Faction Balancer
+
+- `/script/faction-balancer/01-Population-Balance-Collect.sh`
+  - Collect faction balance data.
+
+- `/script/faction-balancer/02-Faction-Specific-XP-Rates-Update.sh`
+  - Set faction-specific XP rates and restart server to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
+
+### Logs
+
+- `/script/logs/01-vmangos-logs-cleanup.sh`
+  - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. 
 
 ### (/script/management)
 
-- `01...`
+- `/script/management/01-vmangos-database-migrations-import.sh`
   - Import new migrations.
 
-- `02...`
+- `/script/management/02-vmangos-database-world-recreate.sh`
   - Recreate the world database.
 
-- `03...`
+- `/script/management/03-core-recompile.sh`
   - Recompile the core.
 
-
-- `./21-collect-ressource-usage.sh`
-   - Collect ressource usage for database, mangos and realmd containers.
-
-- `./22-adjust-ressource-limits.sh`
-   - Adjust ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `25-collect-ressource-usage.sh`.
-
-- `./31-database-backup.sh` - Backup dynamic databases.
-  - Daily Full Backup
-  - Configurable Incremental Backups
-  - Weekly Log Database truncation
-  - S3 Offload - Attention: API calls/immutability are a financial risk. You must know what you are doing with this.
-  - Cleanup of old local backups
-  - use with flag --now to run independent of current hour.
- 
-- `./32-world-database-backup.sh`
-  - Backup world database.
-
-- `./33-logs-directory-cleanup.sh`
-  - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. 
-
-- `./41-collect-population-balance.sh`
-  - Collect faction balance data.
-
-- `./42-faction-specific-xp-rates.sh`
-  - Set faction-specific XP rates and restart server to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
-
 #### Edit the crontab using the command below:
+
 ```sh
 crontab -e
 ```
@@ -186,24 +184,54 @@ crontab -e
 #### Add the following lines to the crontab file, change the paths to fit your installation:
 
 ```sh
-# Runs every hour on the hour
-0 * * * * /path/to/21-collect-ressource-usage.sh >> /path/to/logs/21-collect-ressource-usage.log 2>&1
+##########
+# Backup #
+##########
+#
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+
+####################
+# Docker-Resources #
+####################
+#
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+
+####################
+# Faction-Balancer #
+####################
+#
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+
+########
+# Logs #
+########
+#
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+
+
 
 # Runs weekly on Sunday at 4:00 AM
 0 4 * * 0 /path/to/22-adjust-ressource-limits.sh >> /path/to/logs/22-adjust-ressource-limits.log 2>&1
-
 # Runs every hour on the hour
 0 * * * * /path/to/31-database-backup.sh >> /path/to/logs/31-database-backup.log 2>&1
-
 # Runs weekly on Sunday at 5:00 AM if outcommented
 # 0 5 * * 0 /path/to/32-world-database-backup.sh >> /path/to/logs/32-world-database-backup.log 2>&1
-
 # Runs daily at 3:00 AM
 0 3 * * * /path/to/33-logs-directory-cleanup.sh >> /path/to/logs/33-logs-directory-cleanup.log 2>&1
-
 # Runs every hour on the hour
 0 * * * * /path/to/41-collect-population-balance.sh >> /path/to/logs/41-collect-population-balance.log 2>&1
-
 # Runs daily at 5:00 AM
 0 5 * * * /path/to/42-faction-specific-xp-rates.sh >> /path/to/logs/42-faction-specific-xp-rates.log 2>&1
 ```
