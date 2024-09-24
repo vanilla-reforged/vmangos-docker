@@ -19,7 +19,7 @@ services:
       - ./vol/core-github:/vol/core-github
       - ./vol/database-github:/vol/database-github
       - ./vol/database:/var/lib/mysql
-    user: "vmangos-database-user:vmangos-database-user"
+    user: 1000:1000
     networks:
       - vmangos-network
     #oom_kill_disable: true
@@ -45,7 +45,7 @@ services:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos-database:3306
       - WAIT_TIMEOUT=120
-    user: "vmangos-realmd-user:vmangos-realmd-user"
+    user: 1000:1000
     networks:
       - vmangos-network
     #oom_kill_disable: true
@@ -79,7 +79,7 @@ services:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos-database:3306
       - WAIT_TIMEOUT=120
-    user: "vmangos-mangos-user:vmangos-mangos-user"
+    user: 1000:1000
     networks:
       - vmangos-network
     #oom_kill_disable: true

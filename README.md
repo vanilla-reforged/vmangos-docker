@@ -1,4 +1,4 @@
-
+a
 ## A Docker setup for VMaNGOS.
 
 ## Todo
@@ -77,20 +77,14 @@ Execute scripts 01 to 05:
 - `04`
   - Extract the Client Data.
 
-- `05`
-  - Initialize the ressource limits, based on the current hardware.
-
 Then create the vmangos network:
 
 ```sh
 docker network create vmangos-network
 ```
 
-Then start your environment (execute from the directory where the docker-compose.yml is located):
-
-```sh
-docker compose up -d
-```
+- `05`
+  - Initialize the ressource limits, based on the current hardware and start the containers.
 
 - `06...`
   - Create and modify the vmangos databases.
