@@ -62,33 +62,29 @@ To make the server public, change the `VMANGOS_REALM_IP` environment variable in
 
 Copy the contents of your World of Warcraft client directory into `./vol/client-data`. Generating the required data will take many hours. If you have already extracted the client data, place it in `./vol/client-data-extracted` and skip the `04` script.
 
-### Setup 
+### Setup (/script/setup/)
 
-- `/script/setup/01-docker-7zip-ufw-ja-install.sh`
+Execute these scripts in order from inside the script/setup/ directory, those using docker commands will need to be run with sudo.
+
+- `./01-docker-7zip-ufw-ja-install.sh`
   - Install and modify Docker, 7zip, ufw and jq.
 
-- `/script/setup/02-github-core-database-update.sh`
+- `./02-github-core-database-update.sh`
   - Update the github directories in ./vol/.
 
-- `/script/setup/03-core-compile.sh`
+- `sudo ./03-core-compile.sh`
   - Compile the core.
 
-- `/script/setup/04-client-data-extract.sh`
+- `sudo ./04-client-data-extract.sh`
   - Extract the Client Data.
 
-Then create the vmangos network:
-
-```sh
-docker network create vmangos-network
-```
-
-- `/script/setup/05-docker-resources-initialize.sh`
+- `sudo ./05-docker-resources-initialize.sh`
   - Initialize the ressource limits, based on the current hardware and start the containers.
 
-- `/script/setup/06-vmangos-database-create.sh`
+- `sudo ./06-vmangos-database-create.sh`
   - Create and modify the vmangos databases.
 
-- `/script/setup/07-vmangos-database-env-pw-clear.sh`
+- `./07-vmangos-database-env-pw-clear.sh`
   - Clear the mysql root pw from the database containers .env variable.
 
 ### Configure MySQL Password
@@ -126,53 +122,53 @@ docker compose up -d
 
 ## Scripts
 
-### Backup
+### Backup (/script/backup/)
 
-- `/script/backup/01-mangos-database-backup.sh`
+- `./01-mangos-database-backup.sh`
   - SQL Dump of Database mangos.
 
-- `/script/backup/02-characters-logs-realmd-databases-backup.sh`
+- `./02-characters-logs-realmd-databases-backup.sh`
   - SQL Dump of Databases characters, logs, realmd.
 
-- `/script/backup/03-binary-log-backup.sh`
+- `./03-binary-log-backup.sh`
   - Binary log backup.
 
-- `/script/backup/04-s3-upload-backup.sh`
+- `./04-s3-upload-backup.sh`
   - Upload backups to s3.
 
-- `/script/backup/05-backup-retention-cleanup.sh`
+- `./05-backup-retention-cleanup.sh`
   - Cleanup old Backups, retention is configurable in script.
 
-### Docker-Resources
+### Docker-Resources (/script/docker-resources/)
 
-- `/script/docker-resources/01-docker-resources-collect.sh`
+- `./01-docker-resources-collect.sh`
    - Collect ressource usage for database, mangos and realmd containers.
 
-- `/script/docker-resources/02-docker-resources-adjust.sh`
+- `./02-docker-resources-adjust.sh`
    - Adjust ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `01-docker-resources-collect.sh`.
 
-### Faction Balancer
+### Faction Balancer (/script/faction-balancer/)
 
-- `/script/faction-balancer/01-Population-Balance-Collect.sh`
+- `./01-Population-Balance-Collect.sh`
   - Collect faction balance data.
 
-- `/script/faction-balancer/02-Faction-Specific-XP-Rates-Update.sh`
+- `./02-Faction-Specific-XP-Rates-Update.sh`
   - Set faction-specific XP rates and restart server to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
 
-### Logs
+### Logs (/script/logs/)
 
-- `/script/logs/01-vmangos-logs-cleanup.sh`
+- `./01-vmangos-logs-cleanup.sh`
   - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. 
 
-### (/script/management)
+### Management (/script/management/)
 
-- `/script/management/01-vmangos-database-migrations-import.sh`
+- `./01-vmangos-database-migrations-import.sh`
   - Import new migrations.
 
-- `/script/management/02-vmangos-database-world-recreate.sh`
+- `./02-vmangos-database-world-recreate.sh`
   - Recreate the world database.
 
-- `/script/management/03-core-recompile.sh`
+- `./03-core-recompile.sh`
   - Recompile the core.
 
 #### Edit the crontab using the command below:
