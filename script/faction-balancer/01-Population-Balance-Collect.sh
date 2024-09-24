@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Get variables defined in .env
-source "$(dirname "$0")/.env"
+# Get variables defined in .env-script
+source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
 
 # Database connection details
 DB_USER="mangos"
@@ -11,7 +11,7 @@ REALM_DB="realmd"
 TABLE_NAME="characters"
 
 # Output directory and file for population data
-OUTPUT_DIR="vol/backup"
+OUTPUT_DIR="$DOCKER_DIRECTORY/vol/faction-balancer"  # Adjusted to use the correct output directory
 OUTPUT_FILE="$OUTPUT_DIR/population_data.csv"
 
 # Ensure the output directory exists and is writable on the host

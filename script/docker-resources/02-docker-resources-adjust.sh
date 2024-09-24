@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Load environment variables from .env-script
+source ./../../.env-script  # Adjust to load .env-script from the project root using $DOCKER_DIRECTORY
+
 # Directories for logs
-LOG_DIR="./vol/resource_logs"
+LOG_DIR="$DOCKER_DIRECTORY/vol/docker-resources"  # Adjusted to use $DOCKER_DIRECTORY for the correct log directory
 DB_LOG="$LOG_DIR/db_usage.log"
 MANGOS_LOG="$LOG_DIR/mangos_usage.log"
 REALMD_LOG="$LOG_DIR/realmd_usage.log"

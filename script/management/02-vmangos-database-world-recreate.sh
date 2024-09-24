@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Load environment variables
-source .env-script
+source ./../../.env-script  # Adjusted to load .env-script from the project root using $DOCKER_DIRECTORY
 
 # Define the container name
 CONTAINER_NAME="vmangos-database"
@@ -19,8 +19,8 @@ docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MYSQL_ROOT_PASSWORD" -e "DR
 # Import databases
 echo "[VMaNGOS]: Importing databases…"
 import_files=(
-  "mangos:./vol/database-github/$VMANGOS_WORLD_DATABASE.sql"
-  "mangos:./vol/core-github/sql/migrations/world_db_updates.sql"
+  "mangos:$DOCKER_DIRECTORY/vol/database-github/$VMANGOS_WORLD_DATABASE.sql"
+  "mangos:$DOCKER_DIRECTORY/vol/core-github/sql/migrations/world_db_updates.sql"
 )
 for entry in "${import_files[@]}"; do
   db=$(echo $entry | cut -d: -f1)

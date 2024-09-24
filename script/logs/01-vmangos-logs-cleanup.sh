@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Load environment variables from .env-script
+source ./../../.env-script  # Adjust to load .env-script from the project root using $DOCKER_DIRECTORY
+
 # Function to remove old log entries
 remove_old_entries() {
     local file="$1"
@@ -27,19 +30,19 @@ remove_old_entries() {
 }
 
 # Remove entries older than 3 days in 'mangos' logs (excluding 'honor')
-for log_file in vol/logs/mangos/*; do
+for log_file in "$DOCKER_DIRECTORY/vol/logs/mangos/"*; do
     if [ "$(basename "$log_file")" != "honor" ] && [ -f "$log_file" ]; then
         remove_old_entries "$log_file" 3
     fi
 done
 
 # Remove entries older than 14 days in 'honor.log'
-if [ -f "vol/logs/mangos/honor/honor.log" ]; then
-    remove_old_entries "vol/logs/mangos/honor/honor.log" 14
+if [ -f "$DOCKER_DIRECTORY/vol/logs/mangos/honor/honor.log" ]; then
+    remove_old_entries "$DOCKER_DIRECTORY/vol/logs/mangos/honor/honor.log" 14
 fi
 
 # Remove entries older than 7 days in 'realmd' logs
-for log_file in vol/logs/realmd/*; do
+for log_file in "$DOCKER_DIRECTORY/vol/logs/realmd/"*; do
     if [ -f "$log_file" ]; then
         remove_old_entries "$log_file" 7
     fi

@@ -2,11 +2,14 @@
 
 set -e  # Exit immediately if a command exits with a non-zero status
 
+# Load environment variables
+source ./../../.env-script  # Adjusted to load .env-script from the project root using $DOCKER_DIRECTORY
+
 # Define variables
-CORE_DIR="./vol/core"
-CORE_GITHUB_DIR="./vol/core-github"
+CORE_DIR="$DOCKER_DIRECTORY/vol/core"  # Updated to use $DOCKER_DIRECTORY
+CORE_GITHUB_DIR="$DOCKER_DIRECTORY/vol/core-github"  # Updated to use $DOCKER_DIRECTORY
 COMPILER_IMAGE="vmangos_build"
-DOCKERFILE="./docker/build/Dockerfile"
+DOCKERFILE="$DOCKER_DIRECTORY/docker/build/Dockerfile"  # Updated to use $DOCKER_DIRECTORY
 
 # Function to handle errors
 handle_error() {
@@ -31,8 +34,8 @@ echo "[VMaNGOS]: Compiling VMaNGOS..."
 docker run \
   -v "$CORE_DIR:/vol/core" \
   -v "$CORE_GITHUB_DIR:/vol/core-github" \
-  -v "./vol/ccache:/vol/ccache" \
-  --env-file .env-vmangos-build \
+  -v "$DOCKER_DIRECTORY/vol/ccache:/vol/ccache" \
+  --env-file "$DOCKER_DIRECTORY/.env-vmangos-build" \
   --rm \
   "$COMPILER_IMAGE" || handle_error "Compilation failed"
 

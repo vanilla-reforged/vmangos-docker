@@ -1,44 +1,16 @@
 #!/bin/bash
 
+# Load environment variables from .env-script
+source ./../../.env-script  # Adjust to load .env-script from the project root using $DOCKER_DIRECTORY
+
 # Directories for storing logs
-LOG_DIR="./vol/resource_logs"
+LOG_DIR="$DOCKER_DIRECTORY/vol/docker-resources"  # Adjusted to use $DOCKER_DIRECTORY for the correct log directory
 DB_LOG="$LOG_DIR/db_usage.log"
 MANGOS_LOG="$LOG_DIR/mangos_usage.log"
 REALMD_LOG="$LOG_DIR/realmd_usage.log"
 
 # Ensure the log directory exists
 mkdir -p "$LOG_DIR"
-
-# Check if jq is installed; if not, attempt to install it
-install_jq() {
-  if ! command -v jq &> /dev/null; then
-    echo "jq is not installed. Attempting to install jq..."
-    if [ -x "$(command -v apt-get)" ]; then
-      sudo apt-get update && sudo apt-get install -y jq
-    elif [ -x "$(command -v yum)" ]; then
-      sudo yum install -y jq
-    elif [ -x "$(command -v dnf)" ]; then
-      sudo dnf install -y jq
-    elif [ -x "$(command -v brew)" ]; then
-      brew install jq
-    else
-      echo "Error: Could not determine package manager or install jq. Please install jq manually."
-      exit 1
-    fi
-
-    if ! command -v jq &> /dev/null; then
-      echo "Error: jq installation failed. Please install jq manually."
-      exit 1
-    else
-      echo "jq successfully installed."
-    fi
-  else
-    echo "jq is already installed. Skipping installation."
-  fi
-}
-
-# Install jq if not already installed
-install_jq
 
 # Get current timestamp
 timestamp=$(date +%s)

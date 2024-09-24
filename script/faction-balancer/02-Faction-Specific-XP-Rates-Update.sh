@@ -1,91 +1,65 @@
 #!/bin/bash
 
-# Configuration and data files
-POPULATION_DATA_FILE="./vol/backup/population_data.csv"  # Correct path to population data file
-CONFIG_FILE="./vol/configuration/mangosd.conf"  # Correct path to mangosd.conf file
-DAYS_TO_KEEP=7
+# Get variables defined in .env-script
+source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
 
-# Calculate the date 7 days ago
-SEVEN_DAYS_AGO=$(date -d '7 days ago' '+%Y-%m-%d %H:%M:%S')
+# Database connection details
+DB_USER="mangos"
+DB_PASS="$MYSQL_ROOT_PASSWORD"
+CHAR_DB="characters"
+REALM_DB="realmd"
+TABLE_NAME="characters"
 
-# Calculate the average online population for the last 7 days
-ALLIANCE_AVG=$(awk -v date="$SEVEN_DAYS_AGO" -F, '$1 >= date { total += $2; count++ } END { if (count > 0) print total / count; else print 0; }' "$POPULATION_DATA_FILE")
-HORDE_AVG=$(awk -v date="$SEVEN_DAYS_AGO" -F, '$1 >= date { total += $3; count++ } END { if (count > 0) print total / count; else print 0; }' "$POPULATION_DATA_FILE")
+# Output directory and file for population data
+OUTPUT_DIR="$DOCKER_DIRECTORY/vol/faction-balancer"  # Adjusted to use the correct output directory
+OUTPUT_FILE="$OUTPUT_DIR/population_data.csv"
 
-echo "Alliance average: $ALLIANCE_AVG, Horde average: $HORDE_AVG"
-
-# Calculate total average population
-TOTAL_AVG=$(echo "$ALLIANCE_AVG + $HORDE_AVG" | bc -l)
-
-if (( $(echo "$TOTAL_AVG > 0" | bc -l) )); then
-    # Calculate percentages
-    ALLIANCE_PERCENT=$(echo "scale=2; ($ALLIANCE_AVG / $TOTAL_AVG) * 100" | bc -l)
-    HORDE_PERCENT=$(echo "scale=2; ($HORDE_AVG / $TOTAL_AVG) * 100" | bc -l)
-else
-    ALLIANCE_PERCENT=0
-    HORDE_PERCENT=0
+# Ensure the output directory exists and is writable on the host
+if [ ! -d "$OUTPUT_DIR" ]; then
+    echo "Directory $OUTPUT_DIR does not exist on the host. Creating it now..."
+    mkdir -p "$OUTPUT_DIR"
+    chmod 755 "$OUTPUT_DIR"
 fi
 
-echo "Alliance percentage: $ALLIANCE_PERCENT%, Horde percentage: $HORDE_PERCENT%"
-
-# Determine if the ratio is worse than 55% to 45%
-if (( $(echo "$ALLIANCE_PERCENT > 55" | bc -l) )) && (( $(echo "$HORDE_PERCENT < 45" | bc -l) )); then
-    BALANCE_STATUS="Horde"
-elif (( $(echo "$HORDE_PERCENT > 55" | bc -l) )) && (( $(echo "$ALLIANCE_PERCENT < 45" | bc -l) )); then
-    BALANCE_STATUS="Alliance"
-else
-    BALANCE_STATUS="Balanced"
+# Ensure the output file exists
+if [ ! -f "$OUTPUT_FILE" ]; then
+    echo "Creating population data file at $OUTPUT_FILE..."
+    touch "$OUTPUT_FILE"
+    chmod 644 "$OUTPUT_FILE"
 fi
 
-echo "Balance status: $BALANCE_STATUS"
+# SQL query to get the count of online Alliance and Horde characters
+SQL_QUERY="SELECT
+    COUNT(DISTINCT CASE WHEN c.race IN (1, 3, 4, 7) THEN c.account END) AS alliance_count,
+    COUNT(DISTINCT CASE WHEN c.race IN (2, 5, 6, 8) THEN c.account END) AS horde_count
+FROM ${CHAR_DB}.${TABLE_NAME} c
+JOIN ${REALM_DB}.account a ON c.account = a.id
+WHERE a.online = 1
+AND c.guid = (SELECT MIN(c2.guid) FROM ${CHAR_DB}.${TABLE_NAME} c2 WHERE c2.account = c.account);"
 
-# Function to update the configuration file based on the population balance
-update_config_file() {
-    if [ "$BALANCE_STATUS" == "Alliance" ]; then
-        echo "Horde is underpopulated. Updating XP rates for Horde to 1 and Alliance to 2."
-        sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 2/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 2/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 1/' "$CONFIG_FILE"
-    elif [ "$BALANCE_STATUS" == "Horde" ]; then
-        echo "Alliance is underpopulated. Updating XP rates for Alliance to 2 and Horde to 1."
-        sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 2/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 2/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 1/' "$CONFIG_FILE"
-    else
-        echo "Populations are balanced. Setting XP rates to 1 for both factions."
-        sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 1/' "$CONFIG_FILE"
-    fi
-}
+# Get current timestamp
+CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S')
 
-# Function to restart VMangos server using tmux and docker attach
-restart_server() {
-    echo "Restarting VMangos server using tmux..."
+# Run the SQL query inside the MariaDB container and output the result
+RESULT=$(docker exec -i vmangos-database mariadb -u $DB_USER -p$DB_PASS -sN -e "$SQL_QUERY")
 
-    # Create a tmux session, attach to the Docker container, send the restart command
-    tmux new-session -d -s vmangos_restart "docker attach vmangos-mangos"
-    sleep 2  # Wait for the attach to complete
+# Debugging: Print the result to check if it is captured correctly
+echo "DEBUG: Result from SQL query: '$RESULT'"
 
-    # Send the server restart command within the tmux session
-    tmux send-keys -t vmangos_restart "server restart 900" C-m
+# Read the results into variables, trimming any whitespace
+ALLIANCE_COUNT=$(echo "$RESULT" | awk '{print $1}')
+HORDE_COUNT=$(echo "$RESULT" | awk '{print $2}')
 
-    # Wait a moment to ensure the command is processed
-    sleep 2
+# Debugging: Print the extracted values to check for any issues
+echo "DEBUG: Extracted Alliance Count: '$ALLIANCE_COUNT', Horde Count: '$HORDE_COUNT'"
 
-    # Use tmux command to detach the client from the session without killing it
-    tmux detach-client -s vmangos_restart
+# Check if the variables are valid integers
+if ! [[ "$ALLIANCE_COUNT" =~ ^[0-9]+$ ]] || ! [[ "$HORDE_COUNT" =~ ^[0-9]+$ ]]; then
+    echo "Error fetching population data. Please check the script or database connection. Output: $RESULT"
+    exit 1
+fi
 
-    echo "Server restart command sent with a 900-second delay."
-}
+# Append the result to the output file
+echo "$CURRENT_TIME,$ALLIANCE_COUNT,$HORDE_COUNT" >> "$OUTPUT_FILE"
 
-# Clean up data older than 7 days
-echo "Cleaning up old data..."
-awk -v date="$SEVEN_DAYS_AGO" -F, '$1 >= date' "$POPULATION_DATA_FILE" > "./vol/backup/population_data.csv.tmp" && mv "./vol/backup/population_data.csv.tmp" "$POPULATION_DATA_FILE"
-
-# Main execution flow
-update_config_file
-restart_server
+echo "Population data collected at $CURRENT_TIME: Alliance=$ALLIANCE_COUNT, Horde=$HORDE_COUNT"
