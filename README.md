@@ -40,6 +40,10 @@ The user that is used inside the persistent containers (VMANGOS_DATABASE, VMANGO
 
 Also, please be aware that `./vol/client-data-extracted` gets mounted directly into the mangos server to provide dbc and map data.
 
+### Permissions
+
+Use a user with the ID 1000 and GROUPID 1000 for all operations (default ubuntu user already has these ID's), so the container shares the necessary permissions on the host file system from the get go (they run with a user with the id 1000:1000). Run Docker commands and scripts that use docker commands with `sudo`.
+
 ### Clone the Repository
 
 ```sh
@@ -94,7 +98,7 @@ docker network create vmangos-network
 
 ### Configure MySQL Password
 
-Update `mangosd.conf` and `realmd.conf` with your MySQL root password if you changed it.
+Update `mangosd.conf` and `realmd.conf` with your MySQL root password if you changed it in `.env-script` .
 
 ### Create Account
 
