@@ -6,6 +6,15 @@ cd "$(dirname "$0")"
 # Load environment variables from .env-script
 source ./../../.env-script  # Adjust to load .env-script from the project root using $DOCKER_DIRECTORY
 
+# Function to send a message to Discord
+send_discord_message() {
+    local message=$1
+    curl -H "Content-Type: application/json" \
+         -X POST \
+         -d "{\"content\": \"$message\"}" \
+         "$DISCORD_WEBHOOK"
+}
+
 # Function to remove old log entries
 remove_old_entries() {
     local file="$1"
@@ -50,5 +59,8 @@ for log_file in "$DOCKER_DIRECTORY/vol/logs/realmd/"*; do
         remove_old_entries "$log_file" 7
     fi
 done
+
+# Notify via Discord
+send_discord_message "Log cleanup completed. Old entries have been removed from mangos and realmd logs."
 
 echo "Old log entries removed."

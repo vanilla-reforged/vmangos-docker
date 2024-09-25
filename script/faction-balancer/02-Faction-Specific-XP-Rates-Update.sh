@@ -3,8 +3,6 @@
 # Change to the directory where the script is located
 cd "$(dirname "$0")"
 
-#!/bin/bash
-
 # Load environment variables from .env-script
 source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
 
@@ -12,6 +10,15 @@ source ./../../.env-script  # Correctly load .env-script from the project root u
 POPULATION_DATA_FILE="$DOCKER_DIRECTORY/vol/faction-balancer/population_data.csv"  # Use $DOCKER_DIRECTORY for the population data file path
 CONFIG_FILE="$DOCKER_DIRECTORY/vol/configuration/mangosd.conf"  # Use $DOCKER_DIRECTORY for the mangosd.conf file path
 DAYS_TO_KEEP=7
+
+# Function to send message to Discord
+send_discord_message() {
+  local message=$1
+  curl -H "Content-Type: application/json" \
+       -X POST \
+       -d "{\"content\": \"$message\"}" \
+       "$DISCORD_WEBHOOK"
+}
 
 # Calculate the date 7 days ago
 SEVEN_DAYS_AGO=$(date -d '7 days ago' '+%Y-%m-%d %H:%M:%S')
@@ -49,31 +56,38 @@ echo "Balance status: $BALANCE_STATUS"
 
 # Function to update the configuration file based on the population balance
 update_config_file() {
+    local update_message=""
     if [ "$BALANCE_STATUS" == "Alliance" ]; then
         echo "Horde is underpopulated. Updating XP rates for Horde to 1 and Alliance to 2."
+        update_message="Horde is underpopulated. Setting Horde XP rate to 1 and Alliance XP rate to 2."
         sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 2/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 2/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 1/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 1/' "$CONFIG_FILE"
     elif [ "$BALANCE_STATUS" == "Horde" ]; then
         echo "Alliance is underpopulated. Updating XP rates for Alliance to 2 and Horde to 1."
+        update_message="Alliance is underpopulated. Setting Alliance XP rate to 2 and Horde XP rate to 1."
         sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 2/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 2/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 1/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 1/' "$CONFIG_FILE"
     else
         echo "Populations are balanced. Setting XP rates to 1 for both factions."
+        update_message="Populations are balanced. Setting both Alliance and Horde XP rates to 1."
         sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 1/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 1/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 1/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 1/' "$CONFIG_FILE"
     fi
+
+    # Send update message to Discord
+    send_discord_message "Population balance: Alliance: $ALLIANCE_PERCENT%, Horde: $HORDE_PERCENT%. $update_message"
 }
 
 restart_server() {
-echo "[VMaNGOS]: Restarting environment..."
-docker compose down
-docker compose up -d
+    echo "[VMaNGOS]: Restarting environment..."
+    docker compose down
+    docker compose up -d
 }
 
 # Clean up data older than 7 days

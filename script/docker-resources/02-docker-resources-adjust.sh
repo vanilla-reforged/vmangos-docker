@@ -56,6 +56,15 @@ calculate_average() {
   echo "$avg_cpu,$avg_mem"
 }
 
+# Function to send message to Discord
+send_discord_message() {
+  local message=$1
+  curl -H "Content-Type: application/json" \
+       -X POST \
+       -d "{\"content\": \"$message\"}" \
+       "$DISCORD_WEBHOOK"
+}
+
 # Calculate averages for each container
 avg_db=$(calculate_average "$DB_LOG")
 avg_mangos=$(calculate_average "$MANGOS_LOG")
@@ -167,8 +176,9 @@ cleanup_log "$DB_LOG"
 cleanup_log "$MANGOS_LOG"
 cleanup_log "$REALMD_LOG"
 
-# Update resource limits in .env file
-echo "Updated resource limits in .env file."
+# Send the updated .env values to Discord
+env_values=$(grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEM_LIMIT_DB|MEM_LIMIT_MANGOS|MEM_LIMIT_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env)
+send_discord_message "Updated .env values:\n$env_values"
 
 # Restart Docker Compose services to apply new environment variables
 echo "Restarting Docker Compose services..."
