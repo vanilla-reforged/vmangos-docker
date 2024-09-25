@@ -41,7 +41,7 @@ Also, please be aware that `./vol/client-data-extracted` gets mounted directly i
 
 ### Clone the Repository
 
-Use a User with ID:GROUPID 1000:1000 for this step (default user on ubuntu).:
+Use a User with UID:GUID 1000:1000 for this step (default user on ubuntu).:
 
 ```sh
 git clone --recurse-submodules https://github.com/vanilla-reforged/vmangos-docker
