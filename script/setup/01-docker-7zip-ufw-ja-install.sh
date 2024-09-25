@@ -145,14 +145,14 @@ sudo usermod -aG docker "$LOCAL_USER"
 
 # Verify if the user was added to the docker group
 if groups "$LOCAL_USER" | grep &>/dev/null '\bdocker\b'; then
-    echo "User '$LOCAL_USER' has been added to the Docker group. You must log out for the changes to take effect."
+    echo "User '$LOCAL_USER' has been added to the Docker group. You must log out and log back in for the changes to take effect."
 else
     echo "Failed to add user '$LOCAL_USER' to the Docker group."
     exit 1
 fi
 
-# Log out the user to apply group changes
-echo "Logging out..."
-gnome-session-quit --logout --no-prompt
+# Log out the user
+echo "Please log out and log back in to apply the group changes."
+logout
 
 # End of script
