@@ -81,16 +81,19 @@ restart_server() {
 
     # Check if the tmux session already exists
     if tmux has-session -t vmangos_server 2>/dev/null; then
-        echo "TMUX session 'vmangos_server' found. Restarting the container inside tmux."
-        tmux send-keys -t vmangos_server C-c  # Send Ctrl+C to ensure the previous session is cleared
-        sleep 1
+        echo "TMUX session 'vmangos_server' found. Creating a new window."
+        # Create a new window in the existing tmux session
+        tmux new-window -t vmangos_server "sudo docker attach vmangos-mangos"
+        sleep 2  # Wait for the session to attach
         tmux send-keys -t vmangos_server "server restart 900" C-m  # Send the restart command
+        tmux send-keys -t vmangos_server C-p C-q  # Detach from the session
     else
         echo "Creating a new TMUX session and attaching to VMangos container."
         # Create a new tmux session, attach to the Docker container, and send the restart command
         tmux new-session -d -s vmangos_server "sudo docker attach vmangos-mangos"
         sleep 2  # Wait for the session to attach
         tmux send-keys -t vmangos_server "server restart 900" C-m  # Send the restart command
+        tmux send-keys -t vmangos_server C-p C-q  # Detach from the session
     fi
 
     echo "Server restart command sent with a 900-second delay."
