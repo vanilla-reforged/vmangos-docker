@@ -145,12 +145,12 @@ echo "$LOCAL_USER ALL=(ALL) NOPASSWD: /usr/bin/docker exec vmangos-database*, \
                                 /usr/bin/docker attach vmangos-mangos*, \
                                 /usr/bin/docker ps, \
                                 /usr/bin/docker stats, \
-                                /usr/bin/docker compose down, \
-                                /usr/bin/docker compose up -d, \
-                                /usr/bin/docker compose up --build -d" | sudo tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
+                                /usr/bin/docker compose" | sudo tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
 
 # Verify if sudoers file was created
 if [ -f /etc/sudoers.d/$LOCAL_USER-docker ]; then
+    # Ensure the sudoers file has the correct permissions
+    sudo chmod 440 /etc/sudoers.d/$LOCAL_USER-docker
     echo "Passwordless sudo for Docker commands has been configured for user '$LOCAL_USER'."
 else
     echo "Failed to configure passwordless sudo for Docker commands."
@@ -158,4 +158,5 @@ else
 fi
 
 # End of script
+
 
