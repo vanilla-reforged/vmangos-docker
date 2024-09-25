@@ -5,6 +5,8 @@ source ./../../.env-script  # Adjusted path
 
 # Define the container name
 CONTAINER_NAME="vmangos-database"
+COMPOSE_FILE="$DOCKER_DIRECTORY/docker-compose.yml"  # Adjusted path to use $DOCKER_DIRECTORY
+SERVICE_NAME="vmangos-database"
 
 # Function to execute commands inside the Docker container
 exec_docker() {
@@ -66,4 +68,5 @@ echo "[VMaNGOS]: Database creation complete!"
 
 # Restart the vmangos-database container to apply configuration changes
 echo "[VMaNGOS]: Restarting the vmangos-database container to apply changes..."
-docker restart "$CONTAINER_NAME"
+docker compose -f "$COMPOSE_FILE" stop "$SERVICE_NAME" && \
+docker compose -f "$COMPOSE_FILE" up -d "$SERVICE_NAME"
