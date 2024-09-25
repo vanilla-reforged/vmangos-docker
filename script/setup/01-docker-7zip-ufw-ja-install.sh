@@ -130,18 +130,24 @@ install_jq() {
 # Install jq if not already installed
 install_jq
 
-# Step 13: Configure passwordless sudo for Docker commands for user 1000
+# Step 13: Add user 1000 to the Docker group and log out
 
-echo "Configuring passwordless sudo for Docker commands for user 1000..."
+echo "Adding user 1000 to the Docker group..."
 
-# Ensure sudoers file is updated to allow passwordless sudo for Docker commands
-echo "1000 ALL=(ALL) NOPASSWD: /usr/bin/docker ps, /usr/bin/docker stats, /usr/bin/docker exec, /usr/bin/docker attach, /usr/bin/docker compose" | sudo tee /etc/sudoers.d/1000-docker-commands > /dev/null
+# Add user 1000 to the docker group
+sudo usermod -aG docker 1000
 
-# Verify sudoers file was created
-if [ -f /etc/sudoers.d/1000-docker-commands ]; then
-    echo "Passwordless sudo for Docker commands has been configured for user 1000."
+# Verify if the user was added to the docker group
+if groups 1000 | grep &>/dev/null '\bdocker\b'; then
+    echo "User 1000 has been added to the Docker group. You must log out for the changes to take effect."
 else
-    echo "Failed to configure passwordless sudo for Docker commands."
+    echo "Failed to add user 1000 to the Docker group."
+    exit 1
 fi
+
+# Log out the user to apply group changes
+echo "Logging out..."
+gnome-session-quit --logout --no-prompt
+
 
 # End of script
