@@ -8,9 +8,6 @@ cd "$(dirname "$0")"
 # Load environment variables from .env-script
 source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
 
-# Install expect if it isn't already installed
-sudo apt-get install expect
-
 # Configuration and data files
 POPULATION_DATA_FILE="$DOCKER_DIRECTORY/vol/faction-balancer/population_data.csv"  # Use $DOCKER_DIRECTORY for the population data file path
 CONFIG_FILE="$DOCKER_DIRECTORY/vol/configuration/mangosd.conf"  # Use $DOCKER_DIRECTORY for the mangosd.conf file path
@@ -74,7 +71,7 @@ update_config_file() {
 }
 
 restart_server() {
-    echo "Restarting VMangos server..."
+    echo "Restarting VMangos server using tmux..."
 
     # Check if the VMangos Docker container is running
     if ! sudo docker ps --format "{{.Names}}" | grep -q "^vmangos-mangos$"; then
@@ -82,18 +79,26 @@ restart_server() {
         exit 1
     fi
 
-    # Use expect to attach to the container, send the restart command, and detach
-    expect << EOF
-    spawn sudo docker attach vmangos-mangos
-    expect "#"
-    send "server restart 900\r"
-    expect "#"
-    send "\035"  ;# This sends Ctrl+P
-    send "\020"  ;# This sends Ctrl+Q
-    expect eof
-EOF
+    # Check if the tmux session already exists
+    if tmux has-session -t vmangos_server 2>/dev/null; then
+        echo "TMUX session 'vmangos_server' found. Sending server restart command."
+        tmux send-keys -t vmangos_server "server restart 900" C-m
+    else
+        echo "Creating a new TMUX session and attaching to VMangos container."
 
-    echo "Server restart command sent with a 900-second delay and detached."
+        # Create a new tmux session, attach to the Docker container, and send the restart command
+        tmux new-session -d -s vmangos_server "sudo docker attach vmangos-mangos"
+
+        # Wait for the session to attach, then send the command
+        sleep 2  # Give it time to attach
+        tmux send-keys -t vmangos_server "server restart 900" C-m
+
+        # Detach from the session after sending the command
+        sleep 2  # Ensure the command is processed before detaching
+        tmux send-keys -t vmangos_server C-p C-q  # Detach from the session with Ctrl+P, Ctrl+Q
+    fi
+
+    echo "Server restart command sent with a 900-second delay."
 }
 
 # Clean up data older than 7 days
