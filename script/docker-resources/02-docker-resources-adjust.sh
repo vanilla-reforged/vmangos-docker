@@ -176,9 +176,39 @@ cleanup_log "$DB_LOG"
 cleanup_log "$MANGOS_LOG"
 cleanup_log "$REALMD_LOG"
 
+# Function to send message to Discord
+send_discord_message() {
+  local message=$1
+  # Escape newlines for the JSON payload
+  message=$(echo "$message" | sed ':a;N;$!ba;s/\n/\\n/g')
+
+  curl -H "Content-Type: application/json" \
+       -X POST \
+       -d "{\"content\": \"$message\"}" \
+       "$DISCORD_WEBHOOK"
+}
+
+# Print the updated .env values to the console
+echo "Updated .env values:"
+echo "MEM_RESERVATION_DB=${mem_reservation_db}g"
+echo "MEM_RESERVATION_MANGOS=${mem_reservation_mangos}g"
+echo "MEM_RESERVATION_REALMD=${mem_reservation_realmd}g"
+echo "MEM_LIMIT_DB=${mem_limit_db}g"
+echo "MEM_LIMIT_MANGOS=${mem_limit_mangos}g"
+echo "MEM_LIMIT_REALMD=${mem_limit_realmd}g"
+echo "MEMSWAP_LIMIT_DB=${memswap_limit_db}g"
+echo "MEMSWAP_LIMIT_MANGOS=${memswap_limit_mangos}g"
+echo "MEMSWAP_LIMIT_REALMD=${memswap_limit_realmd}g"
+echo "CPU_SHARES_DB=${cpu_shares_db}"
+echo "CPU_SHARES_MANGOS=${cpu_shares_mangos}"
+echo "CPU_SHARES_REALMD=${cpu_shares_realmd}"
+
 # Send the updated .env values to Discord
 env_values=$(grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEM_LIMIT_DB|MEM_LIMIT_MANGOS|MEM_LIMIT_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env)
+
+# Escape any special characters for JSON
 send_discord_message "Updated .env values:\n$env_values"
+
 
 # Restart Docker Compose services to apply new environment variables
 echo "Restarting Docker Compose services..."
