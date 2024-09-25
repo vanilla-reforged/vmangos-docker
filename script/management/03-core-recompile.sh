@@ -30,11 +30,11 @@ rm -rf "$CORE_DIR" "$CORE_GITHUB_DIR/build" || handle_error "Failed to remove ol
 
 # Build the compiler image
 echo "[VMaNGOS]: Building compiler image..."
-sudo docker build --build-arg DEBIAN_FRONTEND=noninteractive --no-cache -t "$COMPILER_IMAGE" -f "$DOCKERFILE" . || handle_error "Failed to build compiler image"
+docker build --build-arg DEBIAN_FRONTEND=noninteractive --no-cache -t "$COMPILER_IMAGE" -f "$DOCKERFILE" . || handle_error "Failed to build compiler image"
 
 # Compile VMaNGOS
 echo "[VMaNGOS]: Compiling VMaNGOS..."
-sudo docker run \
+docker run \
   -v "$CORE_DIR:/vol/core" \
   -v "$CORE_GITHUB_DIR:/vol/core-github" \
   -v "$DOCKER_DIRECTORY/vol/ccache:/vol/ccache" \

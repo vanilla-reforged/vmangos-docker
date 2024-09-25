@@ -32,14 +32,14 @@ echo "[VMaNGOS]: Running client data extractors."
 echo "[VMaNGOS]: This will take a long time..."
 
 # Build the Docker image
-sudo docker build \
+docker build \
   --no-cache \
   -t "$EXTRACTORS_IMAGE" \
   -f "$EXTRACTORS_DOCKERFILE" . || { echo "Failed to build Docker image."; exit 1; }
 
 # Run extraction commands
 for CMD in "${EXTRACTORS_COMMANDS[@]}"; do
-  sudo docker run \
+  docker run \
     "${EXTRACTORS_VOLUMES[@]/#/-v }" \
     --rm \
     "$EXTRACTORS_IMAGE" \

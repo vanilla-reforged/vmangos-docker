@@ -33,7 +33,7 @@ ENABLE_SWAP_LIMIT_SUPPORT=true
 
 # Stop all running containers
 echo "Stopping all running Docker containers..."
-sudo docker stop $(sudo docker ps -q)
+docker stop $(docker ps -q)
 
 REBOOT_REQUIRED=false
 
@@ -166,7 +166,7 @@ grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEM_LI
 # ==============================
 
 echo "Creating vmangos-network..."
-sudo docker network create vmangos-network
+docker network create vmangos-network
 
 # ==============================
 # Start Docker Compose services
