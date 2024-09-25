@@ -79,7 +79,7 @@ restart_server() {
         exit 1
     fi
 
-    # Attach to the Docker container in the background and restart the server
+    # Attach to the Docker container and send the restart command
     sudo docker attach vmangos-mangos &
     attach_pid=$!
 
@@ -87,10 +87,10 @@ restart_server() {
     sleep 2
 
     # Send the restart command
-    sudo docker exec vmangos-mangos server restart 900
+    echo "server restart 900" > /proc/$attach_pid/fd/0
 
     # Automatically detach by sending Ctrl+P, Ctrl+Q sequence
-    kill -SIGWINCH "$attach_pid"  # This will safely detach from the container
+    echo -e "\x10\x11" > /proc/$attach_pid/fd/0
 
     echo "Server restart command sent with a 900-second delay and detached."
 }
