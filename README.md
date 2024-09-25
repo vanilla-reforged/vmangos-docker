@@ -113,8 +113,8 @@ Press <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 ## Starting and Stopping VMaNGOS
 
 ```sh
-docker compose down
-docker compose up -d
+sudo docker compose down
+sudo docker compose up -d
 ```
 
 #BELOW IS CURRENTLY DEPRECATED, IT IS IN WORK
