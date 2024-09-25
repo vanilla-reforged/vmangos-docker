@@ -79,10 +79,15 @@ restart_server() {
         exit 1
     fi
 
-    # Attach to the Docker container, send the restart command, and detach automatically
-    sudo docker exec -it vmangos-mangos /bin/bash -c "server restart 900"
-    
+    # Attach to the Docker container and send the restart command automatically
+    sudo docker attach vmangos-mangos &  # Attach in the background
+    sleep 2  # Wait for attach to complete
+
+    # Send the restart command (you may need to manually detach after this)
+    echo "server restart 900" | sudo docker attach vmangos-mangos
+
     echo "Server restart command sent with a 900-second delay."
+    echo "Please detach manually using <Ctrl+P>, then <Ctrl+Q>."
 }
 
 # Clean up data older than 7 days
