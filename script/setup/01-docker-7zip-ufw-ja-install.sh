@@ -130,4 +130,18 @@ install_jq() {
 # Install jq if not already installed
 install_jq
 
+# Step 13: Configure passwordless sudo for Docker commands for user 1000
+
+echo "Configuring passwordless sudo for Docker commands for user 1000..."
+
+# Ensure sudoers file is updated to allow passwordless sudo for Docker commands
+echo "1000 ALL=(ALL) NOPASSWD: /usr/bin/docker ps, /usr/bin/docker stats, /usr/bin/docker exec, /usr/bin/docker attach, /usr/bin/docker compose" | sudo tee /etc/sudoers.d/1000-docker-commands > /dev/null
+
+# Verify sudoers file was created
+if [ -f /etc/sudoers.d/1000-docker-commands ]; then
+    echo "Passwordless sudo for Docker commands has been configured for user 1000."
+else
+    echo "Failed to configure passwordless sudo for Docker commands."
+fi
+
 # End of script

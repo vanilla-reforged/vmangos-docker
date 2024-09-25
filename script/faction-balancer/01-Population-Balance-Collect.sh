@@ -44,7 +44,7 @@ AND c.guid = (SELECT MIN(c2.guid) FROM ${CHAR_DB}.${TABLE_NAME} c2 WHERE c2.acco
 CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S')
 
 # Run the SQL query inside the MariaDB container and output the result
-RESULT=$(sudo docker exec -i vmangos-database mariadb -u $DB_USER -p$DB_PASS -sN -e "$SQL_QUERY")
+RESULT=$(docker exec -i vmangos-database mariadb -u $DB_USER -p$DB_PASS -sN -e "$SQL_QUERY")
 
 # Debugging: Print the result to check if it is captured correctly
 echo "DEBUG: Result from SQL query: '$RESULT'"

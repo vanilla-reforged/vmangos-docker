@@ -182,37 +182,31 @@ crontab -e
 # Backup #
 ##########
 #
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/backup/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/backup/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/backup/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/backup/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/backup/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
 
 ####################
 # Docker-Resources #
 ####################
 #
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/docker-resources/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/docker-resources/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
 
 ####################
 # Faction-Balancer #
 ####################
 #
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
 
 ########
 # Logs #
 ########
 #
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+0 * * * * /your_path_to_vmangos-docker_directory/script/logs >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
 
 
 

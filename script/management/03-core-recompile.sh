@@ -22,7 +22,7 @@ handle_error() {
 
 # Shut down the environment
 echo "[VMaNGOS]: Shutting down environment..."
-sudo docker compose down || handle_error "Failed to shut down environment"
+docker compose down || handle_error "Failed to shut down environment"
 
 # Remove old files
 echo "[VMaNGOS]: Removing old core and installation files..."
@@ -46,6 +46,6 @@ echo "[VMaNGOS]: Compiling complete!"
 
 # Start the environment with rebuild
 echo "[VMaNGOS]: Starting environment..."
-sudo docker compose up --build -d || handle_error "Failed to start environment"
+docker compose up --build -d || handle_error "Failed to start environment"
 
 echo "[VMaNGOS]: Environment started successfully."

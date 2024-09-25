@@ -72,8 +72,8 @@ update_config_file() {
 
 restart_server() {
 echo "[VMaNGOS]: Restarting environment..."
-sudo docker compose down
-sudo docker compose up -d
+docker compose down
+docker compose up -d
 }
 
 # Clean up data older than 7 days

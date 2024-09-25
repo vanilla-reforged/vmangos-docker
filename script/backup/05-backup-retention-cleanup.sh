@@ -28,7 +28,7 @@ clean_up_old_backups() {
     find "$HOST_BACKUP_DIR" -type f -name "*.7z" -mtime +$BACKUP_RETENTION_DAYS -exec rm -f {} \;
     
     echo "Cleaning up old binary logs..."
-    sudo docker exec "$CONTAINER_NAME" bash -c "find $CONTAINER_BACKUP_DIR -type f -name 'mysql-bin.*' -mtime +$BINARY_LOGS_RETENTION_DAYS -exec rm -f {} \;"
+    docker exec "$CONTAINER_NAME" bash -c "find $CONTAINER_BACKUP_DIR -type f -name 'mysql-bin.*' -mtime +$BINARY_LOGS_RETENTION_DAYS -exec rm -f {} \;"
     
     echo "Old backups and binary logs cleaned up successfully."
     send_discord_message "Old backups and binary logs cleaned up."

@@ -172,7 +172,7 @@ sudo docker network create vmangos-network
 # Start Docker Compose services
 # ==============================
 echo "Starting Docker Compose services..."
-sudo docker compose -f "$DOCKER_DIRECTORY/docker-compose.yml" up -d
+docker compose -f "$DOCKER_DIRECTORY/docker-compose.yml" up -d
 
 # ==============================
 # Reboot if Required
