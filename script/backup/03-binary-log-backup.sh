@@ -6,7 +6,7 @@ source ./../../.env-script  # Correctly load .env-script from the project root u
 # Configuration
 CONTAINER_BACKUP_DIR="/vol/backup"  # Backup directory inside the Docker container
 HOST_BACKUP_DIR="$DOCKER_DIRECTORY/vol/backup"  # Backup directory on the host using $DOCKER_DIRECTORY
-CONTAINER_NAME="vmangos-database"  # Docker container name
+CONTAINER_NAME="vmangos-database"  # Doc6ker container name
 
 # Function to send a message to Discord
 send_discord_message() {

@@ -130,7 +130,7 @@ docker compose up -d
 - `sudo ./02-characters-logs-realmd-databases-backup.sh`
   - SQL Dump of Databases characters, logs, realmd.
 
-- `./03-binary-log-backup.sh`
+- `sudo ./03-binary-log-backup.sh`
   - Binary log backup.
 
 - `./04-s3-upload-backup.sh`

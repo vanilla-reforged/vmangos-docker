@@ -57,7 +57,7 @@ done
 
 # Enable binary logs and set expire_logs_days to 7 days
 echo "[VMaNGOS]: Enabling binary logs and setting expiration..."
-docker exec -i "$CONTAINER_NAME" bash -c "echo -e '[mysqld]\nlog-bin=mysql-bin\nexpire_logs_days=7' > /etc/mysql/conf.d/binary_logs.cnf"
+docker exec -i "$CONTAINER_NAME" bash -c "echo -e '[mysqld]\nlog-bin=mysql-bin\nexpire_logs_days=7' >> /etc/mysql/my.cnf"
 
 # Configure default realm
 echo "[VMaNGOS]: Configuring default realm..."
