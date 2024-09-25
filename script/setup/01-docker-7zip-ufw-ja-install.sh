@@ -3,6 +3,9 @@
 # Change to the directory where the script is located
 cd "$(dirname "$0")"
 
+# Get variables defined in .env-script
+source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
+
 # This script installs Docker, Docker Compose, 7zip, jq, and sets up ufw-docker on an Ubuntu system
 
 # Step 1: Update the package index
@@ -130,24 +133,26 @@ install_jq() {
 # Install jq if not already installed
 install_jq
 
-# Step 13: Add user 1000 to the Docker group and log out
+# Step 13: Add user to the Docker group and log out
 
-echo "Adding user 1000 to the Docker group..."
+# Get the local username
+LOCAL_USER=$(whoami)
 
-# Add user 1000 to the docker group
-sudo usermod -aG docker 1000
+echo "Adding user '$LOCAL_USER' to the Docker group..."
+
+# Add the current user to the docker group
+sudo usermod -aG docker "$LOCAL_USER"
 
 # Verify if the user was added to the docker group
-if groups 1000 | grep &>/dev/null '\bdocker\b'; then
-    echo "User 1000 has been added to the Docker group. You must log out for the changes to take effect."
+if groups "$LOCAL_USER" | grep &>/dev/null '\bdocker\b'; then
+    echo "User '$LOCAL_USER' has been added to the Docker group. You must log out for the changes to take effect."
 else
-    echo "Failed to add user 1000 to the Docker group."
+    echo "Failed to add user '$LOCAL_USER' to the Docker group."
     exit 1
 fi
 
 # Log out the user to apply group changes
 echo "Logging out..."
 gnome-session-quit --logout --no-prompt
-
 
 # End of script
