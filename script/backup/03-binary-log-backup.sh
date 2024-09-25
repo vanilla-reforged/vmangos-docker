@@ -38,13 +38,26 @@ create_incremental_backup() {
             echo "Binary logs compressed successfully on the host."
             send_discord_message "Incremental binary logs backup completed successfully."
 
-            # Clean up the uncompressed binary logs on the host
-            rm -f "$HOST_BACKUP_DIR/mysql-bin.*"
+        # Clean up the uncompressed binary logs on the host
+        if [ -d "$HOST_BACKUP_DIR" ]; then
+            echo "Changing to directory: $HOST_BACKUP_DIR"
+            cd "$HOST_BACKUP_DIR" || { echo "Failed to change directory to $HOST_BACKUP_DIR"; exit 1; }
+
+            echo "Removing uncompressed binary logs..."
+            rm -f mysql-bin.*
+    
             if [[ $? -eq 0 ]]; then
                 echo "Uncompressed binary logs cleaned up."
             else
                 echo "Failed to clean up binary logs! Please check file permissions."
             fi
+
+            echo "Returning to the previous directory."
+            cd - || { echo "Failed to return to previous directory"; exit 1; }
+        else
+            echo "Directory $HOST_BACKUP_DIR does not exist. Skipping cleanup."
+fi
+
 
         else
             echo "Failed to compress binary logs on the host!"
