@@ -153,6 +153,6 @@ fi
 
 # Log out the user
 echo "Please log out and log back in to apply the group changes."
-exit
+logout
 
 # End of script
