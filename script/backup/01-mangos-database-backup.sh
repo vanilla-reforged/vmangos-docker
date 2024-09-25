@@ -6,8 +6,16 @@ source ./../../.env-script  # Correctly loads the .env-script file, which define
 # Define variables
 CONTAINER_NAME="vmangos-database"
 BACKUP_DIR="/vol/backup"  # This is the directory inside the container
+HOST_BACKUP_DIR="$DOCKER_DIRECTORY/vol/backup"  # Define the directory on the host where backups will be stored
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 DATABASE="mangos"
+
+# Ensure the host backup directory exists
+if [ ! -d "$HOST_BACKUP_DIR" ]; then
+  echo "[VMaNGOS]: Creating host backup directory at $HOST_BACKUP_DIR..."
+  mkdir -p "$HOST_BACKUP_DIR"
+  chmod 755 "$HOST_BACKUP_DIR"
+fi
 
 # Function to back up a database
 backup_database() {

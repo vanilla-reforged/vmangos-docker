@@ -84,7 +84,7 @@ Execute these scripts in order from inside the script/setup/ directory, those us
 - `sudo ./06-vmangos-database-create.sh`
   - Create and modify the vmangos databases.
 
-- `./07-vmangos-database-env-pw-clear.sh`
+- `sudo ./07-vmangos-database-env-pw-clear.sh`
   - Clear the mysql root pw from the database containers .env variable.
 
 ### Configure MySQL Password
@@ -124,10 +124,10 @@ docker compose up -d
 
 ### Backup (/script/backup/)
 
-- `./01-mangos-database-backup.sh`
+- `sudo ./01-mangos-database-backup.sh`
   - SQL Dump of Database mangos.
 
-- `./02-characters-logs-realmd-databases-backup.sh`
+- `sudo ./02-characters-logs-realmd-databases-backup.sh`
   - SQL Dump of Databases characters, logs, realmd.
 
 - `./03-binary-log-backup.sh`
