@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Change to the directory where the script is located
+cd "$(dirname "$0")"
+
 # Load environment variables
 source ./../../.env-script  # Adjusted path to environment file
 

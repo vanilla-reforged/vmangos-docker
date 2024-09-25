@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Change to the directory where the script is located
+cd "$(dirname "$0")"
+
 # This script installs Docker, Docker Compose, 7zip, jq, and sets up ufw-docker on an Ubuntu system
 
 # Step 1: Update the package index

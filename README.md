@@ -64,7 +64,6 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 
 ### Setup (/script/setup/)
 
-Execute these scripts in order from inside the script/setup/ directory.
 - `./01-docker-7zip-ufw-ja-install.sh`
   - Install and modify Docker, 7zip, ufw and jq.
 

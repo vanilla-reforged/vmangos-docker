@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Change to the directory where the script is located
+cd "$(dirname "$0")"
+
 # Get variables defined in .env-script
 source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
 

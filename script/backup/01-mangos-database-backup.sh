@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Change to the directory where the script is located
+cd "$(dirname "$0")"
+
 # Load environment variables from .env-script
 source ./../../.env-script  # Correctly loads the .env-script file, which defines $DOCKER_DIRECTORY
 

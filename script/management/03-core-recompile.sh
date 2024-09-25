@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Change to the directory where the script is located
+cd "$(dirname "$0")"
+
 set -e  # Exit immediately if a command exits with a non-zero status
 
 # Load environment variables
