@@ -60,7 +60,7 @@ To make the server public, change the `VMANGOS_REALM_IP` environment variable in
 
 ### Generate/Extract Client Data
 
-Copy the contents of your World of Warcraft client directory into `./vol/client-data`. Generating the required data will take many hours. If you have already extracted the client data, place it in `./vol/client-data-extracted` and skip the `04` script.
+Copy the contents of your World of Warcraft client directory into `./vol/client-data`. Generating the required data will take many hours. If you have already extracted the client data, place it in `./vol/client-data-extracted` and skip the `04-client-data-extract.sh` script.
 
 ### Setup (/script/setup/)
 
