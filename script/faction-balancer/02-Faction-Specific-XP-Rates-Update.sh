@@ -70,9 +70,8 @@ update_config_file() {
     fi
 }
 
-# Function to restart VMangos server using tmux and docker attach
 restart_server() {
-    echo "Restarting VMangos server using tmux..."
+    echo "Restarting VMangos server..."
 
     # Check if the VMangos Docker container is running
     if ! sudo docker ps --format "{{.Names}}" | grep -q "^vmangos-mangos$"; then
@@ -80,27 +79,21 @@ restart_server() {
         exit 1
     fi
 
-    # Check if the tmux session for VMangos server is running
-    if tmux has-session -t vmangos_server 2>/dev/null; then
-        echo "TMUX session for VMangos found, restarting the server."
-        # Attach to the existing session
-        tmux send-keys -t vmangos_server "server restart 900" C-m
-    else
-        echo "TMUX session for VMangos not found. Creating a new one."
-        # Create a new tmux session and attach to the docker container
-        tmux new-session -d -s vmangos_server "sudo docker attach vmangos-mangos"
-        sleep 2  # Wait for the attach to complete
+    # Attach to the Docker container in the background and restart the server
+    sudo docker attach vmangos-mangos &
+    attach_pid=$!
 
-        # Send the server restart command
-        tmux send-keys -t vmangos_server "server restart 900" C-m
+    # Wait for the attach to complete
+    sleep 2
 
-        # Send the detach command (<Ctrl>+<P>, <Ctrl>+<Q>)
-        tmux send-keys -t vmangos_server C-p C-q
-    fi
+    # Send the restart command
+    sudo docker exec vmangos-mangos server restart 900
 
-    echo "Server restart command sent with a 900-second delay."
+    # Automatically detach by sending Ctrl+P, Ctrl+Q sequence
+    kill -SIGWINCH "$attach_pid"  # This will safely detach from the container
+
+    echo "Server restart command sent with a 900-second delay and detached."
 }
-
 
 # Clean up data older than 7 days
 echo "Cleaning up old data..."
