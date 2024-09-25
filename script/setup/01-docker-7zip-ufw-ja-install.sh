@@ -133,26 +133,29 @@ install_jq() {
 # Install jq if not already installed
 install_jq
 
-# Step 13: Add user to the Docker group and log out
+# Step 13: Configure sudoers for Docker commands
 
 # Get the local username
 LOCAL_USER=$(whoami)
 
-echo "Adding user '$LOCAL_USER' to the Docker group..."
+echo "Configuring sudoers for Docker commands for user '$LOCAL_USER'..."
 
-# Add the current user to the docker group
-sudo usermod -aG docker "$LOCAL_USER"
+# Ensure sudoers file is updated to allow passwordless sudo for specific Docker commands
+echo "$LOCAL_USER ALL=(ALL) NOPASSWD: /usr/bin/docker exec vmangos-database*, \
+                                /usr/bin/docker attach vmangos-mangos*, \
+                                /usr/bin/docker ps, \
+                                /usr/bin/docker stats, \
+                                /usr/bin/docker compose down, \
+                                /usr/bin/docker compose up -d, \
+                                /usr/bin/docker compose up --build -d" | sudo tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
 
-# Verify if the user was added to the docker group
-if groups "$LOCAL_USER" | grep &>/dev/null '\bdocker\b'; then
-    echo "User '$LOCAL_USER' has been added to the Docker group. You must log out and log back in for the changes to take effect."
+# Verify if sudoers file was created
+if [ -f /etc/sudoers.d/$LOCAL_USER-docker ]; then
+    echo "Passwordless sudo for Docker commands has been configured for user '$LOCAL_USER'."
 else
-    echo "Failed to add user '$LOCAL_USER' to the Docker group."
+    echo "Failed to configure passwordless sudo for Docker commands."
     exit 1
 fi
 
-# Log out the user
-echo "Please log out and log back in to apply the group changes."
-logout
-
 # End of script
+
