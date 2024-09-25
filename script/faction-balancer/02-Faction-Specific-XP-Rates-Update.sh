@@ -74,22 +74,27 @@ update_config_file() {
 restart_server() {
     echo "Restarting VMangos server using tmux..."
 
+    # Check if the VMangos Docker container is running
+    if ! sudo docker ps --format "{{.Names}}" | grep -q "^vmangos-mangos$"; then
+        echo "Error: VMangos container 'vmangos-mangos' is not running."
+        exit 1
+    fi
+
     # Check if the tmux session for VMangos server is running
     if tmux has-session -t vmangos_server 2>/dev/null; then
         echo "TMUX session for VMangos found, restarting the server."
-        # Send the server restart command within the existing tmux session
-        tmux send-keys -t vmangos_server "server restart 900" C-m
+        # Send the server restart command within the existing tmux session using sudo
+        tmux send-keys -t vmangos_server "sudo docker exec vmangos-mangos server restart 900" C-m
     else
         echo "TMUX session for VMangos not found. Creating a new one."
-        # Create a new tmux session and attach to the docker container, then send the restart command
-        tmux new-session -d -s vmangos_server "docker attach vmangos-mangos"
+        # Create a new tmux session and attach to the docker container using sudo
+        tmux new-session -d -s vmangos_server "sudo docker attach vmangos-mangos"
         sleep 2  # Wait for the attach to complete
         tmux send-keys -t vmangos_server "server restart 900" C-m
     fi
 
     echo "Server restart command sent with a 900-second delay."
 }
-
 
 # Clean up data older than 7 days
 echo "Cleaning up old data..."
