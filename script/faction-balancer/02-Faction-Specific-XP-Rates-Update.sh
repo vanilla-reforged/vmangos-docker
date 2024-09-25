@@ -79,9 +79,9 @@ restart_server() {
         exit 1
     fi
 
-    # Use docker exec to send the server restart command inside the container
-    sudo docker exec vmangos-mangos /bin/sh -c "server restart 900"
-
+    # Attach to the Docker container, send the restart command, and detach automatically
+    sudo docker exec -it vmangos-mangos /bin/bash -c "server restart 900"
+    
     echo "Server restart command sent with a 900-second delay."
 }
 
