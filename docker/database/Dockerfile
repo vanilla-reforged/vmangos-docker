@@ -4,7 +4,7 @@ FROM mariadb:11.5.2
 RUN apt-get update -y && \
     apt-get install -y sudo && \
     mkdir -p /vol/backup /vol/core-github /vol/database-github /etc/mysql/conf.d /vol/faction-balancer && \
-    chown -R 1000:1000 /etc/mysql/conf.d
+    chown -R 1000:1000 /etc/mysql
     
     # Set ownership to default user 1000:1000 if needed, though likely not necessary
     # You can remove the next line if the default user already owns the volumes.
