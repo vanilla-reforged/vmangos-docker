@@ -122,51 +122,51 @@ sudo docker compose up -d
 
 ### Backup (/script/backup/)
 
-- `./01-mangos-database-backup.sh`
+- `./script/backup/01-mangos-database-backup.sh`
   - SQL Dump of Database mangos.
 
-- `./02-characters-logs-realmd-databases-backup.sh`
+- `./script/backup/02-characters-logs-realmd-databases-backup.sh`
   - SQL Dump of Databases characters, logs, realmd.
 
-- `./03-binary-log-backup.sh`
+- `./script/backup/03-binary-log-backup.sh`
   - Binary log backup.
 
-- `./04-s3-upload-backup.sh`
+- `./script/backup/04-s3-upload-backup.sh`
   - Upload backups to s3.
 
-- `./05-backup-retention-cleanup.sh`
+- `./script/backup/05-backup-retention-cleanup.sh`
   - Cleanup old Backups, retention is configurable in script.
 
 ### Docker-Resources (/script/docker-resources/)
 
-- `./01-docker-resources-collect.sh`
+- `./script/docker-resources/01-docker-resources-collect.sh`
    - Collect ressource usage for database, mangos and realmd containers.
 
-- `./02-docker-resources-adjust.sh`
+- `./script/docker-resources/02-docker-resources-adjust.sh`
    - Adjust ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `01-docker-resources-collect.sh`.
 
 ### Faction Balancer (/script/faction-balancer/)
 
-- `./01-Population-Balance-Collect.sh`
+- `./script/faction-balancer/01-Population-Balance-Collect.sh`
   - Collect faction balance data.
 
-- `./02-Faction-Specific-XP-Rates-Update.sh`
+- `./script/faction-balancer/02-Faction-Specific-XP-Rates-Update.sh`
   - Set faction-specific XP rates and restart server to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
 
 ### Logs (/script/logs/)
 
-- `./01-vmangos-logs-cleanup.sh`
+- `./script/logs/01-vmangos-logs-cleanup.sh`
   - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. 
 
 ### Management (/script/management/)
 
-- `./01-vmangos-database-migrations-import.sh`
+- `./script/management/01-vmangos-database-migrations-import.sh`
   - Import new migrations.
 
-- `./02-vmangos-database-world-recreate.sh`
+- `./script/management/02-vmangos-database-world-recreate.sh`
   - Recreate the world database.
 
-- `./03-core-recompile.sh`
+- `./script/management/03-core-recompile.sh`
   - Recompile the core.
 
 #### Edit the crontab using the command below:
