@@ -10,7 +10,7 @@ RUN apt-get update -y && \
     # You can remove the next line if the default user already owns the volumes.
     # chown -R 1000:1000 /vol/backup /vol/core-github /vol/database-github
 
-# Switch to default user 1000:1000
+# Switch to default user (1000:1000)
 USER 1000:1000
 
 # Set the working directory
