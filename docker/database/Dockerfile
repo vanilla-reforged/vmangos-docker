@@ -3,11 +3,12 @@ FROM mariadb:11.5.2
 # Install sudo and other necessary packages
 RUN apt-get update -y && \
     apt-get install -y sudo && \
-    mkdir -p /vol/backup /vol/core-github /vol/database-github /etc/mysql/conf.d /vol/faction-balancer
-
-# Set ownership to default user 1000:1000 if needed, though likely not necessary
-# You can remove the next line if the default user already owns the volumes.
-# chown -R 1000:1000 /vol/backup /vol/core-github /vol/database-github /etc/mysql/conf.d
+    mkdir -p /vol/backup /vol/core-github /vol/database-github /etc/mysql/conf.d /vol/faction-balancer && \
+    chown -R 1000:1000 /etc/mysql/conf.d
+    
+    # Set ownership to default user 1000:1000 if needed, though likely not necessary
+    # You can remove the next line if the default user already owns the volumes.
+    # chown -R 1000:1000 /vol/backup /vol/core-github /vol/database-github
 
 # Switch to default user 1000:1000 if not already set in the base image
 USER 1000:1000
