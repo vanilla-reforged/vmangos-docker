@@ -169,12 +169,12 @@ echo "Updated resource limits in .env file."
 
 # Restart Docker Compose services to apply new environment variables
 echo "Restarting Docker Compose services..."
-if ! docker compose down; then
+if ! sudo docker compose down; then
   echo "Error: Failed to bring down Docker Compose services."
   exit 1
 fi
 
-if ! docker compose up -d; then
+if ! sudo docker compose up -d; then
   echo "Error: Failed to bring up Docker Compose services."
   exit 1
 fi

@@ -123,13 +123,13 @@ docker compose up -d
 
 ### Backup (/script/backup/)
 
-- `sudo ./01-mangos-database-backup.sh`
+- `./01-mangos-database-backup.sh`
   - SQL Dump of Database mangos.
 
-- `sudo ./02-characters-logs-realmd-databases-backup.sh`
+- `./02-characters-logs-realmd-databases-backup.sh`
   - SQL Dump of Databases characters, logs, realmd.
 
-- `sudo ./03-binary-log-backup.sh`
+- `./03-binary-log-backup.sh`
   - Binary log backup.
 
 - `./04-s3-upload-backup.sh`

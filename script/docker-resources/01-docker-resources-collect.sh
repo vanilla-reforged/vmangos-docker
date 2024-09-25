@@ -21,13 +21,13 @@ collect_usage() {
   log_file=$2
 
   # Check if the container is running
-  if ! docker ps --format "{{.Names}}" | grep -q "^${container_name}$"; then
+  if ! sudo docker ps --format "{{.Names}}" | grep -q "^${container_name}$"; then
     echo "Warning: Container $container_name is not running." >> "${LOG_DIR}/error.log"
     return
   fi
 
   # Get container stats in JSON format
-  stats=$(docker stats --no-stream --format "{{json .}}" "$container_name" 2>/dev/null)
+  stats=$(sudo docker stats --no-stream --format "{{json .}}" "$container_name" 2>/dev/null)
 
   # Check if stats were successfully retrieved
   if [ -z "$stats" ]; then

@@ -19,7 +19,7 @@ handle_error() {
 
 # Shut down the environment
 echo "[VMaNGOS]: Shutting down environment..."
-docker compose down || handle_error "Failed to shut down environment"
+sudo docker compose down || handle_error "Failed to shut down environment"
 
 # Remove old files
 echo "[VMaNGOS]: Removing old core and installation files..."
@@ -27,11 +27,11 @@ rm -rf "$CORE_DIR" "$CORE_GITHUB_DIR/build" || handle_error "Failed to remove ol
 
 # Build the compiler image
 echo "[VMaNGOS]: Building compiler image..."
-docker build --build-arg DEBIAN_FRONTEND=noninteractive --no-cache -t "$COMPILER_IMAGE" -f "$DOCKERFILE" . || handle_error "Failed to build compiler image"
+sudo docker build --build-arg DEBIAN_FRONTEND=noninteractive --no-cache -t "$COMPILER_IMAGE" -f "$DOCKERFILE" . || handle_error "Failed to build compiler image"
 
 # Compile VMaNGOS
 echo "[VMaNGOS]: Compiling VMaNGOS..."
-docker run \
+sudo docker run \
   -v "$CORE_DIR:/vol/core" \
   -v "$CORE_GITHUB_DIR:/vol/core-github" \
   -v "$DOCKER_DIRECTORY/vol/ccache:/vol/ccache" \
@@ -43,6 +43,6 @@ echo "[VMaNGOS]: Compiling complete!"
 
 # Start the environment with rebuild
 echo "[VMaNGOS]: Starting environment..."
-docker compose up --build -d || handle_error "Failed to start environment"
+sudo docker compose up --build -d || handle_error "Failed to start environment"
 
 echo "[VMaNGOS]: Environment started successfully."
