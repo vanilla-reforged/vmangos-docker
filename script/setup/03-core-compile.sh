@@ -16,7 +16,7 @@ ENV_FILE="$DOCKER_DIRECTORY/.env-vmangos-build"  # Use $DOCKER_DIRECTORY for the
 echo "[VMaNGOS]: Building compiler image..."
 
 # Build the Docker image and handle errors
-docker build \
+sudo docker build \
   --build-arg DEBIAN_FRONTEND=noninteractive \
   --no-cache \
   -t "$IMAGE_NAME" \
@@ -25,7 +25,7 @@ docker build \
 echo "[VMaNGOS]: Compiling VMaNGOS..."
 
 # Compile using the Docker image
-docker run \
+sudo docker run \
   $(printf '%s ' "${VOLUMES[@]/#/ -v }") \
   --env-file "$ENV_FILE" \
   --rm \

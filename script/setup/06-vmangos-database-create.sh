@@ -11,7 +11,7 @@ SERVICE_NAME="vmangos-database"
 # Function to execute commands inside the Docker container
 exec_docker() {
   local command=$1
-  docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MYSQL_ROOT_PASSWORD" -e "$command"
+  sudo docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MYSQL_ROOT_PASSWORD" -e "$command"
 }
 
 # Check if databases exist and abort if they do
@@ -54,12 +54,12 @@ for entry in "${import_files[@]}"; do
   db=$(echo $entry | cut -d: -f1)
   file=$(echo $entry | cut -d: -f2)
   echo "[VMaNGOS]: Importing $db from $file"
-  docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MYSQL_ROOT_PASSWORD" "$db" < "$file"
+  sudo docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MYSQL_ROOT_PASSWORD" "$db" < "$file"
 done
 
 # Enable binary logs and set expire_logs_days to 7 days
 echo "[VMaNGOS]: Enabling binary logs and setting expiration..."
-docker exec -i "$CONTAINER_NAME" bash -c "echo -e '[mysqld]\nlog-bin=mysql-bin\nexpire_logs_days=7' >> /etc/mysql/my.cnf"
+sudo docker exec -i "$CONTAINER_NAME" bash -c "echo -e '[mysqld]\nlog-bin=mysql-bin\nexpire_logs_days=7' >> /etc/mysql/my.cnf"
 
 # Configure default realm
 echo "[VMaNGOS]: Configuring default realm..."
@@ -68,5 +68,5 @@ echo "[VMaNGOS]: Database creation complete!"
 
 # Restart the vmangos-database container to apply configuration changes
 echo "[VMaNGOS]: Restarting the vmangos-database container to apply changes..."
-docker compose -f "$COMPOSE_FILE" stop "$SERVICE_NAME" && \
-docker compose -f "$COMPOSE_FILE" up -d "$SERVICE_NAME"
+sudo docker compose -f "$COMPOSE_FILE" stop "$SERVICE_NAME" && \
+sudo docker compose -f "$COMPOSE_FILE" up -d "$SERVICE_NAME"

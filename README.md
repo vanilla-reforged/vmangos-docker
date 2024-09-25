@@ -64,27 +64,26 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 
 ### Setup (/script/setup/)
 
-Execute these scripts in order from inside the script/setup/ directory, those using docker commands will need to be run with sudo.
-
+Execute these scripts in order from inside the script/setup/ directory.
 - `./01-docker-7zip-ufw-ja-install.sh`
   - Install and modify Docker, 7zip, ufw and jq.
 
 - `./02-github-core-database-update.sh`
   - Update the github directories in ./vol/.
 
-- `sudo ./03-core-compile.sh`
+- `./03-core-compile.sh`
   - Compile the core.
 
-- `sudo ./04-client-data-extract.sh`
+- `./04-client-data-extract.sh`
   - Extract the Client Data.
 
-- `sudo ./05-docker-resources-initialize.sh`
+- `./05-docker-resources-initialize.sh`
   - Initialize the ressource limits, based on the current hardware and start the containers.
 
-- `sudo ./06-vmangos-database-create.sh`
+- `./06-vmangos-database-create.sh`
   - Create and modify the vmangos databases.
 
-- `sudo ./07-vmangos-database-env-pw-clear.sh`
+- `./07-vmangos-database-env-pw-clear.sh`
   - Clear the mysql root pw from the database containers .env variable.
 
 ### Configure MySQL Password

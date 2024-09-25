@@ -24,7 +24,7 @@ create_full_backup() {
     echo "Creating full SQL dump inside the container..."
     
     # Dump the specific databases inside the container
-    docker exec $CONTAINER_NAME bash -c "mariadb-dump --user=$DB_USER --password=$DB_PASS --databases characters logs realmd > /vol/backup/full_backup.sql"
+    sudo docker exec $CONTAINER_NAME bash -c "mariadb-dump --user=$DB_USER --password=$DB_PASS --databases characters logs realmd > /vol/backup/full_backup.sql"
     
     if [[ $? -eq 0 ]]; then
         echo "Full SQL dump created successfully inside the container."

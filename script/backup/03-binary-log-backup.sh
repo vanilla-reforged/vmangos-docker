@@ -22,7 +22,7 @@ create_incremental_backup() {
     echo "Creating incremental backup using binary logs inside the container..."
 
     # Copy binary logs from container to the backup directory (directly, since mounted)
-    docker exec $CONTAINER_NAME bash -c "cp /var/lib/mysql/mysql-bin.* $CONTAINER_BACKUP_DIR/"
+    sudo docker exec $CONTAINER_NAME bash -c "cp /var/lib/mysql/mysql-bin.* $CONTAINER_BACKUP_DIR/"
 
     if [[ $? -eq 0 ]]; then
         echo "Binary logs copied successfully to mounted directory ($CONTAINER_BACKUP_DIR)."
@@ -36,7 +36,7 @@ create_incremental_backup() {
             send_discord_message "Incremental binary logs backup completed successfully."
 
             # Clean up the uncompressed binary logs on the host
-            rm "$HOST_BACKUP_DIR/mysql-bin.*"
+            rm -f "$HOST_BACKUP_DIR/mysql-bin.*"
             if [[ $? -eq 0 ]]; then
                 echo "Uncompressed binary logs cleaned up."
             else

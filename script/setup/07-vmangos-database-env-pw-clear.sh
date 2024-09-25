@@ -14,7 +14,7 @@ sed -i '/^MYSQL_ROOT_PASSWORD=/s/^/#/' "$ENV_FILE"
 
 # Restart the specified service
 echo "Restarting $SERVICE_NAME..."
-docker compose -f "$COMPOSE_FILE" stop "$SERVICE_NAME" && \
-docker compose -f "$COMPOSE_FILE" up -d "$SERVICE_NAME"
+sudo docker compose -f "$COMPOSE_FILE" stop "$SERVICE_NAME" && \
+sudo docker compose -f "$COMPOSE_FILE" up -d "$SERVICE_NAME"
 
 echo "$SERVICE_NAME has been restarted, and MYSQL_ROOT_PASSWORD is now cleared."

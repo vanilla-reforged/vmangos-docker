@@ -21,7 +21,7 @@ fi
 backup_database() {
   local db_name=$1
   echo "[VMaNGOS]: Backing up $db_name database..."
-  docker exec "$CONTAINER_NAME" mariadb-dump -h 127.0.0.1 -u mangos -p"$MYSQL_ROOT_PASSWORD" --single-transaction "$db_name" > "$HOST_BACKUP_DIR/${db_name}_${TIMESTAMP}.sql" \
+  sudo docker exec "$CONTAINER_NAME" mariadb-dump -h 127.0.0.1 -u mangos -p"$MYSQL_ROOT_PASSWORD" --single-transaction "$db_name" > "$HOST_BACKUP_DIR/${db_name}_${TIMESTAMP}.sql" \
     || { echo "Failed to back up $db_name"; exit 1; }
 }
 
