@@ -8,6 +8,9 @@ cd "$(dirname "$0")"
 # Load environment variables from .env-script
 source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
 
+# Install expect if it isn't already installed
+sudo apt-get install expect
+
 # Configuration and data files
 POPULATION_DATA_FILE="$DOCKER_DIRECTORY/vol/faction-balancer/population_data.csv"  # Use $DOCKER_DIRECTORY for the population data file path
 CONFIG_FILE="$DOCKER_DIRECTORY/vol/configuration/mangosd.conf"  # Use $DOCKER_DIRECTORY for the mangosd.conf file path
@@ -79,15 +82,18 @@ restart_server() {
         exit 1
     fi
 
-    # Attach to the Docker container and send the restart command automatically
-    sudo docker attach vmangos-mangos &  # Attach in the background
-    sleep 2  # Wait for attach to complete
+    # Use expect to attach to the container, send the restart command, and detach
+    expect << EOF
+    spawn sudo docker attach vmangos-mangos
+    expect "#"
+    send "server restart 900\r"
+    expect "#"
+    send "\035"  ;# This sends Ctrl+P
+    send "\020"  ;# This sends Ctrl+Q
+    expect eof
+EOF
 
-    # Send the restart command (you may need to manually detach after this)
-    echo "server restart 900" | sudo docker attach vmangos-mangos
-
-    echo "Server restart command sent with a 900-second delay."
-    echo "Please detach manually using <Ctrl+P>, then <Ctrl+Q>."
+    echo "Server restart command sent with a 900-second delay and detached."
 }
 
 # Clean up data older than 7 days
