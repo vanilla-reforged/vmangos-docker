@@ -77,14 +77,14 @@ restart_server() {
     echo "Restarting VMangos server..."
 
     # Check if the VMangos Docker container is running
-    if ! sudo docker ps --format "{{.Names}}" | grep -q "^vmangos-mangos$"; then
+    if ! docker ps --format "{{.Names}}" | grep -q "^vmangos-mangos$"; then
         echo "Error: VMangos container 'vmangos-mangos' is not running."
         exit 1
     fi
 
     # Use expect to attach to the container, send the restart command, and detach
     expect << EOF
-    spawn sudo docker attach vmangos-mangos
+    spawn docker attach vmangos-mangos
     expect "#"
     send "server restart 900\r"
     expect "#"
