@@ -79,7 +79,7 @@ fi
 # Configure Docker options
 # ==============================
 echo "Configuring Docker options..."
-sudo tee /etc/docker/daemon.json > /dev/null <<EOF
+tee /etc/docker/daemon.json > /dev/null <<EOF
 {
   "log-driver": "json-file",
   "log-opts": {
@@ -89,7 +89,7 @@ sudo tee /etc/docker/daemon.json > /dev/null <<EOF
 }
 EOF
 
-sudo systemctl restart docker
+systemctl restart docker
 
 # ==============================
 # Update or add variables in the .env file

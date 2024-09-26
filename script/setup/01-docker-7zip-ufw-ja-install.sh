@@ -10,11 +10,11 @@ source ./../../.env-script  # Correctly load .env-script from the project root u
 
 # Step 1: Update the package index
 echo "Updating package index..."
-sudo apt-get update -y
+apt-get update -y
 
 # Step 2: Install required packages for Docker installation
 echo "Installing required packages..."
-sudo apt-get install -y \
+apt-get install -y \
     ca-certificates \
     curl \
     gnupg \
@@ -22,7 +22,7 @@ sudo apt-get install -y \
 
 # Step 3: Add Docker’s official GPG key
 echo "Adding Docker's official GPG key..."
-sudo mkdir -p /etc/apt/keyrings
+mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
 # Step 4: Set up the Docker repository
@@ -33,35 +33,35 @@ echo \
 
 # Step 5: Update the package index again
 echo "Updating package index again..."
-sudo apt-get update -y
+apt-get update -y
 
 # Step 6: Install Docker Engine, CLI, Containerd, and Docker Compose
 echo "Installing Docker Engine and Docker Compose..."
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Step 7: Verify Docker installation
 echo "Verifying Docker installation..."
-sudo docker --version
+docker --version
 
 # Step 8: Verify Docker Compose installation
 echo "Verifying Docker Compose installation..."
-sudo docker compose version
+docker compose version
 
 # Step 9: Install 7zip
 echo "Installing 7zip..."
-sudo apt-get install -y p7zip-full
+apt-get install -y p7zip-full
 
 # Step 10: Revoke the original modification and apply new UFW configuration
 
 echo "Reverting any previous modifications and applying UFW configuration..."
 
 # Revert changes to Docker and UFW configurations
-sudo sed -i '/--iptables=false/d' /etc/docker/daemon.json
-sudo sed -i '/FORWARD/d' /etc/ufw/after.rules
-sudo systemctl restart docker
+sed -i '/--iptables=false/d' /etc/docker/daemon.json
+sed -i '/FORWARD/d' /etc/ufw/after.rules
+systemctl restart docker
 
 # Modify the UFW configuration file to add Docker rules
-sudo tee -a /etc/ufw/after.rules > /dev/null <<EOF
+tee -a /etc/ufw/after.rules > /dev/null <<EOF
 
 # BEGIN UFW AND DOCKER
 *filter
@@ -93,11 +93,11 @@ COMMIT
 EOF
 
 # Restart UFW and enable it before rebooting
-sudo systemctl restart ufw
-sudo ufw enable
+systemctl restart ufw
+ufw enable
 
 # Clean up temporary files
-sudo rm -rf ./ufw-docker
+rm -rf ./ufw-docker
 
 # Step 11: Notify the user about Docker usage
 echo "Installation complete! Note: Since you are not added to the Docker group, you will need to use 'sudo' when running Docker commands."
@@ -107,11 +107,11 @@ install_jq() {
   if ! command -v jq &> /dev/null; then
     echo "jq is not installed. Attempting to install jq..."
     if [ -x "$(command -v apt-get)" ]; then
-      sudo apt-get update && sudo apt-get install -y jq
+      apt-get update && apt-get install -y jq
     elif [ -x "$(command -v yum)" ]; then
-      sudo yum install -y jq
+      yum install -y jq
     elif [ -x "$(command -v dnf)" ]; then
-      sudo dnf install -y jq
+      dnf install -y jq
     elif [ -x "$(command -v brew)" ]; then
       brew install jq
     else
@@ -149,13 +149,13 @@ echo "$LOCAL_USER ALL=(ALL) NOPASSWD: \
     /usr/bin/docker exec vmangos-database /01-mangos-database-backup.sh, \
     /usr/bin/docker exec vmangos-database /01-population-balance-collect.sh, \
     /usr/bin/docker exec vmangos-database /02-characters-logs-realmd-databases-backup.sh, \
-    /usr/bin/docker exec vmangos-database /03-binary-log-backup.sh" | sudo tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
+    /usr/bin/docker exec vmangos-database /03-binary-log-backup.sh" | tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
 
 
 # Verify if sudoers file was created
 if [ -f /etc/sudoers.d/$LOCAL_USER-docker ]; then
     # Ensure the sudoers file has the correct permissions
-    sudo chmod 440 /etc/sudoers.d/$LOCAL_USER-docker
+    chmod 440 /etc/sudoers.d/$LOCAL_USER-docker
     echo "Passwordless sudo for Docker commands has been configured for user '$LOCAL_USER'."
 else
     echo "Failed to configure passwordless sudo for Docker commands."

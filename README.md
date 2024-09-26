@@ -64,22 +64,22 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 
 ### Setup (/script/setup/)
 
-- `./01-docker-7zip-ufw-ja-install.sh`
+- `sudo ./script/setup/01-docker-7zip-ufw-ja-install.sh`
   - Install and modify Docker, 7zip, ufw and jq.
 
-- `./02-github-core-database-update.sh`
+- `sudo ./script/setup/02-github-core-database-update.sh`
   - Update the github directories in ./vol/.
 
-- `./03-core-compile.sh`
+- `sudo ./script/setup/03-core-compile.sh`
   - Compile the core.
 
-- `./04-client-data-extract.sh`
+- `sudo ./script/setup/04-client-data-extract.sh`
   - Extract the Client Data.
 
-- `./05-docker-resources-initialize.sh`
+- `sudo ./script/setup/05-docker-resources-initialize.sh`
   - Initialize the ressource limits, based on the current hardware and start the containers.
 
-- `./06-vmangos-database-create.sh`
+- `sudo ./script/setup/06-vmangos-database-create.sh`
   - Create and modify the vmangos databases.
 
 ### Configure MySQL Password
@@ -109,8 +109,8 @@ Press <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 ## Starting and Stopping VMaNGOS
 
 ```sh
-sudo docker compose down
-sudo docker compose up -d
+docker compose down
+docker compose up -d
 ```
 
 #BELOW IS CURRENTLY DEPRECATED, IT IS IN WORK
@@ -157,13 +157,13 @@ sudo docker compose up -d
 
 ### Management (/script/management/)
 
-- `./script/management/01-vmangos-database-migrations-import.sh`
+- `sudo ./script/management/01-vmangos-database-migrations-import.sh`
   - Import new migrations.
 
-- `./script/management/02-vmangos-database-world-recreate.sh`
+- `sudo ./script/management/02-vmangos-database-world-recreate.sh`
   - Recreate the world database.
 
-- `./script/management/03-core-recompile.sh`
+- `sudo ./script/management/03-core-recompile.sh`
   - Recompile the core.
 
 #### Edit the crontab using the command below:
