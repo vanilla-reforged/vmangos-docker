@@ -19,6 +19,7 @@ services:
       - ./vol/core-github:/vol/core-github
       - ./vol/database-github:/vol/database-github
       - ./vol/database:/var/lib/mysql
+      - ./vol/faction-balancer:/vol/faction-balancer
     user: 1000:1000
     networks:
       - vmangos-network
