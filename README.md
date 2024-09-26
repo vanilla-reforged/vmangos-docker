@@ -137,10 +137,10 @@ docker compose up -d
 ### Docker-Resources (/script/docker-resources/)
 
 - `./script/docker-resources/01-docker-resources-collect.sh`
-   - Collect ressource usage for database, mangos and realmd containers.
+  - Collect ressource usage for database, mangos and realmd containers.
 
 - `./script/docker-resources/02-docker-resources-adjust.sh`
-   - Adjust ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `01-docker-resources-collect.sh`.
+  - Adjust ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `01-docker-resources-collect.sh`.
 
 ### Faction Balancer (/script/faction-balancer/)
 
