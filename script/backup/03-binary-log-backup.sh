@@ -20,7 +20,7 @@ send_discord_message() {
 
 # Step 1: Run the internal backup script inside the container
 echo "Executing binary log backup script inside the container..."
-docker exec vmangos-database /03-binary-log-backup.sh
+sudo docker exec vmangos-database /home/default/scripts/03-binary-log-backup.sh
 
 if [[ $? -eq 0 ]]; then
     echo "Binary log backup script executed successfully inside the container."
