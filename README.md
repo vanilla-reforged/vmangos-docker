@@ -117,40 +117,40 @@ docker compose up -d
 
 ### Backup (/script/backup/)
 
-- `./script/backup/01-mangos-database-backup.sh`
+- `sudo ./script/backup/01-mangos-database-backup.sh`
   - SQL Dump of Database mangos.
 
-- `./script/backup/02-characters-logs-realmd-databases-backup.sh`
+- `sudo ./script/backup/02-characters-logs-realmd-databases-backup.sh`
   - SQL Dump of Databases characters, logs, realmd.
 
-- `./script/backup/03-binary-log-backup.sh`
+- `sudo ./script/backup/03-binary-log-backup.sh`
   - Binary log backup.
 
-- `./script/backup/04-s3-upload-backup.sh`
+- `sudo ./script/backup/04-s3-upload-backup.sh`
   - Upload backups to s3.
 
-- `./script/backup/05-backup-retention-cleanup.sh`
+- `sudo ./script/backup/05-backup-retention-cleanup.sh`
   - Cleanup old Backups, retention is configurable in script.
 
 ### Docker-Resources (/script/docker-resources/)
 
-- `./script/docker-resources/01-docker-resources-collect.sh`
+- `sudo ./script/docker-resources/01-docker-resources-collect.sh`
   - Collect ressource usage for database, mangos and realmd containers.
 
-- `./script/docker-resources/02-docker-resources-adjust.sh`
+- `sudo ./script/docker-resources/02-docker-resources-adjust.sh`
   - Adjust ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `01-docker-resources-collect.sh`.
 
 ### Faction Balancer (/script/faction-balancer/)
 
-- `./script/faction-balancer/01-Population-Balance-Collect.sh`
+- `sudo ./script/faction-balancer/01-Population-Balance-Collect.sh`
   - Collect faction balance data.
 
-- `./script/faction-balancer/02-Faction-Specific-XP-Rates-Update.sh`
+- `sudo ./script/faction-balancer/02-Faction-Specific-XP-Rates-Update.sh`
   - Set faction-specific XP rates and restart server to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
 
 ### Logs (/script/logs/)
 
-- `./script/logs/01-vmangos-logs-cleanup.sh`
+- `sudo ./script/logs/01-vmangos-logs-cleanup.sh`
   - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. 
 
 ### Management (/script/management/)
@@ -178,46 +178,46 @@ crontab -e
 ##########
 
 # Runs weekly on Sunday at 02:40 AM
-# 40 2 * * 0 /your_path_to_vmangos-docker_directory/script/backup/01-mangos-database-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-mangos-database-backup.log 2>&1
+# 40 2 * * 0 sudo /your_path_to_vmangos-docker_directory/script/backup/01-mangos-database-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-mangos-database-backup.log 2>&1
 
 # Runs daily at 02:50 AM
-50 2 * * * /your_path_to_vmangos-docker_directory/script/backup/02-characters-logs-realmd-databases-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-characters-logs-realmd-databases-backup.log 2>&1
+50 2 * * * sudo /your_path_to_vmangos-docker_directory/script/backup/02-characters-logs-realmd-databases-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-characters-logs-realmd-databases-backup.log 2>&1
 
 # Runs every hour on the hour
-0 * * * * /your_path_to_vmangos-docker_directory/script/backup/03-binary-log-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/03-binary-log-backup.log 2>&1
+0 * * * * sudo /your_path_to_vmangos-docker_directory/script/backup/03-binary-log-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/03-binary-log-backup.log 2>&1
 
 # Runs daily at 3:10 AM
-# 10 3 * * * /your_path_to_vmangos-docker_directory/script/backup/04-s3-upload-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/04-s3-upload-backup.log 2>&1
+# 10 3 * * * sudo /your_path_to_vmangos-docker_directory/script/backup/04-s3-upload-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/04-s3-upload-backup.log 2>&1
 
 # Runs weekly on Sunday at 3:20 AM
-20 3 * * 0 /your_path_to_vmangos-docker_directory/script/backup/05-backup-retention-cleanup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/05-backup-retention-cleanup.log 2>&1
+20 3 * * 0 sudo /your_path_to_vmangos-docker_directory/script/backup/05-backup-retention-cleanup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/05-backup-retention-cleanup.log 2>&1
 
 ####################
 # Docker-Resources #
 ####################
 
 # Runs every hour on the hour
-0 * * * * /your_path_to_vmangos-docker_directory/script/docker-resources/01-docker-resources-collect.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-docker-resources-collect.log 2>&1
+0 * * * * sudo /your_path_to_vmangos-docker_directory/script/docker-resources/01-docker-resources-collect.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-docker-resources-collect.log 2>&1
 
 # Runs weekly on Sunday at 4:00 AM
-0 4 * * 0 /your_path_to_vmangos-docker_directory/script/docker-resources/02-docker-resources-adjust.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-docker-resources-adjust.log 2>&1
+0 4 * * 0 sudo /your_path_to_vmangos-docker_directory/script/docker-resources/02-docker-resources-adjust.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-docker-resources-adjust.log 2>&1
 
 ####################
 # Faction-Balancer #
 ####################
 
 # Runs every hour on the hour
-0 * * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/01-population-balance-collect.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-population-balance-collect.log 2>&1
+0 * * * * sudo /your_path_to_vmangos-docker_directory/script/faction-balancer/01-population-balance-collect.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-population-balance-collect.log 2>&1
 
 # Runs daily at 5:00 AM
-0 4 * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/02-faction-specific-xp-rates-update.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-faction-specific-xp-rates-update.log 2>&1
+0 4 * * * sudo /your_path_to_vmangos-docker_directory/script/faction-balancer/02-faction-specific-xp-rates-update.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-faction-specific-xp-rates-update.log 2>&1
 
 ########
 # Logs #
 ########
 
 # Runs weekly on Sunday at 6:00 AM
-0 5 * * 0 /your_path_to_vmangos-docker_directory/script/logs/01-vmangos-logs-cleanup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-vmangos-logs-cleanup.log 2>&1
+0 5 * * 0 sudo /your_path_to_vmangos-docker_directory/script/logs/01-vmangos-logs-cleanup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-vmangos-logs-cleanup.log 2>&1
 ```
 
 ## Vanilla Reforged Links
