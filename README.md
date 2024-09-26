@@ -210,14 +210,14 @@ crontab -e
 0 * * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/01-population-balance-collect.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-population-balance-collect.log 2>&1
 
 # Runs daily at 5:00 AM
-0 4 * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/02-faction-specific-xp-rates-update.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-faction-specific-xp-rates-update.log 2>&1
+0 5 * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/02-faction-specific-xp-rates-update.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-faction-specific-xp-rates-update.log 2>&1
 
 ########
 # Logs #
 ########
 
 # Runs weekly on Sunday at 6:00 AM
-0 5 * * 0 /your_path_to_vmangos-docker_directory/script/logs/01-vmangos-logs-cleanup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-vmangos-logs-cleanup.log 2>&1
+0 6 * * 0 /your_path_to_vmangos-docker_directory/script/logs/01-vmangos-logs-cleanup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-vmangos-logs-cleanup.log 2>&1
 ```
 
 ## Vanilla Reforged Links
