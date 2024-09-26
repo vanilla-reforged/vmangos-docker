@@ -12,7 +12,7 @@ RUN apt-get update -y && \
 
 # Copy the scripts into the container and make them executable
 COPY ./docker/database/01-mangos-database-backup.sh /home/default/scripts/01-mangos-database-backup.sh
-COPY ./docker/database/01-Population-Balance-Collect.sh /home/default/scripts/01-Population-Balance-Collect.sh
+COPY ./docker/database/01-population-balance-collect.sh /home/default/scripts/01-population-balance-collect.sh
 COPY ./docker/database/02-characters-logs-realmd-databases-backup.sh /home/default/scripts/02-characters-logs-realmd-databases-backup.sh
 COPY ./docker/database/03-binary-log-backup.sh /home/default/scripts/03-binary-log-backup.sh
 
