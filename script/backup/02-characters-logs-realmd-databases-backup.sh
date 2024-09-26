@@ -21,7 +21,7 @@ send_discord_message() {
 
 # Step 1: Run the backup script inside the container
 echo "Executing database backup script inside the container..."
-docker exec vmangos-database /02-characters-logs-realmd-databases-backup.sh
+sudo docker exec vmangos-database /home/default/scripts/02-characters-logs-realmd-databases-backup.sh
 
 if [[ $? -eq 0 ]]; then
     echo "Database backup script executed successfully."
