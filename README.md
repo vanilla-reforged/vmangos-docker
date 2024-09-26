@@ -113,8 +113,6 @@ docker compose down
 docker compose up -d
 ```
 
-#BELOW IS CURRENTLY DEPRECATED, IT IS IN WORK
-
 ## Scripts
 
 ### Backup (/script/backup/)
