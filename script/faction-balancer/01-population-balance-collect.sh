@@ -17,7 +17,7 @@ send_discord_message() {
 
 # Step 1: Execute the internal script inside the container
 echo "Calling internal population balance script inside the container..."
-docker exec vmangos-database /01-population-balance-collect.sh
+sudo docker exec vmangos-database /home/default/scripts/01-population-balance-collect.sh
 
 if [[ $? -eq 0 ]]; then
     echo "Population balance script executed successfully inside the container."
