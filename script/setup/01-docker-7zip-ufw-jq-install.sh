@@ -146,10 +146,10 @@ echo "$LOCAL_USER ALL=(ALL) NOPASSWD: \
     /usr/bin/docker ps, \
     /usr/bin/docker stats, \
     /usr/bin/docker compose, \
-    /usr/bin/docker exec vmangos-database /01-mangos-database-backup.sh, \
-    /usr/bin/docker exec vmangos-database /01-population-balance-collect.sh, \
-    /usr/bin/docker exec vmangos-database /02-characters-logs-realmd-databases-backup.sh, \
-    /usr/bin/docker exec vmangos-database /03-binary-log-backup.sh" | tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
+    /usr/bin/docker exec vmangos-database /home/default/scripts/01-mangos-database-backup.sh, \
+    /usr/bin/docker exec vmangos-database /home/default/scripts/01-population-balance-collect.sh, \
+    /usr/bin/docker exec vmangos-database /home/default/scripts/02-characters-logs-realmd-databases-backup.sh, \
+    /usr/bin/docker exec vmangos-database /home/default/scripts/03-binary-log-backup.sh" | tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
 
 
 # Verify if sudoers file was created
