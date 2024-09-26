@@ -1,12 +1,6 @@
 #!/bin/bash
 
-# Change to the directory where the script is located
-cd "$(dirname "$0")"
-
-# Get variables defined in .env-script
-source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
-
-# Database connection details
+# Database connection details (assumed available in container environment)
 DB_USER="mangos"
 DB_PASS="$MYSQL_ROOT_PASSWORD"
 CHAR_DB="characters"
@@ -14,12 +8,12 @@ REALM_DB="realmd"
 TABLE_NAME="characters"
 
 # Output directory and file for population data
-OUTPUT_DIR="$DOCKER_DIRECTORY/vol/faction-balancer"  # Adjusted to use the correct output directory
+OUTPUT_DIR="/vol/faction-balancer"  # Directory inside the container
 OUTPUT_FILE="$OUTPUT_DIR/population_data.csv"
 
-# Ensure the output directory exists and is writable on the host
+# Ensure the output directory exists
 if [ ! -d "$OUTPUT_DIR" ]; then
-    echo "Directory $OUTPUT_DIR does not exist on the host. Creating it now..."
+    echo "Directory $OUTPUT_DIR does not exist. Creating it now..."
     mkdir -p "$OUTPUT_DIR"
     chmod 755 "$OUTPUT_DIR"
 fi
@@ -43,18 +37,12 @@ AND c.guid = (SELECT MIN(c2.guid) FROM ${CHAR_DB}.${TABLE_NAME} c2 WHERE c2.acco
 # Get current timestamp
 CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S')
 
-# Run the SQL query inside the MariaDB container and output the result
-RESULT=$(docker exec -i vmangos-database mariadb -u $DB_USER -p$DB_PASS -sN -e "$SQL_QUERY")
+# Run the SQL query and capture the result
+RESULT=$(mariadb -u $DB_USER -p$DB_PASS -sN -e "$SQL_QUERY")
 
-# Debugging: Print the result to check if it is captured correctly
-echo "DEBUG: Result from SQL query: '$RESULT'"
-
-# Read the results into variables, trimming any whitespace
+# Extract the counts
 ALLIANCE_COUNT=$(echo "$RESULT" | awk '{print $1}')
 HORDE_COUNT=$(echo "$RESULT" | awk '{print $2}')
-
-# Debugging: Print the extracted values to check for any issues
-echo "DEBUG: Extracted Alliance Count: '$ALLIANCE_COUNT', Horde Count: '$HORDE_COUNT'"
 
 # Check if the variables are valid integers
 if ! [[ "$ALLIANCE_COUNT" =~ ^[0-9]+$ ]] || ! [[ "$HORDE_COUNT" =~ ^[0-9]+$ ]]; then

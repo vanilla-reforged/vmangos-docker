@@ -82,9 +82,6 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 - `./06-vmangos-database-create.sh`
   - Create and modify the vmangos databases.
 
-- `./07-vmangos-database-env-pw-clear.sh`
-  - Clear the mysql root pw from the database containers .env variable.
-
 ### Configure MySQL Password
 
 Update `mangosd.conf` and `realmd.conf` with your MySQL root password if you changed it in `.env-script` .

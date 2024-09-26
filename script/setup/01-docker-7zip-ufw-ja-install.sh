@@ -141,11 +141,16 @@ LOCAL_USER=$(whoami)
 echo "Configuring sudoers for Docker commands for user '$LOCAL_USER'..."
 
 # Ensure sudoers file is updated to allow passwordless sudo for specific Docker commands
-echo "$LOCAL_USER ALL=(ALL) NOPASSWD: /usr/bin/docker exec vmangos-database*, \
-                                /usr/bin/docker attach vmangos-mangos*, \
-                                /usr/bin/docker ps, \
-                                /usr/bin/docker stats, \
-                                /usr/bin/docker compose" | sudo tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
+echo "$LOCAL_USER ALL=(ALL) NOPASSWD: \
+    /usr/bin/docker attach vmangos-mangos*, \
+    /usr/bin/docker ps, \
+    /usr/bin/docker stats, \
+    /usr/bin/docker compose, \
+    /usr/bin/docker exec vmangos-database /01-mangos-database-backup.sh, \
+    /usr/bin/docker exec vmangos-database /01-population-balance-collect.sh, \
+    /usr/bin/docker exec vmangos-database /02-characters-logs-realmd-databases-backup.sh, \
+    /usr/bin/docker exec vmangos-database /03-binary-log-backup.sh" | sudo tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
+
 
 # Verify if sudoers file was created
 if [ -f /etc/sudoers.d/$LOCAL_USER-docker ]; then
