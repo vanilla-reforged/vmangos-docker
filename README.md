@@ -91,7 +91,7 @@ Update `mangosd.conf` and `realmd.conf` with your MySQL root password if you cha
 Attach to the `vmangos_mangos` service:
 
 ```sh
-docker attach vmangos-mangos
+sudo docker attach vmangos-mangos
 ```
 
 Create the account:
@@ -117,7 +117,7 @@ sudo docker compose up -d
 
 ### Backup (/script/backup/)
 
-- `sudo ./script/backup/01-mangos-database-backup.sh`
+- `./script/backup/01-mangos-database-backup.sh`
   - SQL Dump of Database mangos.
 
 - `sudo ./script/backup/02-characters-logs-realmd-databases-backup.sh`
