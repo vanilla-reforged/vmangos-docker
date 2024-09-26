@@ -176,47 +176,48 @@ crontab -e
 ##########
 # Backup #
 ##########
-#
-0 * * * * /your_path_to_vmangos-docker_directory/script/backup/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/backup/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/backup/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/backup/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/backup/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+
+# Runs weekly on Sunday at 02:40 AM
+# 40 2 * * 0 /your_path_to_vmangos-docker_directory/script/backup/01-mangos-database-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-mangos-database-backup.log 2>&1
+
+# Runs daily at 02:50 AM
+50 2 * * * /your_path_to_vmangos-docker_directory/script/backup/02-characters-logs-realmd-databases-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-characters-logs-realmd-databases-backup.log 2>&1
+
+# Runs every hour on the hour
+0 * * * * /your_path_to_vmangos-docker_directory/script/backup/03-binary-log-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/03-binary-log-backup.log 2>&1
+
+# Runs daily at 3:10 AM
+# 10 3 * * * /your_path_to_vmangos-docker_directory/script/backup/04-s3-upload-backup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/04-s3-upload-backup.log 2>&1
+
+# Runs weekly on Sunday at 3:20 AM
+20 3 * * 0 /your_path_to_vmangos-docker_directory/script/backup/05-backup-retention-cleanup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/05-backup-retention-cleanup.log 2>&1
 
 ####################
 # Docker-Resources #
 ####################
-#
-0 * * * * /your_path_to_vmangos-docker_directory/script/docker-resources/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/docker-resources/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+
+# Runs every hour on the hour
+0 * * * * /your_path_to_vmangos-docker_directory/script/docker-resources/01-docker-resources-collect.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-docker-resources-collect.log 2>&1
+
+# Runs weekly on Sunday at 4:00 AM
+0 4 * * 0 /your_path_to_vmangos-docker_directory/script/docker-resources/02-docker-resources-adjust.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-docker-resources-adjust.log 2>&1
 
 ####################
 # Faction-Balancer #
 ####################
-#
-0 * * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
-0 * * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/ >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
+
+# Runs every hour on the hour
+0 * * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/01-population-balance-collect.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-population-balance-collect.log 2>&1
+
+# Runs daily at 5:00 AM
+0 4 * * * /your_path_to_vmangos-docker_directory/script/faction-balancer/02-faction-specific-xp-rates-update.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/02-faction-specific-xp-rates-update.log 2>&1
 
 ########
 # Logs #
 ########
-#
-0 * * * * /your_path_to_vmangos-docker_directory/script/logs >> /your_path_to_vmangos-docker_directory/script/crontab-logs/ 2>&1
 
-
-
-# Runs weekly on Sunday at 4:00 AM
-0 4 * * 0 /path/to/22-adjust-ressource-limits.sh >> /path/to/logs/22-adjust-ressource-limits.log 2>&1
-# Runs every hour on the hour
-0 * * * * /path/to/31-database-backup.sh >> /path/to/logs/31-database-backup.log 2>&1
-# Runs weekly on Sunday at 5:00 AM if outcommented
-# 0 5 * * 0 /path/to/32-world-database-backup.sh >> /path/to/logs/32-world-database-backup.log 2>&1
-# Runs daily at 3:00 AM
-0 3 * * * /path/to/33-logs-directory-cleanup.sh >> /path/to/logs/33-logs-directory-cleanup.log 2>&1
-# Runs every hour on the hour
-0 * * * * /path/to/41-collect-population-balance.sh >> /path/to/logs/41-collect-population-balance.log 2>&1
-# Runs daily at 5:00 AM
-0 5 * * * /path/to/42-faction-specific-xp-rates.sh >> /path/to/logs/42-faction-specific-xp-rates.log 2>&1
+# Runs weekly on Sunday at 6:00 AM
+0 5 * * 0 /your_path_to_vmangos-docker_directory/script/logs/01-vmangos-logs-cleanup.sh >> /your_path_to_vmangos-docker_directory/script/crontab-logs/01-vmangos-logs-cleanup.log 2>&1
 ```
 
 ## Vanilla Reforged Links
