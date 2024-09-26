@@ -135,9 +135,6 @@ install_jq
 
 # Step 13: Configure sudoers for Docker commands
 
-# Get the local username
-LOCAL_USER=$(whoami)
-
 echo "Configuring sudoers for Docker commands for user '$LOCAL_USER'..."
 
 # Ensure sudoers file is updated to allow passwordless sudo for specific Docker commands
@@ -151,7 +148,6 @@ echo "$LOCAL_USER ALL=(ALL) NOPASSWD: \
     /usr/bin/docker exec vmangos-database /home/default/scripts/02-characters-logs-realmd-databases-backup.sh, \
     /usr/bin/docker exec vmangos-database /home/default/scripts/03-binary-log-backup.sh" | tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
 
-
 # Verify if sudoers file was created
 if [ -f /etc/sudoers.d/$LOCAL_USER-docker ]; then
     # Ensure the sudoers file has the correct permissions
@@ -161,6 +157,7 @@ else
     echo "Failed to configure passwordless sudo for Docker commands."
     exit 1
 fi
+
 
 # End of script
 
