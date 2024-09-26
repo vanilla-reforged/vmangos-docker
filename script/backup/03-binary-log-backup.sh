@@ -35,7 +35,7 @@ if [[ $? -eq 0 ]]; then
 
         # Step 3: Clean up uncompressed binary logs
         echo "Removing uncompressed binary logs..."
-        rm -f "$HOST_BACKUP_DIR/mysql-bin.*"
+        eval rm -f "$HOST_BACKUP_DIR/mysql-bin.*"
 
         if [[ $? -eq 0 ]]; then
             echo "Uncompressed binary logs cleaned up successfully."
