@@ -158,7 +158,8 @@ else
     exit 1
 fi
 
+# Step 12: Install expect
+
+apt-get install expect
 
 # End of script
-
-
