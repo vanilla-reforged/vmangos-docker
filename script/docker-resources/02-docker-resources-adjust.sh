@@ -209,6 +209,65 @@ env_values=$(grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_
 # Escape any special characters for JSON
 send_discord_message "Updated .env values:\n$env_values"
 
+# Function to announce server restart directly in the container
+announce_restart() {
+    local initial_time=15
+    local decrement=5
+    local final_countdown=5
+
+    echo "[VMaNGOS]: Starting restart announcement sequence..."
+
+    # Loop for initial countdown intervals
+    for ((time_remaining=initial_time; time_remaining > final_countdown; time_remaining-=decrement)); do
+        expect <<EOF
+            set timeout -1
+            spawn sudo docker attach vmangos-mangos
+            sleep 2
+            send "announce Server Restarting in $time_remaining minutes\r"
+            sleep 5
+            send "\x10"
+            sleep 1
+            send "\x11"
+            expect eof
+EOF
+        echo "[VMaNGOS]: Announced Server Restarting in $time_remaining minutes"
+        sleep $((decrement * 60))
+    done
+
+    # Final countdown (5, 4, 3, 2, 1 minutes)
+    for ((time_remaining=final_countdown; time_remaining > 0; time_remaining--)); do
+        expect <<EOF
+            set timeout -1
+            spawn sudo docker attach vmangos-mangos
+            sleep 2
+            send "announce Server Restarting in $time_remaining minutes\r"
+            sleep 5
+            send "\x10"
+            sleep 1
+            send "\x11"
+            expect eof
+EOF
+        echo "[VMaNGOS]: Announced Server Restarting in $time_remaining minutes"
+        sleep 60
+    done
+
+    # Final announcement
+    expect <<EOF
+        set timeout -1
+        spawn sudo docker attach vmangos-mangos
+        sleep 2
+        send "announce Server Restarting Now!\r"
+        sleep 5
+        send "\x10"
+        sleep 1
+        send "\x11"
+        expect eof
+EOF
+    echo "[VMaNGOS]: Announced Server Restarting Now!"
+}
+
+# Call the function
+announce_restart
 
 # Restart Docker Compose services to apply new environment variables
 echo "Restarting Docker Compose services..."
