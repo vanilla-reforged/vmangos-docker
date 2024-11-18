@@ -86,8 +86,25 @@ update_config_file() {
 
 restart_server() {
     echo "[VMaNGOS]: Restarting environment..."
-    sudo docker compose down
-    sudo docker compose up -d
+    expect <<EOF
+        set timeout -1  ;# Wait indefinitely for the process to finish
+        # Start docker attach
+        spawn sudo docker attach vmangos-mangos
+        # Wait for 2 seconds to ensure the session is fully attached
+        sleep 2
+        # Send the command to restart the server gracefully
+        send "server restart 900\r"
+        # Wait for 5 seconds to ensure the command is processed
+        sleep 5
+        # Simulate Ctrl+P
+        send "\x10"
+        # Brief delay before simulating Ctrl+Q
+        sleep 1
+        # Simulate Ctrl+Q
+        send "\x11"
+        # End the expect script
+        expect eof
+EOF
 }
 
 # Clean up data older than 7 days
