@@ -55,8 +55,7 @@ Adjust the .env files for your desired setup:
 - `.env-script` For Scripts
 - `.env-vmangos-build` For compiler image build / to set the cmake options.
 
-To use the scripts, change the `DOCKER_DIRECTORY` environment variable in the `.env-script` file to the absolute path to your vmangos-docker directory (f.e. `/home/user/vmangos-docker`).
-To make the server public, change the `VMANGOS_REALM_IP` environment variable in the `.env-script` file.
+To use the scripts, change the `DOCKER_DIRECTORY` environment variable in the `.env-script` file to the absolute path to your vmangos-docker directory (f.e. `/home/user/vmangos-docker`). To make the server public, change the `VMANGOS_REALM_IP` environment variable in the `.env-script` file.
 
 ### Generate/Extract Client Data
 
@@ -64,8 +63,8 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 
 ### Setup (/script/setup/)
 
-- `sudo ./script/setup/01-docker-7zip-ufw-ja-install.sh`
-  - Install and modify Docker, 7zip, ufw and jq.
+- `sudo ./script/setup/01-docker-7zip-ufw-ja-expect-install.sh`
+  - Install and modify Docker, 7zip, ufw, jq and expect.
 
 - `sudo ./script/setup/02-github-core-database-update.sh`
   - Update the github directories in ./vol/.
