@@ -41,7 +41,7 @@ Also, please be aware that `./vol/client-data-extracted` gets mounted directly i
 
 ### Clone the Repository
 
-Use a User with UID:GUID 1000:1000 for this step (default user on ubuntu).:
+Important: Use a User with UID:GUID 1000:1000 for this step (default user on ubuntu), otherwise you will run in permission issues with the docker containers:
 
 ```sh
 git clone --recurse-submodules https://github.com/vanilla-reforged/vmangos-docker
@@ -105,7 +105,7 @@ Detach from the Docker container:
 Press <kbd>Ctrl</kbd>+<kbd>P</kbd> and <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 
 
-## Starting and Stopping VMaNGOS
+## Stopping and Starting VMaNGOS
 
 ```sh
 sudo docker compose down
