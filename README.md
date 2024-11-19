@@ -63,7 +63,7 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 
 ### Setup (/script/setup/)
 
-- `sudo ./script/setup/01-docker-7zip-ufw-ja-expect-install.sh`
+- `sudo ./script/setup/01-docker-7zip-ufw-jq-expect-install.sh`
   - Install and modify Docker, 7zip, ufw, jq and expect.
 
 - `sudo ./script/setup/02-github-core-database-update.sh`
