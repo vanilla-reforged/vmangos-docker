@@ -9,8 +9,8 @@ source ./../../.env-script
 # Start
 
 echo "[VMaNGOS]: Removing old target directories..."
-rm -r $DOCKER_DIRECTORY/vol/core-github
-rm -r $DOCKER_DIRECTORY/vol/database-github
+rm -rf $DOCKER_DIRECTORY/vol/core-github
+rm -rf $DOCKER_DIRECTORY/vol/database-github
 
 echo "[VMaNGOS]: Cloning github repositories..."
 git clone $VMANGOS_GIT_SOURCE_CORE_URL $DOCKER_DIRECTORY/vol/core-github/
