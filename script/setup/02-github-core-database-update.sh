@@ -8,10 +8,6 @@ source ./../../.env-script
 
 # Start
 
-echo "[VMaNGOS]: Get Owneship because of .git delete errors..."
-chown -R 1000:1000 $DOCKER_DIRECTORY/vol/core-github
-chown -R 1000:1000 $DOCKER_DIRECTORY/vol/database-github
-
 echo "[VMaNGOS]: Removing old target directories..."
 rm -r $DOCKER_DIRECTORY/vol/core-github
 rm -r $DOCKER_DIRECTORY/vol/database-github
