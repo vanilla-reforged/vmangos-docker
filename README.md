@@ -59,7 +59,7 @@ To use the scripts, change the `DOCKER_DIRECTORY` environment variable in the `.
 
 ### Generate/Extract Client Data
 
-Copy the contents of your World of Warcraft client directory into `./vol/client-data`. Generating the required data will take many hours. If you have already extracted the client data, place it in `./vol/client-data-extracted` and skip the `04-client-data-extract.sh` script.
+Copy the contents of your World of Warcraft client directory into `./vol/client-data`. Generating the required data will take many hours. If you have already extracted the client data, place it in `./vol/client-data-extracted` and skip the `04-client-data-extract.sh` script. *Note, linux extractors for VMaNGOS currently have some issues, i suggest getting the required files from here: https://www.ownedcore.com/forums/world-of-warcraft/world-of-warcraft-emulator-servers/wow-emu-general-releases/613280-elysium-core-1-12-repack-including-mmaps-optional-vendors.html.
 
 ### Setup (/script/setup/)
 
