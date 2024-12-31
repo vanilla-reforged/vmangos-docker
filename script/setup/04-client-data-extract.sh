@@ -53,10 +53,10 @@ rm -rf "$DOCKER_DIRECTORY/vol/client-data/Buildings"
 
 # Remove potentially existing partial data and create directories
 rm -rf "$DOCKER_DIRECTORY/vol/client-data-extracted/"*
-mkdir -p "$EXTRACTED_DATA_DIR"
+mkdir -p "5875"
 
 # Move extracted data to the correct location
-mv "$DOCKER_DIRECTORY/vol/client-data/dbc" "$EXTRACTED_DATA_DIR/"
+mv "$DOCKER_DIRECTORY/vol/client-data/dbc" "$DOCKER_DIRECTORY/vol/client-data-extracted/5875/"
 mv "$DOCKER_DIRECTORY/vol/client-data/maps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
 mv "$DOCKER_DIRECTORY/vol/client-data/mmaps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
 mv "$DOCKER_DIRECTORY/vol/client-data/vmaps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
