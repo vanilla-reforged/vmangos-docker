@@ -43,7 +43,6 @@ docker build \
 for CMD in "${EXTRACTORS_COMMANDS[@]}"; do
     docker run \
         "${EXTRACTORS_VOLUMES[@]}" \
-        --rm \
         "$EXTRACTORS_IMAGE" \
         $CMD || { echo "Extraction command '$CMD' failed."; exit 1; }
 done
