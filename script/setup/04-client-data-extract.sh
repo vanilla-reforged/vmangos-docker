@@ -19,7 +19,7 @@ EXTRACTORS_COMMANDS=(
     "/vol/core/bin/Extractors/MapExtractor"
     "/vol/core/bin/Extractors/VMapExtractor"
     "/vol/core/bin/Extractors/VMapAssembler"
-    "/vol/core/bin/Extractors/MoveMapGenerator --offMeshInput /vol/core/bin/Extractors/offmesh.txt"
+    "/vol/core/bin/Extractors/MoveMapGenerator --offMeshInput /vol/core/bin/Extractors/offmesh.txt --quick"
 )
 
 EXTRACTED_DATA_DIR="$DOCKER_DIRECTORY/vol/client-data-extracted/$VMANGOS_CLIENT"
@@ -62,5 +62,4 @@ mv "$DOCKER_DIRECTORY/vol/client-data/mmaps" "$DOCKER_DIRECTORY/vol/client-data-
 mv "$DOCKER_DIRECTORY/vol/client-data/vmaps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
 
 chown -R 1000:1000 "$DOCKER_DIRECTORY/vol/client-data-extracted/"
-
 echo "[VMaNGOS]: Client data extraction complete!"
