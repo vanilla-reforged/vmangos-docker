@@ -53,12 +53,14 @@ rm -rf "$DOCKER_DIRECTORY/vol/client-data/Buildings"
 
 # Remove potentially existing partial data and create directories
 rm -rf "$DOCKER_DIRECTORY/vol/client-data-extracted/"*
-mkdir -p "5875"
+mkdir -p "5875/dbc/"
 
 # Move extracted data to the correct location
-mv "$DOCKER_DIRECTORY/vol/client-data/dbc" "$DOCKER_DIRECTORY/vol/client-data-extracted/5875/"
+mv "$DOCKER_DIRECTORY/vol/client-data/dbc" "$DOCKER_DIRECTORY/vol/client-data-extracted/5875/dbc/"
 mv "$DOCKER_DIRECTORY/vol/client-data/maps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
 mv "$DOCKER_DIRECTORY/vol/client-data/mmaps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
 mv "$DOCKER_DIRECTORY/vol/client-data/vmaps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
+
+chown -R 1000:1000 "$DOCKER_DIRECTORY/vol/client-data-extracted/"
 
 echo "[VMaNGOS]: Client data extraction complete!"
