@@ -60,6 +60,7 @@ mv "$DOCKER_DIRECTORY/vol/client-data/dbc" "$DOCKER_DIRECTORY/vol/client-data-ex
 mv "$DOCKER_DIRECTORY/vol/client-data/maps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
 mv "$DOCKER_DIRECTORY/vol/client-data/mmaps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
 mv "$DOCKER_DIRECTORY/vol/client-data/vmaps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
+rm -rf "$DOCKER_DIRECTORY/vol/client-data/Cameras"
 
 chown -R 1000:1000 "$DOCKER_DIRECTORY/vol/client-data-extracted/"
 echo "[VMaNGOS]: Client data extraction complete!"
