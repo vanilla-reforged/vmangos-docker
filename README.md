@@ -20,7 +20,7 @@ The ufw commands you will need to secure your installation:
 ### Management:
 
 ```sh
-ufw allow from [your client ip]
+ufw allow from [your client ip] to any
 ufw route allow proto tcp from [your client ip] to any
 ```
 
