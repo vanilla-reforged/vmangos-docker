@@ -55,6 +55,11 @@ apt-get install -y p7zip-full
 
 echo "Reverting any previous modifications and applying UFW configuration..."
 
+# Create the /etc/docker/daemon.json file if it doesn't exist
+if [ ! -f /etc/docker/daemon.json ]; then
+    sudo touch /etc/docker/daemon.json
+fi
+
 # Revert changes to Docker and UFW configurations
 sed -i '/--iptables=false/d' /etc/docker/daemon.json
 sed -i '/FORWARD/d' /etc/ufw/after.rules
