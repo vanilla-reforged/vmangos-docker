@@ -139,7 +139,7 @@ sudo docker compose up -d
   - Collect ressource usage for database, mangos and realmd containers.
 
 - `./script/docker-resources/02-docker-resources-adjust.sh`
-  - Adjust ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `01-docker-resources-collect.sh` and **recompose (restart) vmangos-mangos, vmangos-realmd, vmanogs-database**.
+  - Adjusts ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `01-docker-resources-collect.sh` and restarts vmangos-mangos, vmangos-realmd and vmangos-database **through docker compose**.
 
 ### Faction Balancer (/script/faction-balancer/)
 
@@ -147,7 +147,7 @@ sudo docker compose up -d
   - Collect faction balance data.
 
 - `./script/faction-balancer/02-Faction-Specific-XP-Rates-Update.sh`
-  - Set faction-specific XP rates and **restart server through mangos console** to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
+  - Sets faction-specific XP rates and restarts vmangos-mangos **through the mangos console** to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
 
 ### Logs (/script/logs/)
 
