@@ -75,8 +75,10 @@ else
     exit 1
 fi
 
-# Send cumulative messages if it's 6 AM or 6 PM
-CURRENT_HOUR=$(date +%H)
-if [[ "$CURRENT_HOUR" == "06" || "$CURRENT_HOUR" == "18" ]]; then
+# Get current hour and remove any leading zeros
+CURRENT_HOUR=$(date +%H | sed 's/^0//')
+
+# Compare with numbers instead of strings
+if [[ "$CURRENT_HOUR" -eq 6 || "$CURRENT_HOUR" -eq 18 ]]; then
     send_cumulative_messages
 fi
