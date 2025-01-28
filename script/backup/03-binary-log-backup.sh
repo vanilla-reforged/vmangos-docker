@@ -77,8 +77,7 @@ fi
 
 # Get current hour and remove any leading zeros
 CURRENT_HOUR=$(date +%H | sed 's/^0//')
-
-# Compare with numbers instead of strings
-if [[ "$CURRENT_HOUR" -eq 06 || "$CURRENT_HOUR" -eq 18 ]]; then
+# Only send messages at 18:00
+if [[ "$CURRENT_HOUR" -eq 18 ]]; then
     send_cumulative_messages
 fi
