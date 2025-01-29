@@ -1,17 +1,14 @@
 #!/bin/bash
-
 # Change to the directory where the script is located
 cd "$(dirname "$0")"
 
-# Add timestamp to the log file at the start of execution
-echo "=== Script started at $(date '+%Y-%m-%d %H:%M:%S') ==="
+# Load environment variables first
+source ./../../.env-script
 
-# Load environment variables from .env-script
-source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
-
-# Configuration
-HOST_BACKUP_DIR="$DOCKER_DIRECTORY/vol/backup"  # Backup directory on the host using $DOCKER_DIRECTORY
-DISCORD_LOG_FILE="/tmp/discord_cumulative_log.txt"  # Temporary log file for cumulative messages
+# Configuration (after environment is loaded)
+DISCORD_WEBHOOK_URL="$DISCORD_WEBHOOK"
+BACKUP_DIR="$DOCKER_DIRECTORY/vol/backup"
+DISCORD_LOG_FILE="/tmp/discord_cumulative_log.txt"
 
 # Function to send a message to Discord
 send_discord_message() {
@@ -19,7 +16,7 @@ send_discord_message() {
     curl -H "Content-Type: application/json" \
          -X POST \
          -d "{\"content\": \"$message\"}" \
-         "$DISCORD_WEBHOOK"
+         "$DISCORD_WEBHOOK_URL"
 }
 
 # Function to append a message to the cumulative log
@@ -38,29 +35,27 @@ send_cumulative_messages() {
     fi
 }
 
-# Step 1: Run the internal backup script inside the container
+# Step 1: Run the binary log backup script inside the container
 echo "Executing binary log backup script inside the container..."
 sudo docker exec vmangos-database /home/default/scripts/03-binary-log-backup.sh
 
 if [[ $? -eq 0 ]]; then
-    echo "Binary log backup script executed successfully inside the container."
-
+    echo "Binary log backup script executed successfully."
+    
     # Step 2: Compress the binary logs
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
     echo "Compressing the binary logs..."
-    7z a "$HOST_BACKUP_DIR/binary_logs_$TIMESTAMP.7z" "$HOST_BACKUP_DIR/mysql-bin.*"
-
+    7z a "$BACKUP_DIR/binary_logs_$TIMESTAMP.7z" "$BACKUP_DIR/mysql-bin.*"
+    
     if [[ $? -eq 0 ]]; then
         echo "Binary logs compressed successfully."
-
+        
         # Step 3: Clean up uncompressed binary logs
         echo "Removing uncompressed binary logs..."
-        eval rm -f "$HOST_BACKUP_DIR/mysql-bin.*"
-
+        eval rm -f "$BACKUP_DIR/mysql-bin.*"
+        
         if [[ $? -eq 0 ]]; then
             echo "Uncompressed binary logs cleaned up successfully."
-
-            # Append success message to the cumulative log
             append_to_cumulative_log "Incremental binary logs backup completed successfully."
         else
             echo "Failed to clean up uncompressed binary logs."
