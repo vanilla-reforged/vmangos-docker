@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 
 # Add timestamp to the log file at the start of execution
-echo "=== Script started at $(date '+%Y-%m-%d %H:%M:%S') ===" >> /home/lad0-8gk2_w9qz/vmangos-docker/script/crontab-logs/03-binary-log-backup.log
+echo "=== Script started at $(date '+%Y-%m-%d %H:%M:%S') ==="
 
 # Load environment variables from .env-script
 source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
