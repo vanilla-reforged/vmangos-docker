@@ -3,6 +3,9 @@
 # Change to the directory where the script is located
 cd "$(dirname "$0")"
 
+# Add timestamp to the log file at the start of execution
+echo "=== Script started at $(date '+%Y-%m-%d %H:%M:%S') ==="
+
 # Load environment variables from .env-script
 source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
 
