@@ -83,5 +83,3 @@ CURRENT_HOUR=$(date +%H)
 if [[ "$CURRENT_HOUR" == "06" || "$CURRENT_HOUR" == "18" ]]; then
     send_cumulative_messages
 fi
-# Add timestamp at the end of execution
-echo "=== Script completed at $(date '+%Y-%m-%d %H:%M:%S') ===" >> /home/lad0-8gk2_w9qz/vmangos-docker/script/crontab-logs/03-binary-log-backup.log
