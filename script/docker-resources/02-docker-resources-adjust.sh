@@ -6,6 +6,10 @@ cd "$(dirname "$0")"
 # Load environment variables from .env-script
 source ./../../.env-script  # Adjust to load .env-script from the project root using $DOCKER_DIRECTORY
 
+# Get total host memory and calculate 75% available memory
+TOTAL_HOST_MEMORY=$(free -g | awk '/^Mem:/{print $2}')
+AVAILABLE_MEMORY=$(echo "scale=2; $TOTAL_HOST_MEMORY * 0.75" | bc)
+
 # Directories for logs
 LOG_DIR="$DOCKER_DIRECTORY/vol/docker-resources"  # Adjusted to use $DOCKER_DIRECTORY for the correct log directory
 DB_LOG="$LOG_DIR/db_usage.log"
@@ -56,15 +60,6 @@ calculate_average() {
   echo "$avg_cpu,$avg_mem"
 }
 
-# Function to send message to Discord
-send_discord_message() {
-  local message=$1
-  curl -H "Content-Type: application/json" \
-       -X POST \
-       -d "{\"content\": \"$message\"}" \
-       "$DISCORD_WEBHOOK"
-}
-
 # Calculate averages for each container
 avg_db=$(calculate_average "$DB_LOG")
 avg_mangos=$(calculate_average "$MANGOS_LOG")
@@ -101,10 +96,21 @@ RATIO_DB=${RATIO_DB:-0.01}
 RATIO_MANGOS=${RATIO_MANGOS:-0.01}
 RATIO_REALMD=${RATIO_REALMD:-0.01}
 
-# Update memory and swap limits based on new ratios
-mem_reservation_db=$(echo "scale=2; if ($total_avg_mem * $RATIO_DB < $MIN_RESERVATION_DB) $MIN_RESERVATION_DB else $total_avg_mem * $RATIO_DB" | bc)
-mem_reservation_mangos=$(echo "scale=2; if ($total_avg_mem * $RATIO_MANGOS < $MIN_RESERVATION_MANGOS) $MIN_RESERVATION_MANGOS else $total_avg_mem * $RATIO_MANGOS" | bc)
-mem_reservation_realmd=$(echo "scale=2; if ($total_avg_mem * $RATIO_REALMD < $MIN_RESERVATION_REALMD) $MIN_RESERVATION_REALMD else $total_avg_mem * $RATIO_REALMD" | bc)
+# Calculate initial memory reservations
+mem_reservation_db=$(echo "scale=2; if ($AVAILABLE_MEMORY * $RATIO_DB < $MIN_RESERVATION_DB) $MIN_RESERVATION_DB else $AVAILABLE_MEMORY * $RATIO_DB" | bc)
+mem_reservation_mangos=$(echo "scale=2; if ($AVAILABLE_MEMORY * $RATIO_MANGOS < $MIN_RESERVATION_MANGOS) $MIN_RESERVATION_MANGOS else $AVAILABLE_MEMORY * $RATIO_MANGOS" | bc)
+mem_reservation_realmd=$(echo "scale=2; if ($AVAILABLE_MEMORY * $RATIO_REALMD < $MIN_RESERVATION_REALMD) $MIN_RESERVATION_REALMD else $AVAILABLE_MEMORY * $RATIO_REALMD" | bc)
+
+# Calculate total allocated memory
+total_allocated=$(echo "scale=2; $mem_reservation_db + $mem_reservation_mangos + $mem_reservation_realmd" | bc)
+
+# Scale up if we're using less than available memory
+if (( $(echo "$total_allocated < $AVAILABLE_MEMORY" | bc -l) )); then
+    scaling_factor=$(echo "scale=4; $AVAILABLE_MEMORY / $total_allocated" | bc)
+    mem_reservation_db=$(echo "scale=2; $mem_reservation_db * $scaling_factor" | bc)
+    mem_reservation_mangos=$(echo "scale=2; $mem_reservation_mangos * $scaling_factor" | bc)
+    mem_reservation_realmd=$(echo "scale=2; $mem_reservation_realmd * $scaling_factor" | bc)
+fi
 
 # Convert reservations to memory limits
 mem_limit_db=$mem_reservation_db
