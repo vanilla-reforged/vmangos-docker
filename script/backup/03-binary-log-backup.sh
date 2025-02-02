@@ -73,8 +73,8 @@ else
     exit 1
 fi
 
-# Send cumulative messages if it's 6 AM or 6 PM
+# Send cumulative messages only at 6 PM
 CURRENT_HOUR=$(date +%H)
-if [[ "$CURRENT_HOUR" == "06" || "$CURRENT_HOUR" == "18" ]]; then
+if [[ "$CURRENT_HOUR" == "18" ]]; then
     send_cumulative_messages
 fi
