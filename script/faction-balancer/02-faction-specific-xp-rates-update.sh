@@ -58,8 +58,8 @@ echo "Balance status: $BALANCE_STATUS"
 update_config_file() {
     local update_message=""
     if [ "$OVERPOP_STATUS" == "Alliance" ]; then
-        echo "Horde is underpopulated. Updating XP rates for Horde to 1 and Alliance to 2."
-        update_message="Horde is underpopulated. Setting Horde XP rate to 1 and Alliance XP rate to 2."
+        echo "Horde is underpopulated. Updating XP rates for Horde to 2 and Alliance to 1."
+        update_message="Horde is underpopulated. Setting Horde XP rate to 2 and Alliance XP rate to 1."
         sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 2/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 2/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 1/' "$CONFIG_FILE"
