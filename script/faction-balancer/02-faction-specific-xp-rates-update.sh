@@ -45,9 +45,9 @@ echo "Alliance percentage: $ALLIANCE_PERCENT%, Horde percentage: $HORDE_PERCENT%
 
 # Determine if the ratio is worse than 55% to 45%
 if (( $(echo "$ALLIANCE_PERCENT > 55" | bc -l) )) && (( $(echo "$HORDE_PERCENT < 45" | bc -l) )); then
-    BALANCE_STATUS="Horde"
+    OVERPOP_STATUS="Alliance"
 elif (( $(echo "$HORDE_PERCENT > 55" | bc -l) )) && (( $(echo "$ALLIANCE_PERCENT < 45" | bc -l) )); then
-    BALANCE_STATUS="Alliance"
+    OVERPOP_STATUS="Horde"
 else
     BALANCE_STATUS="Balanced"
 fi
@@ -57,14 +57,14 @@ echo "Balance status: $BALANCE_STATUS"
 # Function to update the configuration file based on the population balance
 update_config_file() {
     local update_message=""
-    if [ "$BALANCE_STATUS" == "Alliance" ]; then
+    if [ "$OVERPOP_STATUS" == "Alliance" ]; then
         echo "Horde is underpopulated. Updating XP rates for Horde to 1 and Alliance to 2."
         update_message="Horde is underpopulated. Setting Horde XP rate to 1 and Alliance XP rate to 2."
         sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 2/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 2/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 1/' "$CONFIG_FILE"
         sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 1/' "$CONFIG_FILE"
-    elif [ "$BALANCE_STATUS" == "Horde" ]; then
+    elif [ "$OVERPOP_STATUS" == "Horde" ]; then
         echo "Alliance is underpopulated. Updating XP rates for Alliance to 2 and Horde to 1."
         update_message="Alliance is underpopulated. Setting Alliance XP rate to 2 and Horde XP rate to 1."
         sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 2/' "$CONFIG_FILE"
