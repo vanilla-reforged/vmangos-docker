@@ -223,7 +223,7 @@ if [ -n "$DISCORD_WEBHOOK" ]; then
     message+="Mangos: ${mem_reservation_mangos}GB\n"
     message+="Realmd: ${mem_reservation_realmd}GB"
     
-    curl -H "Content-Type: application/json" \
+    curl -s -H "Content-Type: application/json" \
          -X POST \
          -d "{\"content\":\"$message\"}" \
          "$DISCORD_WEBHOOK"
