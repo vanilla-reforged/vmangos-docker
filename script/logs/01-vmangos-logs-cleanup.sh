@@ -9,7 +9,7 @@ source ./../../.env-script  # Adjust to load .env-script from the project root u
 # Function to send a message to Discord
 send_discord_message() {
     local message=$1
-    curl -H "Content-Type: application/json" \
+    curl -s -H "Content-Type: application/json" \
          -X POST \
          -d "{\"content\": \"$message\"}" \
          "$DISCORD_WEBHOOK"
