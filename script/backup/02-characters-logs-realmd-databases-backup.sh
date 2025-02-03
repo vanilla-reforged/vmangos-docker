@@ -13,7 +13,7 @@ BACKUP_DIR="$DOCKER_DIRECTORY/vol/backup"  # Backup directory on the host system
 # Function to send a message to Discord
 send_discord_message() {
     local message=$1
-    curl -H "Content-Type: application/json" \
+    curl -s -H "Content-Type: application/json" \
          -X POST \
          -d "{\"content\": \"$message\"}" \
          "$DISCORD_WEBHOOK_URL"
