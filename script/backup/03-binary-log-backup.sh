@@ -13,9 +13,11 @@ DISCORD_LOG_FILE="/tmp/discord_cumulative_log.txt"
 # Function to send a message to Discord
 send_discord_message() {
     local message=$1
+    # Escape newlines and other special characters for JSON
+    message=$(echo "$message" | jq -R -s '.')
     curl -H "Content-Type: application/json" \
          -X POST \
-         -d "{\"content\": \"$message\"}" \
+         -d "{\"content\": ${message}}" \
          "$DISCORD_WEBHOOK_URL"
 }
 
