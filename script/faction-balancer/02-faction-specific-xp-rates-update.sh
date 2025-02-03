@@ -14,7 +14,7 @@ DAYS_TO_KEEP=7
 # Function to send message to Discord
 send_discord_message() {
   local message=$1
-  curl -H "Content-Type: application/json" \
+  curl -s -H "Content-Type: application/json" \
        -X POST \
        -d "{\"content\": \"$message\"}" \
        "$DISCORD_WEBHOOK"
