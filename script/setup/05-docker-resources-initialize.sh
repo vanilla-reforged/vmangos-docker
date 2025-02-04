@@ -1,10 +1,16 @@
 #!/bin/bash
 
+# Store original directory
+ORIG_DIR=$(pwd)
+
 # Change to the directory where the script is located
 cd "$(dirname "$0")"
 
 # Load environment variables
 source ./../../.env-script
+
+# Change back to original directory before proceeding
+cd "$ORIG_DIR"
 
 # ==============================
 # Configurable Variables
@@ -99,7 +105,7 @@ systemctl restart docker
 update_env_variable() {
   var_name=$1
   var_value=$2
-  env_file="$DOCKER_DIRECTORY/.env"  # Use the $DOCKER_DIRECTORY variable
+  env_file="$DOCKER_DIRECTORY/.env"
 
   if [ -z "$var_value" ]; then
     echo "Warning: Skipping update of $var_name as value is empty."
