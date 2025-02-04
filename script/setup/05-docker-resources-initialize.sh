@@ -3,286 +3,183 @@
 # Change to the directory where the script is located
 cd "$(dirname "$0")"
 
-# Load environment variables from .env-script
-source ./../../.env-script  # Adjust to load .env-script from the project root using $DOCKER_DIRECTORY
+# Load environment variables
+source ./../../.env-script
 
-# Get total host memory and calculate 75% available memory
-TOTAL_HOST_MEMORY=$(free -g | awk '/^Mem:/{print $2}')
-AVAILABLE_MEMORY=$(echo "scale=2; $TOTAL_HOST_MEMORY * 0.75" | bc)
+# ==============================
+# Configurable Variables
+# ==============================
 
-# Directories for logs
-LOG_DIR="$DOCKER_DIRECTORY/vol/docker-resources"  # Adjusted to use $DOCKER_DIRECTORY for the correct log directory
-DB_LOG="$LOG_DIR/db_usage.log"
-MANGOS_LOG="$LOG_DIR/mangos_usage.log"
-REALMD_LOG="$LOG_DIR/realmd_usage.log"
+# Percentage of total host memory to allocate (e.g., 75 for 75%)
+MEMORY_USAGE_PERCENTAGE=75
 
-# Time threshold (7 days ago in seconds)
-SEVEN_DAYS_AGO=$(date -d '7 days ago' +%s)
+# Fixed memory reservations (in gigabytes)
+MEM_RESERVATION_DB=2  # Example: 2 GB
+MEM_RESERVATION_MANGOS=2  # Example: 2 GB
+MEM_RESERVATION_REALMD=0.5  # Example: 500 MB
 
-# Define minimum reservations in gigabytes
-MIN_RESERVATION_DB=1      # 1 GB
-MIN_RESERVATION_MANGOS=1  # 1 GB
-MIN_RESERVATION_REALMD=0.1 # 100 MB
-
-# Base CPU shares (default is 1024)
+# CPU share multipliers to ensure higher priority over default containers
 BASE_CPU_SHARES=1024
+CPU_SHARE_MULTIPLIER_DB=5
+CPU_SHARE_MULTIPLIER_MANGOS=10
+CPU_SHARE_MULTIPLIER_REALMD=5
 
-# Function to calculate average usage
-calculate_average() {
-  local log_file=$1
-  if [ ! -f "$log_file" ] || [ ! -s "$log_file" ]; then
-    echo "0,0"
-    return
+# Enable swap limit support (true/false)
+ENABLE_SWAP_LIMIT_SUPPORT=true
+
+# ==============================
+# Script Logic (No Need to Modify Below)
+# ==============================
+
+# Stop all running containers
+echo "Stopping all running Docker containers..."
+docker stop $(docker ps -q)
+
+REBOOT_REQUIRED=false
+
+# Function to check if swap limit support is enabled
+is_swap_limit_enabled() {
+  if grep -q "swapaccount=1" /proc/cmdline; then
+    return 0
+  else
+    return 1
   fi
-
-  # Extracting CPU and Memory usage
-  data=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold {print $3 "," $4}' "$log_file")
-  
-  local total_cpu=0
-  local total_mem=0
-  local count=0
-
-  while IFS=',' read -r cpu_usage mem_usage; do
-    if [[ "$cpu_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]] && [[ "$mem_usage" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-      total_cpu=$(echo "$total_cpu + $cpu_usage" | bc)
-      total_mem=$(echo "$total_mem + $mem_usage" | bc)
-      count=$((count + 1))
-    fi
-  done <<< "$data"
-
-  if [ "$count" -eq 0 ]; then
-    echo "0,0"
-    return
-  fi
-
-  avg_cpu=$(echo "scale=2; $total_cpu / $count" | bc)
-  avg_mem=$(echo "scale=2; $total_mem / $count" | bc)
-  echo "$avg_cpu,$avg_mem"
 }
 
-# Calculate averages for each container
-avg_db=$(calculate_average "$DB_LOG")
-avg_mangos=$(calculate_average "$MANGOS_LOG")
-avg_realmd=$(calculate_average "$REALMD_LOG")
+# Check if swap limit support needs to be enabled
+if [ "$ENABLE_SWAP_LIMIT_SUPPORT" = true ]; then
+  if is_swap_limit_enabled; then
+    echo "Swap limit support is already enabled."
+  else
+    if [ "$EUID" -ne 0 ]; then
+      echo "Error: Root privileges are required to enable swap limit support."
+      exit 1
+    fi
 
-# Extract values from averages
-avg_cpu_db=$(echo "$avg_db" | cut -d',' -f1)
-avg_mem_db=$(echo "$avg_db" | cut -d',' -f2)
+    echo "Enabling swap limit support..."
+    cp /etc/default/grub /etc/default/grub.backup.$(date +%F_%T)
+    
+    if grep -q "swapaccount=1" /etc/default/grub; then
+      echo "Swap limit support is already configured in /etc/default/grub."
+    else
+      if grep -q '^GRUB_CMDLINE_LINUX="' /etc/default/grub; then
+        sed -i 's/^\(GRUB_CMDLINE_LINUX=".*\)"$/\1 cgroup_enable=memory swapaccount=1"/' /etc/default/grub
+      else
+        echo 'GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"' >> /etc/default/grub
+      fi
+      echo "Updated /etc/default/grub with swap limit support."
+    fi
 
-avg_cpu_mangos=$(echo "$avg_mangos" | cut -d',' -f1)
-avg_mem_mangos=$(echo "$avg_mangos" | cut -d',' -f2)
-
-avg_cpu_realmd=$(echo "$avg_realmd" | cut -d',' -f1)
-avg_mem_realmd=$(echo "$avg_realmd" | cut -d',' -f2)
-
-# Check for valid memory values
-avg_mem_db=${avg_mem_db:-0.01}
-avg_mem_mangos=${avg_mem_mangos:-0.01}
-avg_mem_realmd=${avg_mem_realmd:-0.01}
-
-# Calculate total average memory in GB
-total_avg_mem=$(echo "scale=2; ($avg_mem_db + $avg_mem_mangos + $avg_mem_realmd) / 1024" | bc)
-if [ "$(echo "$total_avg_mem <= 0" | bc)" -eq 1 ]; then
-  total_avg_mem=1
+    update-grub
+    REBOOT_REQUIRED=true
+  fi
 fi
 
-# Calculate new ratios based on average memory usage
-RATIO_DB=$(echo "scale=2; $avg_mem_db / ($total_avg_mem * 1024)" | bc)
-RATIO_MANGOS=$(echo "scale=2; $avg_mem_mangos / ($total_avg_mem * 1024)" | bc)
-RATIO_REALMD=$(echo "scale=2; $avg_mem_realmd / ($total_avg_mem * 1024)" | bc)
+# ==============================
+# Configure Docker options
+# ==============================
+echo "Configuring Docker options..."
+tee /etc/docker/daemon.json > /dev/null <<EOF
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+EOF
 
-# Ensure ratios are not zero
-RATIO_DB=${RATIO_DB:-0.01}
-RATIO_MANGOS=${RATIO_MANGOS:-0.01}
-RATIO_REALMD=${RATIO_REALMD:-0.01}
+systemctl restart docker
 
-# Calculate initial memory reservations
-mem_reservation_db=$(echo "scale=2; if ($AVAILABLE_MEMORY * $RATIO_DB < $MIN_RESERVATION_DB) $MIN_RESERVATION_DB else $AVAILABLE_MEMORY * $RATIO_DB" | bc)
-mem_reservation_mangos=$(echo "scale=2; if ($AVAILABLE_MEMORY * $RATIO_MANGOS < $MIN_RESERVATION_MANGOS) $MIN_RESERVATION_MANGOS else $AVAILABLE_MEMORY * $RATIO_MANGOS" | bc)
-mem_reservation_realmd=$(echo "scale=2; if ($AVAILABLE_MEMORY * $RATIO_REALMD < $MIN_RESERVATION_REALMD) $MIN_RESERVATION_REALMD else $AVAILABLE_MEMORY * $RATIO_REALMD" | bc)
-
-# Calculate total allocation and scale if needed
-total_allocated=$(echo "scale=2; $mem_reservation_db + $mem_reservation_mangos + $mem_reservation_realmd" | bc)
-if (( $(echo "$total_allocated > $AVAILABLE_MEMORY" | bc -l) )); then
-    scaling_factor=$(echo "scale=4; $AVAILABLE_MEMORY / $total_allocated" | bc)
-    mem_reservation_db=$(echo "scale=2; $mem_reservation_db * $scaling_factor" | bc)
-    mem_reservation_mangos=$(echo "scale=2; $mem_reservation_mangos * $scaling_factor" | bc)
-    mem_reservation_realmd=$(echo "scale=2; $mem_reservation_realmd * $scaling_factor" | bc)
-fi
-
-# Convert reservations to memory limits
-mem_limit_db=$mem_reservation_db
-mem_limit_mangos=$mem_reservation_mangos
-mem_limit_realmd=$mem_reservation_realmd
+# ==============================
+# Update or add variables in the .env file
+# ==============================
 
 # Function to update or add a variable in the .env file
 update_env_variable() {
   var_name=$1
   var_value=$2
+  env_file="$DOCKER_DIRECTORY/.env"  # Use the $DOCKER_DIRECTORY variable
+
   if [ -z "$var_value" ]; then
     echo "Warning: Skipping update of $var_name as value is empty."
     return
   fi
 
-  if grep -q "^${var_name}=" .env; then
-    sed -i "s|^${var_name}=.*|${var_name}=${var_value}|" .env
+  if grep -q "^${var_name}=" "$env_file"; then
+    sed -i "s|^${var_name}=.*|${var_name}=${var_value}|" "$env_file"
   else
-    echo "${var_name}=${var_value}" >> .env
+    if [ -s "$env_file" ] && [ -n "$(tail -c1 "$env_file")" ]; then
+      echo "" >> "$env_file"
+    fi
+    echo "${var_name}=${var_value}" >> "$env_file"
   fi
 }
 
 # Ensure the .env file exists
-touch .env
+touch "$DOCKER_DIRECTORY/.env"
 
-# Update memory limits and swap limits
-update_env_variable "MEM_RESERVATION_DB" "${mem_reservation_db}g"
-update_env_variable "MEM_RESERVATION_MANGOS" "${mem_reservation_mangos}g"
-update_env_variable "MEM_RESERVATION_REALMD" "${mem_reservation_realmd}g"
+# Update or add resource reservation, limit, and swap limit variables in gigabytes
+mem_limit_db=$MEM_RESERVATION_DB
+mem_limit_mangos=$MEM_RESERVATION_MANGOS
+mem_limit_realmd=$MEM_RESERVATION_REALMD
+
+memswap_limit_db=$(awk "BEGIN {print 2 * $mem_limit_db}")
+memswap_limit_mangos=$(awk "BEGIN {print 2 * $mem_limit_mangos}")
+memswap_limit_realmd=$(awk "BEGIN {print 2 * $mem_limit_realmd}")
+
+cpu_shares_db=$(awk "BEGIN {printf \"%d\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_DB}")
+cpu_shares_mangos=$(awk "BEGIN {printf \"%d\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_MANGOS}")
+cpu_shares_realmd=$(awk "BEGIN {printf \"%d\", $BASE_CPU_SHARES * $CPU_SHARE_MULTIPLIER_REALMD}")
+
+if ! [[ "$cpu_shares_db" =~ ^[0-9]+$ ]]; then
+  cpu_shares_db=1024
+fi
+if ! [[ "$cpu_shares_mangos" =~ ^[0-9]+$ ]]; then
+  cpu_shares_mangos=1024
+fi
+if ! [[ "$cpu_shares_realmd" =~ ^[0-9]+$ ]]; then
+  cpu_shares_realmd=1024
+fi
+
+update_env_variable "MEM_RESERVATION_DB" "${MEM_RESERVATION_DB}g"
+update_env_variable "MEM_RESERVATION_MANGOS" "${MEM_RESERVATION_MANGOS}g"
+update_env_variable "MEM_RESERVATION_REALMD" "${MEM_RESERVATION_REALMD}g"
 
 update_env_variable "MEM_LIMIT_DB" "${mem_limit_db}g"
 update_env_variable "MEM_LIMIT_MANGOS" "${mem_limit_mangos}g"
 update_env_variable "MEM_LIMIT_REALMD" "${mem_limit_realmd}g"
 
-memswap_limit_db=$(echo "scale=2; 2 * $mem_limit_db" | bc)
-memswap_limit_mangos=$(echo "scale=2; 2 * $mem_limit_mangos" | bc)
-memswap_limit_realmd=$(echo "scale=2; 2 * $mem_limit_realmd" | bc)
-
 update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_limit_db}g"
 update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_limit_mangos}g"
 update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_limit_realmd}g"
 
-# Calculate dynamic CPU shares for each container based on usage ratios
-cpu_shares_db=$(echo "scale=0; 1024 * $RATIO_DB" | bc)
-cpu_shares_mangos=$(echo "scale=0; 1024 * $RATIO_MANGOS" | bc)
-cpu_shares_realmd=$(echo "scale=0; 1024 * $RATIO_REALMD" | bc)
-
-# Apply minimum constraint to ensure they are at least 5 times the base value
-min_cpu_shares=$((5 * BASE_CPU_SHARES))
-
-cpu_shares_db=$(echo "if ($cpu_shares_db < $min_cpu_shares) $min_cpu_shares else $cpu_shares_db" | bc)
-cpu_shares_mangos=$(echo "if ($cpu_shares_mangos < $min_cpu_shares) $min_cpu_shares else $cpu_shares_mangos" | bc)
-cpu_shares_realmd=$(echo "if ($cpu_shares_realmd < $min_cpu_shares) $min_cpu_shares else $cpu_shares_realmd" | bc)
-
-# Update CPU shares in the .env file
 update_env_variable "CPU_SHARES_DB" "$cpu_shares_db"
 update_env_variable "CPU_SHARES_MANGOS" "$cpu_shares_mangos"
 update_env_variable "CPU_SHARES_REALMD" "$cpu_shares_realmd"
 
-# Clean up old entries in log files
-cleanup_log() {
-  log_file=$1
-  if [ -f "$log_file" ]; then
-    awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold' "$log_file" > "${log_file}.tmp" && mv "${log_file}.tmp" "$log_file"
-  fi
-}
+echo "Resource limits have been updated in the .env file:"
+grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEM_LIMIT_DB|MEM_LIMIT_MANGOS|MEM_LIMIT_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" "$DOCKER_DIRECTORY/.env"
 
-cleanup_log "$DB_LOG"
-cleanup_log "$MANGOS_LOG"
-cleanup_log "$REALMD_LOG"
+# ==============================
+# Create vmangos-network
+# ==============================
 
-# Function to send message to Discord
-send_discord_message() {
-  local message=$1
-  # Escape newlines for the JSON payload
-  message=$(echo "$message" | sed ':a;N;$!ba;s/\n/\\n/g')
+echo "Creating vmangos-network..."
+docker network create vmangos-network
 
-  curl -H "Content-Type: application/json" \
-       -X POST \
-       -d "{\"content\": \"$message\"}" \
-       "$DISCORD_WEBHOOK"
-}
+# ==============================
+# Start Docker Compose services
+# ==============================
+echo "Starting Docker Compose services..."
+docker compose -f "$DOCKER_DIRECTORY/docker-compose.yml" up -d
 
-# Print the updated .env values to the console
-echo "Updated .env values:"
-echo "MEM_RESERVATION_DB=${mem_reservation_db}g"
-echo "MEM_RESERVATION_MANGOS=${mem_reservation_mangos}g"
-echo "MEM_RESERVATION_REALMD=${mem_reservation_realmd}g"
-echo "MEM_LIMIT_DB=${mem_limit_db}g"
-echo "MEM_LIMIT_MANGOS=${mem_limit_mangos}g"
-echo "MEM_LIMIT_REALMD=${mem_limit_realmd}g"
-echo "MEMSWAP_LIMIT_DB=${memswap_limit_db}g"
-echo "MEMSWAP_LIMIT_MANGOS=${memswap_limit_mangos}g"
-echo "MEMSWAP_LIMIT_REALMD=${memswap_limit_realmd}g"
-echo "CPU_SHARES_DB=${cpu_shares_db}"
-echo "CPU_SHARES_MANGOS=${cpu_shares_mangos}"
-echo "CPU_SHARES_REALMD=${cpu_shares_realmd}"
+# ==============================
+# Reboot if Required
+# ==============================
 
-# Send the updated .env values to Discord
-env_values=$(grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEM_LIMIT_DB|MEM_LIMIT_MANGOS|MEM_LIMIT_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" .env)
-
-# Escape any special characters for JSON
-send_discord_message "Updated .env values:\n$env_values"
-
-# Function to announce server restart directly in the container
-announce_restart() {
-    local initial_time=15
-    local decrement=5
-    local final_countdown=5
-
-    echo "[VMaNGOS]: Starting restart announcement sequence..."
-
-    # Loop for initial countdown intervals
-    for ((time_remaining=initial_time; time_remaining > final_countdown; time_remaining-=decrement)); do
-        expect <<EOF
-            set timeout -1
-            spawn sudo docker attach vmangos-mangos
-            sleep 2
-            send "announce Server Restarting in $time_remaining minutes\r"
-            sleep 5
-            send "\x10"
-            sleep 1
-            send "\x11"
-            expect eof
-EOF
-        echo "[VMaNGOS]: Announced Server Restarting in $time_remaining minutes"
-        sleep $((decrement * 60))
-    done
-
-    # Final countdown (5, 4, 3, 2, 1 minutes)
-    for ((time_remaining=final_countdown; time_remaining > 0; time_remaining--)); do
-        expect <<EOF
-            set timeout -1
-            spawn sudo docker attach vmangos-mangos
-            sleep 2
-            send "announce Server Restarting in $time_remaining minutes\r"
-            sleep 5
-            send "\x10"
-            sleep 1
-            send "\x11"
-            expect eof
-EOF
-        echo "[VMaNGOS]: Announced Server Restarting in $time_remaining minutes"
-        sleep 60
-    done
-
-    # Final announcement
-    expect <<EOF
-        set timeout -1
-        spawn sudo docker attach vmangos-mangos
-        sleep 2
-        send "announce Server Restarting Now!\r"
-        sleep 5
-        send "\x10"
-        sleep 1
-        send "\x11"
-        expect eof
-EOF
-    echo "[VMaNGOS]: Announced Server Restarting Now!"
-}
-
-# Call the function
-announce_restart
-
-# Restart Docker Compose services to apply new environment variables
-echo "Restarting Docker Compose services..."
-if ! sudo docker compose down; then
-  echo "Error: Failed to bring down Docker Compose services."
-  exit 1
+if [ "$REBOOT_REQUIRED" = true ]; then
+  echo "Swap limit support has been enabled. The system will reboot in 10 seconds..."
+  sleep 10
+  reboot
 fi
-
-if ! sudo docker compose up -d; then
-  echo "Error: Failed to bring up Docker Compose services."
-  exit 1
-fi
-
-echo "Docker environment restarted with updated variables."
