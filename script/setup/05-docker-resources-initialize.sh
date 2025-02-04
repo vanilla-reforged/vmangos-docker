@@ -19,10 +19,10 @@ cd "$ORIG_DIR"
 # Percentage of total host memory to allocate (e.g., 75 for 75%)
 MEMORY_USAGE_PERCENTAGE=75
 
-# Fixed memory reservations (in gigabytes)
-MEM_RESERVATION_DB=2  # Example: 2 GB
-MEM_RESERVATION_MANGOS=2  # Example: 2 GB
-MEM_RESERVATION_REALMD=0.5  # Example: 500 MB
+# Define minimum reservations in gigabytes
+MEM_RESERVATION_DB=1  # Example: 1 GB
+MEM_RESERVATION_MANGOS=1  # Example: 1 GB
+MEM_RESERVATION_REALMD=0.1  # Example: 100 MB
 
 # CPU share multipliers to ensure higher priority over default containers
 BASE_CPU_SHARES=1024
