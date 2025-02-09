@@ -24,7 +24,7 @@ MEM_RESERVATION_DB=1  # Example: 1 GB
 MEM_RESERVATION_MANGOS=1  # Example: 1 GB
 MEM_RESERVATION_REALMD=0.1  # Example: 100 MB
 
-# CPU share multipliers to ensure higher priority over default containers
+# CPU share multipliers, initialize with default values (same priority as other containers)
 BASE_CPU_SHARES=1024
 CPU_SHARE_MULTIPLIER_DB=1
 CPU_SHARE_MULTIPLIER_MANGOS=1
