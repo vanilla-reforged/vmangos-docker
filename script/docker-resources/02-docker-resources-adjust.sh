@@ -130,21 +130,25 @@ avg_cpu_realmd=$(echo "$avg_realmd" | cut -d',' -f1)
 total_cpu=$(echo "scale=2; $avg_cpu_db + $avg_cpu_mangos + $avg_cpu_realmd" | bc)
 
 # Calculate CPU shares based on usage
-BASE_CPU_SHARES=1024
-min_cpu_shares=$((5 * BASE_CPU_SHARES))
+BASE_CPU_SHARES=1024  # Default Docker CPU shares
+MAX_MULTIPLIER=30     # Maximum multiplier for shares
 
 if [ "$(echo "$total_cpu > 0" | bc)" -eq 1 ]; then
     cpu_ratio_db=$(echo "scale=4; $avg_cpu_db / $total_cpu" | bc)
     cpu_ratio_mangos=$(echo "scale=4; $avg_cpu_mangos / $total_cpu" | bc)
     cpu_ratio_realmd=$(echo "scale=4; $avg_cpu_realmd / $total_cpu" | bc)
     
-    cpu_shares_db=$(echo "scale=0; ($cpu_ratio_db * 10 * $BASE_CPU_SHARES) + $min_cpu_shares" | bc)
-    cpu_shares_mangos=$(echo "scale=0; ($cpu_ratio_mangos * 10 * $BASE_CPU_SHARES) + $min_cpu_shares" | bc)
-    cpu_shares_realmd=$(echo "scale=0; ($cpu_ratio_realmd * 10 * $BASE_CPU_SHARES) + $min_cpu_shares" | bc)
+    # Calculate shares with new formula:
+    # BASE_CPU_SHARES + (ratio * (MAX_MULTIPLIER-1) * BASE_CPU_SHARES)
+    # This ensures minimum of BASE_CPU_SHARES and maximum of (MAX_MULTIPLIER * BASE_CPU_SHARES)
+    cpu_shares_db=$(echo "scale=0; $BASE_CPU_SHARES + ($cpu_ratio_db * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | bc)
+    cpu_shares_mangos=$(echo "scale=0; $BASE_CPU_SHARES + ($cpu_ratio_mangos * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | bc)
+    cpu_shares_realmd=$(echo "scale=0; $BASE_CPU_SHARES + ($cpu_ratio_realmd * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | bc)
 else
-    cpu_shares_db=$min_cpu_shares
-    cpu_shares_mangos=$min_cpu_shares
-    cpu_shares_realmd=$min_cpu_shares
+    # If no CPU usage data, use default shares
+    cpu_shares_db=$BASE_CPU_SHARES
+    cpu_shares_mangos=$BASE_CPU_SHARES
+    cpu_shares_realmd=$BASE_CPU_SHARES
 fi
 
 # Function to update or add a variable in the .env file
