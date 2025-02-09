@@ -91,9 +91,9 @@ if [ "$(echo "$total_mem_usage > 0" | bc)" -eq 1 ]; then
     echo "Debug - Calculated ratios from logs"
 else
     # Default ratios if no usage data
-    ratio_db=0.33
-    ratio_mangos=0.33
-    ratio_realmd=0.34
+    ratio_db=0.475
+    ratio_mangos=0.475
+    ratio_realmd=0.05
     echo "Debug - Using default ratios due to zero total memory usage"
 fi
 
