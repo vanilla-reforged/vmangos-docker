@@ -215,13 +215,21 @@ echo "Realmd: ${mem_reservation_realmd}GB"
 
 # Send to Discord if webhook is configured
 if [ -n "$DISCORD_WEBHOOK" ]; then
-    message="Memory Allocation Summary:\n"
+    message="**Resource Allocation Summary:**\n"
     message+="Total Host Memory: ${TOTAL_HOST_MEMORY}GB\n"
-    message+="Available (75%): ${AVAILABLE_MEMORY}GB\n"
-    message+="Final Allocations:\n"
+    message+="Available (75%): ${AVAILABLE_MEMORY}GB\n\n"
+    message+="**Memory Allocations:**\n"
     message+="DB: ${mem_reservation_db}GB\n"
     message+="Mangos: ${mem_reservation_mangos}GB\n"
-    message+="Realmd: ${mem_reservation_realmd}GB"
+    message+="Realmd: ${mem_reservation_realmd}GB\n\n"
+    message+="**CPU Usage (Average):**\n"
+    message+="DB: ${avg_cpu_db}%\n"
+    message+="Mangos: ${avg_cpu_mangos}%\n"
+    message+="Realmd: ${avg_cpu_realmd}%\n\n"
+    message+="**CPU Shares:**\n"
+    message+="DB: ${cpu_shares_db} (ratio: ${cpu_ratio_db})\n"
+    message+="Mangos: ${cpu_shares_mangos} (ratio: ${cpu_ratio_mangos})\n"
+    message+="Realmd: ${cpu_shares_realmd} (ratio: ${cpu_ratio_realmd})"
     
     curl -s -H "Content-Type: application/json" \
          -X POST \
