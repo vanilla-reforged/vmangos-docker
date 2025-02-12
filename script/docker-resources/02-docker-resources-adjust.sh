@@ -25,8 +25,8 @@ echo "Realmd Log: $REALMD_LOG"
 SEVEN_DAYS_AGO=$(date -d '7 days ago' +%s)
 
 # Define minimum reservations in gigabytes
-MIN_RESERVATION_DB=1      # 1 GB
-MIN_RESERVATION_MANGOS=1  # 1 GB
+MIN_RESERVATION_DB=0.5      # 500 MB
+MIN_RESERVATION_MANGOS=1.5  # 1.5 GB
 MIN_RESERVATION_REALMD=0.1 # 100 MB
 
 # Calculate total minimum reservations
