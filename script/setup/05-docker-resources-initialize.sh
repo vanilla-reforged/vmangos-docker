@@ -20,8 +20,8 @@ cd "$ORIG_DIR"
 MEMORY_USAGE_PERCENTAGE=75
 
 # Define minimum reservations in gigabytes
-MEM_RESERVATION_DB=1  # Example: 1 GB
-MEM_RESERVATION_MANGOS=1  # Example: 1 GB
+MEM_RESERVATION_DB=0.5  # Example: 500 MB
+MEM_RESERVATION_MANGOS=1.5  # Example: 1.5 GB
 MEM_RESERVATION_REALMD=0.1  # Example: 100 MB
 
 # CPU share multipliers, initialize with default values (same priority as other containers)
