@@ -19,7 +19,7 @@ EXTRACTORS_COMMANDS=(
     "/vol/core/bin/Extractors/MapExtractor"
     "/vol/core/bin/Extractors/VMapExtractor"
     "/vol/core/bin/Extractors/VMapAssembler"
-    "/vol/core/bin/Extractors/MoveMapGenerator --offMeshInput /vol/core/bin/Extractors/offmesh.txt"
+    "/vol/core/bin/Extractors/MoveMapGenerator"
 )
 
 EXTRACTED_DATA_DIR="$DOCKER_DIRECTORY/vol/client-data-extracted/$VMANGOS_CLIENT"
