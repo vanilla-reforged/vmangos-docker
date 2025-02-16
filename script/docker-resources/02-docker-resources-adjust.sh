@@ -155,20 +155,22 @@ fi
 update_env_variable() {
     var_name=$1
     var_value=$2
+    env_file="./../../.env"
+    
     if [ -z "$var_value" ]; then
         echo "Warning: Skipping update of $var_name as value is empty."
         return
     fi
 
-    if grep -q "^${var_name}=" .env; then
-        sed -i "s|^${var_name}=.*|${var_name}=${var_value}|" .env
+    if grep -q "^${var_name}=" "$env_file"; then
+        sed -i "s|^${var_name}=.*|${var_name}=${var_value}|" "$env_file"
     else
-        echo "${var_name}=${var_value}" >> .env
+        echo "${var_name}=${var_value}" >> "$env_file"
     fi
 }
 
 # Ensure the .env file exists
-touch .env
+touch ./../../.env
 
 # Update all values
 update_env_variable "MEM_RESERVATION_DB" "${mem_reservation_db}g"
