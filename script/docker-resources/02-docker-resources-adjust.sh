@@ -138,18 +138,22 @@ if [ "$(echo "$total_cpu > 0" | bc)" -eq 1 ]; then
     cpu_ratio_mangos=$(echo "scale=4; $avg_cpu_mangos / $total_cpu" | bc)
     cpu_ratio_realmd=$(echo "scale=4; $avg_cpu_realmd / $total_cpu" | bc)
     
-    # Calculate shares with new formula:
+    # Calculate shares with new formula and force integer values:
     # BASE_CPU_SHARES + (ratio * (MAX_MULTIPLIER-1) * BASE_CPU_SHARES)
-    # This ensures minimum of BASE_CPU_SHARES and maximum of (MAX_MULTIPLIER * BASE_CPU_SHARES)
-    cpu_shares_db=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_db * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | awk '{printf "%.0f", $0}')
-    cpu_shares_mangos=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_mangos * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | awk '{printf "%.0f", $0}')
-    cpu_shares_realmd=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_realmd * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | awk '{printf "%.0f", $0}')
+    cpu_shares_db=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_db * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | awk '{printf "%d", $0}')
+    cpu_shares_mangos=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_mangos * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | awk '{printf "%d", $0}')
+    cpu_shares_realmd=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_realmd * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | awk '{printf "%d", $0}')
 else
     # If no CPU usage data, use default shares
     cpu_shares_db=$BASE_CPU_SHARES
     cpu_shares_mangos=$BASE_CPU_SHARES
     cpu_shares_realmd=$BASE_CPU_SHARES
 fi
+
+# Ensure all CPU shares are integers
+cpu_shares_db=${cpu_shares_db%.*}
+cpu_shares_mangos=${cpu_shares_mangos%.*}
+cpu_shares_realmd=${cpu_shares_realmd%.*}
 
 # Function to update or add a variable in the .env file
 update_env_variable() {
