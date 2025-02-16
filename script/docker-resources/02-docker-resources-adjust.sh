@@ -35,18 +35,18 @@ TOTAL_MIN_RESERVATION=$(echo "scale=2; $MIN_RESERVATION_DB + $MIN_RESERVATION_MA
 # Calculate remaining memory after minimums
 REMAINING_MEMORY=$(echo "scale=2; $AVAILABLE_MEMORY - $TOTAL_MIN_RESERVATION" | bc)
 
-# Function to calculate average usage
+# Function to calculate average usage, ignoring zero values
 calculate_average() {
     local log_file=$1
     if [ ! -f "$log_file" ] || [ ! -s "$log_file" ]; then
         echo "0,0"
         return
-    fi
+    }
 
-    # Use awk to properly process the log file
+    # Use awk to process the log file, ignoring zero values
     # Format: timestamp,epoch,cpu,memory
     local result=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '
-        $2 >= threshold { 
+        $2 >= threshold && $3 > 0 && $4 > 0 { 
             cpu_sum += $3
             mem_sum += $4
             count++
