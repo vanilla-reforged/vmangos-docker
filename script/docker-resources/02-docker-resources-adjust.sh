@@ -41,7 +41,7 @@ calculate_average() {
     if [ ! -f "$log_file" ] || [ ! -s "$log_file" ]; then
         echo "0,0"
         return
-    }
+    fi
 
     # Use awk to process the log file, ignoring zero values
     # Format: timestamp,epoch,cpu,memory
