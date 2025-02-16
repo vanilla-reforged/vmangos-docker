@@ -42,12 +42,17 @@ collect_usage() {
   cpu_usage=$(echo "$stats" | jq -r '.CPUPerc' | tr -d '%' || echo "0")
   mem_usage=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' | tr -d 'MiB' | tr -d 'GiB')
 
-  # Convert memory usage to MiB if necessary
+  # Extract the unit and value separately
   mem_unit=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' | grep -o '[A-Za-z]*$')
+  mem_value=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' | sed 's/[A-Za-z]*$//')
+
+  # Convert all memory values to MiB
   case "$mem_unit" in
-    GiB) mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage * 1024}") ;;
-    KiB) mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage / 1024}") ;;
-    B)   mem_usage=$(awk "BEGIN {printf \"%.2f\", $mem_usage / 1048576}") ;;
+      "GiB") mem_usage=$(awk "BEGIN {printf \"%.3f\", $mem_value * 1024}") ;;
+      "MiB") mem_usage=$(awk "BEGIN {printf \"%.3f\", $mem_value}") ;;
+      "KiB") mem_usage=$(awk "BEGIN {printf \"%.3f\", $mem_value / 1024}") ;;
+      "B")   mem_usage=$(awk "BEGIN {printf \"%.3f\", $mem_value / 1048576}") ;;
+      *)     echo "Warning: Unknown memory unit $mem_unit for $container_name" >> "${LOG_DIR}/error.log" ;;
   esac
 
   # Get human-readable timestamp
