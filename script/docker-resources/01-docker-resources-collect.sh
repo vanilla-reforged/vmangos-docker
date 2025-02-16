@@ -38,13 +38,15 @@ collect_usage() {
     return
   fi
 
-  # Extract CPU and memory usage
-  cpu_usage=$(echo "$stats" | jq -r '.CPUPerc' | tr -d '%' || echo "0")
-  mem_usage=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' | tr -d 'MiB' | tr -d 'GiB')
+  # Get raw memory usage string for debugging
+  raw_mem=$(echo "$stats" | jq -r '.MemUsage')
+  echo "Debug - Raw memory for $container_name: $raw_mem" >> "${LOG_DIR}/error.log"
 
-  # Extract the unit and value separately
-  mem_unit=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' | grep -o '[A-Za-z]*$')
-  mem_value=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' | sed 's/[A-Za-z]*$//')
+  # Extract the value and unit
+  mem_value=$(echo "$raw_mem" | awk -F'/' '{print $1}' | sed 's/[A-Za-z][A-Za-z]*$//')
+  mem_unit=$(echo "$raw_mem" | awk -F'/' '{print $1}' | grep -o '[A-Za-z][A-Za-z]*$')
+
+  echo "Debug - Extracted for $container_name: value=$mem_value unit=$mem_unit" >> "${LOG_DIR}/error.log"
 
   # Convert all memory values to MiB
   case "$mem_unit" in
@@ -52,7 +54,10 @@ collect_usage() {
       "MiB") mem_usage=$(awk "BEGIN {printf \"%.3f\", $mem_value}") ;;
       "KiB") mem_usage=$(awk "BEGIN {printf \"%.3f\", $mem_value / 1024}") ;;
       "B")   mem_usage=$(awk "BEGIN {printf \"%.3f\", $mem_value / 1048576}") ;;
-      *)     echo "Warning: Unknown memory unit $mem_unit for $container_name" >> "${LOG_DIR}/error.log" ;;
+      *)     
+          echo "Warning: Unknown memory unit '$mem_unit' for $container_name (raw: $raw_mem)" >> "${LOG_DIR}/error.log"
+          mem_usage="0"
+          ;;
   esac
 
   # Get human-readable timestamp
