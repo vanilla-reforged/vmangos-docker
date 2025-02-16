@@ -141,9 +141,9 @@ if [ "$(echo "$total_cpu > 0" | bc)" -eq 1 ]; then
     # Calculate shares with new formula:
     # BASE_CPU_SHARES + (ratio * (MAX_MULTIPLIER-1) * BASE_CPU_SHARES)
     # This ensures minimum of BASE_CPU_SHARES and maximum of (MAX_MULTIPLIER * BASE_CPU_SHARES)
-    cpu_shares_db=$(echo "scale=0; $BASE_CPU_SHARES + ($cpu_ratio_db * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | bc)
-    cpu_shares_mangos=$(echo "scale=0; $BASE_CPU_SHARES + ($cpu_ratio_mangos * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | bc)
-    cpu_shares_realmd=$(echo "scale=0; $BASE_CPU_SHARES + ($cpu_ratio_realmd * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | bc)
+    cpu_shares_db=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_db * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)/1" | bc)
+    cpu_shares_mangos=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_mangos * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)/1" | bc)
+    cpu_shares_realmd=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_realmd * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)/1" | bc)
 else
     # If no CPU usage data, use default shares
     cpu_shares_db=$BASE_CPU_SHARES
