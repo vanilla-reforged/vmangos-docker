@@ -1,6 +1,6 @@
 [mysqld]
 # Enable binary logging
-log_bin = /var/lib/mysql
+log_bin = /var/lib/mysql/mysql-bin
 server_id = 1
 # Automatically purge binary logs older than 10 days
 expire_logs_days = 10
