@@ -15,6 +15,7 @@ services:
     ports:
       - 3306:3306
     volumes:
+      - ./vol/database-configuration:/etc/mysql/mariadb.conf.d:ro
       - ./vol/backup:/vol/backup
       - ./vol/core-github:/vol/core-github
       - ./vol/database-github:/vol/database-github
