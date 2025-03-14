@@ -1,0 +1,10 @@
+[mysqld]
+# Enable binary logging
+log_bin = /var/lib/mysql/mysql-bin
+server_id = 1
+# Automatically purge binary logs older than 10 days
+expire_logs_days = 10
+# Set maximum size for each binary log file (100MB)
+max_binlog_size = 100M
+# Optional: Log format (MIXED combines STATEMENT and ROW logging)
+binlog_format = MIXED
