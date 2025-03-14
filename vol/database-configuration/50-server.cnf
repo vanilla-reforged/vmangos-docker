@@ -8,7 +8,3 @@ expire_logs_days = 10
 max_binlog_size = 100M
 # Optional: Log format (MIXED combines STATEMENT and ROW logging)
 binlog_format = MIXED
-# Reset binary logs
-# This parameter tells MariaDB to ignore the existing binary log index
-# and start fresh with new binary logs
-# reset_log_files = 1
