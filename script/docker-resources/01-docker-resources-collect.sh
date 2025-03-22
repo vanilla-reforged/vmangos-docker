@@ -1,23 +1,17 @@
 #!/bin/bash
-
 # Change to the directory where the script is located
 cd "$(dirname "$0")"
-
 # Load environment variables from .env-script
 source ./../../.env-script  # Adjust to load .env-script from the project root using $DOCKER_DIRECTORY
-
 # Directories for storing logs
 LOG_DIR="$DOCKER_DIRECTORY/vol/docker-resources"  # Adjusted to use $DOCKER_DIRECTORY for the correct log directory
 DB_LOG="$LOG_DIR/db_usage.log"
 MANGOS_LOG="$LOG_DIR/mangos_usage.log"
 REALMD_LOG="$LOG_DIR/realmd_usage.log"
-
 # Ensure the log directory exists
 mkdir -p "$LOG_DIR"
-
 # Get current timestamp
 timestamp=$(date +%s)
-
 # Function to collect resource usage for a container
 collect_usage() {
    container_name=$1
@@ -38,15 +32,27 @@ collect_usage() {
        return
    fi
    
-   # Extract CPU and memory usage
-   cpu_usage=$(echo "$stats" | jq -r '.CPUPerc' | tr -d '%' || echo "0")
-   mem_raw=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}')
+   # Extract CPU and memory usage with improved handling for low values
+   cpu_raw=$(echo "$stats" | jq -r '.CPUPerc' || echo "0%")
+   # Remove percentage sign and handle very low values properly
+   cpu_usage=$(echo "$cpu_raw" | tr -d '%')
+   # If cpu_usage is empty or not a number, set it to 0
+   if ! [[ "$cpu_usage" =~ ^[0-9]*\.?[0-9]*$ ]]; then
+       cpu_usage="0.00"
+   fi
+   
+   mem_raw=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' || echo "0MiB")
    
    # Check if the value is in GiB and convert to MiB if it is
    if [[ $mem_raw == *"GiB"* ]]; then
        mem_usage=$(echo "$mem_raw" | tr -d 'GiB' | awk '{printf "%.2f", $1 * 1024}')
    else
        mem_usage=$(echo "$mem_raw" | tr -d 'MiB')
+   fi
+   
+   # If mem_usage is empty or not a number, set it to 0
+   if ! [[ "$mem_usage" =~ ^[0-9]*\.?[0-9]*$ ]]; then
+       mem_usage="0.00"
    fi
    
    # Get human-readable timestamp
@@ -58,16 +64,29 @@ collect_usage() {
    # Clean up old entries
    clean_old_entries "$log_file"
 }
-
 # Function to clean up old entries from a log file
 clean_old_entries() {
   log_file=$1
+  
   # Define the threshold (e.g., entries older than 8 days)
   threshold=$(date -d '8 days ago' +%s)
-  # Keep only entries newer than the threshold
-  awk -F',' -v threshold="$threshold" '$1 >= threshold' "$log_file" > "${log_file}.tmp" && mv "${log_file}.tmp" "$log_file"
+  
+  # Create a temporary file
+  temp_file="${log_file}.tmp"
+  
+  # Filter the file to keep only entries newer than the threshold
+  # This uses the timestamp field (2nd column) for comparison
+  awk -F',' -v threshold="$threshold" '$2 >= threshold' "$log_file" > "$temp_file"
+  
+  # Check if the temporary file was created successfully
+  if [ -s "$temp_file" ]; then
+    mv "$temp_file" "$log_file"
+  else
+    # If the temp file is empty or wasn't created, log an error and don't modify the original
+    echo "Warning: Failed to clean old entries from $log_file" >> "${LOG_DIR}/error.log"
+    rm -f "$temp_file"  # Remove the empty temp file if it exists
+  fi
 }
-
 # Collect data for each container
 collect_usage "vmangos-database" "$DB_LOG"
 collect_usage "vmangos-mangos" "$MANGOS_LOG"
