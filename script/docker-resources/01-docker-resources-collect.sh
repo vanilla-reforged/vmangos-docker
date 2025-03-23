@@ -32,10 +32,9 @@ collect_usage() {
        return
    fi
    
-   # Extract CPU and memory usage with improved handling for low values
    cpu_raw=$(echo "$stats" | jq -r '.CPUPerc' || echo "0%")
-   # Remove percentage sign and handle very low values properly
-   cpu_usage=$(echo "$cpu_raw" | tr -d '%')
+   # Remove percentage sign and convert to a proper number format
+   cpu_usage=$(echo "$cpu_raw" | tr -d '%' | awk '{printf "%.2f", $0}')
    # If cpu_usage is empty or not a number, set it to 0
    if ! [[ "$cpu_usage" =~ ^[0-9]*\.?[0-9]*$ ]]; then
        cpu_usage="0.00"
