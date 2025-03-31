@@ -41,22 +41,22 @@ remove_old_entries() {
     }' "$file" > "$temp_file" && mv "$temp_file" "$file"
 }
 
-# Remove entries older than 3 days in 'mangos' logs (excluding 'honor')
+# Remove entries older than 21 days in 'mangos' logs (excluding 'honor')
 for log_file in "$DOCKER_DIRECTORY/vol/logs/mangos/"*; do
     if [ "$(basename "$log_file")" != "honor" ] && [ -f "$log_file" ]; then
-        remove_old_entries "$log_file" 3
+        remove_old_entries "$log_file" 21
     fi
 done
 
-# Remove entries older than 14 days in 'honor.log'
+# Remove entries older than 21 days in 'honor.log'
 if [ -f "$DOCKER_DIRECTORY/vol/logs/mangos/honor/honor.log" ]; then
-    remove_old_entries "$DOCKER_DIRECTORY/vol/logs/mangos/honor/honor.log" 14
+    remove_old_entries "$DOCKER_DIRECTORY/vol/logs/mangos/honor/honor.log" 21
 fi
 
-# Remove entries older than 7 days in 'realmd' logs
+# Remove entries older than 21 days in 'realmd' logs
 for log_file in "$DOCKER_DIRECTORY/vol/logs/realmd/"*; do
     if [ -f "$log_file" ]; then
-        remove_old_entries "$log_file" 7
+        remove_old_entries "$log_file" 21
     fi
 done
 
