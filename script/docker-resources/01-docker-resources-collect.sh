@@ -34,10 +34,26 @@ collect_usage() {
    
    cpu_raw=$(echo "$stats" | jq -r '.CPUPerc' || echo "0%")
    # Remove percentage sign and convert to a proper number format
-   cpu_usage=$(echo "$cpu_raw" | tr -d '%' | awk '{printf "%.2f", $0}')
+   # Use 4 decimal places to capture small values like 0.0909
+   cpu_usage=$(echo "$cpu_raw" | tr -d '%' | awk '{printf "%.4f", $0}')
+   
    # If cpu_usage is empty or not a number, set it to 0
    if ! [[ "$cpu_usage" =~ ^[0-9]*\.?[0-9]*$ ]]; then
-       cpu_usage="0.00"
+       cpu_usage="0.0000"
+   fi
+   
+   # For database container, normalize CPU usage if needed
+   if [[ "$container_name" == "vmangos-database" ]]; then
+       # Get the reported CPU value and ensure it's reasonable
+       # If it seems too high, adjust it - but preserve original behavior
+       if (( $(echo "$cpu_usage > 100" | bc -l) )); then
+           # Get number of CPUs on the host system
+           cpu_count=$(grep -c ^processor /proc/cpuinfo)
+           # Only normalize if cpu_count is greater than 0
+           if [ "$cpu_count" -gt 0 ]; then
+               cpu_usage=$(echo "$cpu_usage / $cpu_count" | bc -l | awk '{printf "%.4f", $0}')
+           fi
+       fi
    fi
    
    mem_raw=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' || echo "0MiB")
