@@ -8,7 +8,6 @@
 
 - Docker
 - Docker compose 2
-- p7zip-full
 - A POSIX-compliant shell as well as various core utilities (such as `cp` and `rm`) if you intend to use the provided scripts to install, update, and manage VMaNGOS.
 
 ## Security
