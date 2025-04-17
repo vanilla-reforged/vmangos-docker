@@ -1,17 +1,41 @@
 #!/bin/bash
+
+# Logger function for standardized logging
+log_message() {
+    local level="$1"
+    local message="$2"
+    local script_name=$(basename "$0")
+    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    
+    echo "[$timestamp] [$script_name] [$level] $message"
+}
+
 # Change to the directory where the script is located
 cd "$(dirname "$0")"
+log_message "INFO" "Script started"
+
 # Load environment variables from .env-script
+log_message "INFO" "Loading environment variables"
 source ./../../.env-script  # Adjust to load .env-script from the project root using $DOCKER_DIRECTORY
+
 # Directories for storing logs
 LOG_DIR="$DOCKER_DIRECTORY/vol/docker-resources"  # Adjusted to use $DOCKER_DIRECTORY for the correct log directory
 DB_LOG="$LOG_DIR/db_usage.log"
 MANGOS_LOG="$LOG_DIR/mangos_usage.log"
 REALMD_LOG="$LOG_DIR/realmd_usage.log"
+log_message "INFO" "Using log directory: $LOG_DIR"
+
 # Ensure the log directory exists
-mkdir -p "$LOG_DIR"
+if mkdir -p "$LOG_DIR"; then
+    log_message "INFO" "Log directory ensured: $LOG_DIR"
+else
+    log_message "ERROR" "Failed to create log directory: $LOG_DIR"
+fi
+
 # Get current timestamp
 timestamp=$(date +%s)
+log_message "INFO" "Current timestamp: $timestamp ($(date -d @$timestamp '+%Y-%m-%d %H:%M:%S'))"
+
 # Function to collect resource usage for a container
 collect_usage() {
    container_name=$1
@@ -19,18 +43,22 @@ collect_usage() {
    
    # Check if the container is running
    if ! sudo docker ps --format "{{.Names}}" | grep -q "^${container_name}$"; then
+       log_message "WARNING" "Container $container_name is not running"
        echo "Warning: Container $container_name is not running." >> "${LOG_DIR}/error.log"
        return
-   fi
+   }
+   
+   log_message "INFO" "Collecting resource stats for container: $container_name"
    
    # Get container stats in JSON format
    stats=$(sudo docker stats --no-stream --format "{{json .}}" "$container_name" 2>/dev/null)
    
    # Check if stats were successfully retrieved
    if [ -z "$stats" ]; then
+       log_message "WARNING" "Unable to collect stats for $container_name"
        echo "Warning: Unable to collect stats for $container_name." >> "${LOG_DIR}/error.log"
        return
-   fi
+   }
    
    cpu_raw=$(echo "$stats" | jq -r '.CPUPerc' || echo "0%")
    # Remove percentage sign and convert to a proper number format
@@ -39,70 +67,87 @@ collect_usage() {
    
    # If cpu_usage is empty or not a number, set it to 0
    if ! [[ "$cpu_usage" =~ ^[0-9]*\.?[0-9]*$ ]]; then
+       log_message "WARNING" "Invalid CPU usage value, setting to 0"
        cpu_usage="0.0000"
-   fi
+   }
    
    # For database container, normalize CPU usage if needed
    if [[ "$container_name" == "vmangos-database" ]]; then
        # Get the reported CPU value and ensure it's reasonable
        # If it seems too high, adjust it - but preserve original behavior
        if (( $(echo "$cpu_usage > 100" | bc -l) )); then
+           log_message "INFO" "Normalizing high CPU usage for database container"
            # Get number of CPUs on the host system
            cpu_count=$(grep -c ^processor /proc/cpuinfo)
            # Only normalize if cpu_count is greater than 0
            if [ "$cpu_count" -gt 0 ]; then
                cpu_usage=$(echo "$cpu_usage / $cpu_count" | bc -l | awk '{printf "%.4f", $0}')
-           fi
-       fi
-   fi
+               log_message "INFO" "Normalized CPU usage: $cpu_usage% (divided by $cpu_count CPUs)"
+           }
+       }
+   }
    
    mem_raw=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' || echo "0MiB")
    
    # Check if the value is in GiB and convert to MiB if it is
    if [[ $mem_raw == *"GiB"* ]]; then
        mem_usage=$(echo "$mem_raw" | tr -d 'GiB' | awk '{printf "%.2f", $1 * 1024}')
+       log_message "DEBUG" "Converted memory from GiB to MiB: $mem_raw -> $mem_usage MiB"
    else
        mem_usage=$(echo "$mem_raw" | tr -d 'MiB')
-   fi
+   }
    
    # If mem_usage is empty or not a number, set it to 0
    if ! [[ "$mem_usage" =~ ^[0-9]*\.?[0-9]*$ ]]; then
+       log_message "WARNING" "Invalid memory usage value, setting to 0"
        mem_usage="0.00"
-   fi
+   }
    
    # Get human-readable timestamp
    human_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
    
    # Append data to log file
    echo "$human_timestamp,$timestamp,$cpu_usage,$mem_usage" >> "$log_file"
+   log_message "INFO" "Recorded stats for $container_name - CPU: $cpu_usage%, Memory: $mem_usage MiB"
    
    # Clean up old entries
    clean_old_entries "$log_file"
 }
+
 # Function to clean up old entries from a log file
 clean_old_entries() {
   log_file=$1
   
   # Define the threshold (e.g., entries older than 8 days)
   threshold=$(date -d '8 days ago' +%s)
+  log_message "INFO" "Cleaning entries older than 8 days (before $(date -d @$threshold '+%Y-%m-%d %H:%M:%S')) from $log_file"
   
   # Create a temporary file
   temp_file="${log_file}.tmp"
   
   # Filter the file to keep only entries newer than the threshold
   # This uses the timestamp field (2nd column) for comparison
+  before_count=$(wc -l < "$log_file" 2>/dev/null || echo 0)
   awk -F',' -v threshold="$threshold" '$2 >= threshold' "$log_file" > "$temp_file"
+  after_count=$(wc -l < "$temp_file" 2>/dev/null || echo 0)
+  removed_count=$((before_count - after_count))
   
   # Check if the temporary file was created successfully
   if [ -s "$temp_file" ]; then
     mv "$temp_file" "$log_file"
+    log_message "INFO" "Removed $removed_count old entries from $log_file"
   else
     # If the temp file is empty or wasn't created, log an error and don't modify the original
+    log_message "WARNING" "Failed to clean old entries from $log_file"
     echo "Warning: Failed to clean old entries from $log_file" >> "${LOG_DIR}/error.log"
     rm -f "$temp_file"  # Remove the empty temp file if it exists
   fi
 }
+
 # Collect data for each container
+log_message "INFO" "Starting resource data collection for containers"
 collect_usage "vmangos-database" "$DB_LOG"
 collect_usage "vmangos-mangos" "$MANGOS_LOG"
 collect_usage "vmangos-realmd" "$REALMD_LOG"
+
+log_message "SUCCESS" "Resource collection completed successfully"
