@@ -186,10 +186,10 @@ crontab -e
 # Hourly binary log backup - 15 minutes past each hour
 15 * * * * /home/user/vmangos-docker/script/backup/03-binary-log-backup.sh >> /home/user/vmangos-docker/script/crontab-logs/03-binary-log-backup.log 2>&1
 
-# Daily S3 upload backup - 12:10 PM (noon, off-peak from other backups)
+# Daily S3 upload backup - 12:10 PM
 # 10 12 * * * /home/user/vmangos-docker/script/backup/04-s3-upload-backup.sh >> /home/user/vmangos-docker/script/crontab-logs/04-s3-upload-backup.log 2>&1
 
-# Weekly backup retention cleanup - Sunday at 8:20 AM (after all other backups)
+# Weekly backup retention cleanup - Sunday at 8:20 AM
 20 8 * * 0 /home/user/vmangos-docker/script/backup/05-backup-retention-cleanup.sh >> /home/user/vmangos-docker/script/crontab-logs/05-backup-retention-cleanup.log 2>&1
 
 ####################
