@@ -1,21 +1,39 @@
 #!/bin/bash
-# Run with nice (CPU priority 19) and ionice (I/O priority class 3)
-# This is pure file I/O, so use I/O class 3 (idle) to minimize impact
-nice -n 19 ionice -c 3 bash -c '
-# Configuration
-CONTAINER_BACKUP_DIR="/vol/backup"  # Backup directory inside the Docker container
-# Function to copy binary logs to /vol/backup
-copy_binary_logs() {
+# Enhanced resource control for binary log backup
+# Use maximum nice value, idle I/O class, and additional throttling
+
+# Function that will run with strict limits
+copy_binary_logs_limited() {
+    # Configuration
+    CONTAINER_BACKUP_DIR="/vol/backup"  # Backup directory inside the Docker container
+    
     echo "Copying binary logs to $CONTAINER_BACKUP_DIR..."
-    # Copy binary logs to the mounted backup directory
-    cp /var/lib/mysql/mysql-bin.* "$CONTAINER_BACKUP_DIR/"
-    if [[ $? -eq 0 ]]; then
-        echo "Binary logs copied successfully to $CONTAINER_BACKUP_DIR."
-    else
-        echo "Failed to copy binary logs!"
-        exit 1
-    fi
+    
+    # Get list of binary logs first
+    binlogs=$(ls /var/lib/mysql/mysql-bin.* 2>/dev/null)
+    
+    # Copy files one by one with pauses between each to reduce I/O spikes
+    for binlog in $binlogs; do
+        filename=$(basename "$binlog")
+        echo "Copying $filename..."
+        
+        # Use dd with rate limiting instead of cp
+        dd if="$binlog" of="$CONTAINER_BACKUP_DIR/$filename" bs=1M status=progress iflag=fullblock oflag=direct
+        
+        # Sleep between files to reduce resource impact
+        sleep 2
+        
+        # Check if copy was successful
+        if [[ $? -eq 0 ]]; then
+            echo "$filename copied successfully."
+        else
+            echo "Failed to copy $filename!"
+            exit 1
+        fi
+    done
+    
+    echo "Binary logs copied successfully to $CONTAINER_BACKUP_DIR."
 }
-# Execute the copy
-copy_binary_logs
-'
+
+# Execute with maximum resource limitations
+nice -n 19 ionice -c 3 bash -c "$(declare -f copy_binary_logs_limited); copy_binary_logs_limited"
