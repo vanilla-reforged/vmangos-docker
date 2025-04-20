@@ -18,16 +18,34 @@ log_message "INFO" "Script started"
 log_message "INFO" "Loading environment variables"
 source ./../../.env-script >/dev/null 2>&1
 
-# Get server uptime
+# Use expect to get server info
 log_message "INFO" "Getting server info"
-server_uptime_output=$(sudo docker exec vmangos-mangos bash -c "echo 'server info' | ./../bin/mangos-worldserver" 2>/dev/null | grep "Server uptime:")
+server_info=$(expect <<EOF
+    set timeout 10
+    spawn sudo docker attach vmangos-mangos
+    sleep 2
+    send "server info\r"
+    sleep 2
+    expect {
+        "server info" {
+            expect -re "Server uptime:.*\r\n"
+        }
+    }
+    send "\x10"
+    sleep 1
+    send "\x11"
+    expect eof
+EOF
+)
 
-if [ -z "$server_uptime_output" ]; then
+# Extract the uptime line
+server_uptime=$(echo "$server_info" | grep "Server uptime:" | tr -d '\r' | sed 's/^[[:space:]]*//')
+
+if [ -z "$server_uptime" ]; then
     log_message "ERROR" "Failed to get server uptime"
     server_uptime="Server uptime: Unknown"
 else
-    server_uptime=$(echo "$server_uptime_output" | tr -d '\r' | sed 's/^[[:space:]]*//')
-    log_message "INFO" "Server uptime: $server_uptime"
+    log_message "INFO" "Got server uptime: $server_uptime"
 fi
 
 # Calculate last restart time
@@ -51,46 +69,44 @@ fi
 total_seconds=$(( (hours * 3600) + (minutes * 60) + seconds ))
 restart_timestamp=$((current_time - total_seconds))
 last_restart=$(date -d "@$restart_timestamp" "+%Y-%m-%d %H:%M:%S")
-log_message "INFO" "Last restart: $last_restart"
+log_message "INFO" "Calculated last restart: $last_restart"
 
 # Get current server time
 server_time=$(date "+%Y-%m-%d %H:%M:%S")
 log_message "INFO" "Server time: $server_time"
 
-# Create the Discord message
-discord_message=$(cat <<EOF
-$server_uptime
-Last restart: $last_restart
-Server time: $server_time
-EOF
-)
-
 # Send to Discord if webhook is configured
 if [ -n "$DISCORD_WEBHOOK" ]; then
     log_message "INFO" "Sending to Discord"
     
-    # Create a JSON file with the payload
-    cat > /tmp/discord_payload.json <<EOF
-{"content":"$discord_message"}
-EOF
-
-    # Send the message
-    curl_output=$(curl -s -H "Content-Type: application/json" \
-                 -X POST \
-                 --data @/tmp/discord_payload.json \
-                 "$DISCORD_WEBHOOK" 2>&1)
+    # Use proper Discord linebreak escaping
+    discord_message="${server_uptime}\\n"
+    discord_message+="Last restart: ${last_restart}\\n"
+    discord_message+="Server time: ${server_time}"
     
-    if [ $? -eq 0 ]; then
+    # Create payload
+    payload="{\"content\":\"$discord_message\"}"
+    
+    # Write to temp file
+    echo "$payload" > /tmp/discord_payload.json
+    
+    # Send the message
+    if curl -s -H "Content-Type: application/json" \
+         -X POST \
+         --data @/tmp/discord_payload.json \
+         "$DISCORD_WEBHOOK" > /dev/null 2>&1; then
         log_message "SUCCESS" "Discord notification sent successfully"
     else
-        log_message "ERROR" "Failed to send Discord notification: $curl_output"
+        log_message "ERROR" "Failed to send Discord notification"
     fi
     
     # Clean up
     rm -f /tmp/discord_payload.json
 else
     log_message "WARNING" "Discord webhook not configured, printing to console"
-    echo "$discord_message"
+    echo "$server_uptime"
+    echo "Last restart: $last_restart"
+    echo "Server time: $server_time"
 fi
 
 log_message "SUCCESS" "Script completed"
