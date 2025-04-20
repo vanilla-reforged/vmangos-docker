@@ -56,16 +56,52 @@ get_server_info() {
         return 1
     fi
     
-    # Extract the relevant information using grep/sed
-    core_info=$(echo "$server_info" | grep "Core revision:" | sed 's/\r//g')
-    players_info=$(echo "$server_info" | grep "Players online:" | sed 's/\r//g')
-    uptime_info=$(echo "$server_info" | grep "Server uptime:" | sed 's/\r//g')
+    # Extract only the relevant lines and clean them
+    players_info=$(echo "$server_info" | grep "Players online:" | sed 's/\r//g' | sed 's/^[[:space:]]*//')
+    uptime_info=$(echo "$server_info" | grep "Server uptime:" | sed 's/\r//g' | sed 's/^[[:space:]]*//')
     
-    # Combine the information
-    echo -e "$core_info\n$players_info\n$uptime_info"
+    # Only include the players and uptime info
+    echo -e "$players_info\n$uptime_info"
     
     log_message "INFO" "Successfully retrieved server info"
     return 0
+}
+
+# Function to calculate last restart time
+calculate_last_restart() {
+    # Get the current time
+    current_time=$(date +%s)
+    
+    # Extract uptime from server_info
+    uptime_line=$(echo "$1" | grep "Server uptime:")
+    
+    # Parse the uptime line
+    hours=0
+    minutes=0
+    seconds=0
+    
+    if [[ $uptime_line =~ ([0-9]+)[[:space:]]+Hours? ]]; then
+        hours=${BASH_REMATCH[1]}
+    fi
+    
+    if [[ $uptime_line =~ ([0-9]+)[[:space:]]+Minutes? ]]; then
+        minutes=${BASH_REMATCH[1]}
+    fi
+    
+    if [[ $uptime_line =~ ([0-9]+)[[:space:]]+Seconds? ]]; then
+        seconds=${BASH_REMATCH[1]}
+    fi
+    
+    # Calculate total uptime in seconds
+    total_seconds=$(( (hours * 3600) + (minutes * 60) + seconds ))
+    
+    # Calculate restart timestamp
+    restart_timestamp=$((current_time - total_seconds))
+    
+    # Format restart time
+    restart_time=$(date -d "@$restart_timestamp" "+%Y-%m-%d %H:%M:%S")
+    
+    echo "$restart_time"
 }
 
 # Get server info
@@ -78,26 +114,25 @@ if [ $status -ne 0 ] || [ -z "$server_info" ]; then
     server_info="Unable to retrieve server information. The server might be down."
 fi
 
+# Calculate last restart time
+last_restart=$(calculate_last_restart "$server_info")
+
+# Add the last restart info to server_info
+server_info+=$'\nLast restart: '"$last_restart"
+
 # Format date and time
 current_date=$(date "+%Y-%m-%d")
 current_time=$(date "+%H:%M:%S")
-
-# Function to properly escape JSON strings
-json_escape() {
-    printf '%s' "$1" | python -c 'import json,sys; print(json.dumps(sys.stdin.read()))'
-}
 
 # Send to Discord if webhook is configured
 if [ -n "$DISCORD_WEBHOOK" ]; then
     log_message "INFO" "Sending server info to Discord"
     message="**Server Status Report - $current_date $current_time**\n\n"
     
-    # Split server_info by line and add each line with proper formatting
-    while IFS= read -r line; do
-        message+="$line\n"
-    done <<< "$server_info"
+    # Add the server info to the message
+    message+="$server_info"
     
-    # Make a simpler message that's less likely to have JSON issues
+    # Make the payload
     payload="{\"content\":\"$message\"}"
     
     # Output payload to a temp file to avoid command line escaping issues
