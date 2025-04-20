@@ -235,7 +235,7 @@ crontab -e
 ##############
 
 # Mangos Uptime to discord - 03:55 AM
-03 55 * * * /home/user/vmangos-docker/script/monitoring/01-mangos-uptime.sh >> /home/user/vmangos-docker/script/crontab-logs/01-mangos-uptime.log 2>&1
+55 03 * * * /home/user/vmangos-docker/script/monitoring/01-mangos-uptime.sh >> /home/user/vmangos-docker/script/crontab-logs/01-mangos-uptime.log 2>&1
 
 ```
 
