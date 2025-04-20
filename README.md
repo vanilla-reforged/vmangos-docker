@@ -164,6 +164,12 @@ sudo docker compose up -d
 - `sudo ./script/management/03-core-recompile.sh`
   - Recompile the core.
 
+- `sudo ./script/management/04-vmangos-shutdown.sh`
+  - Shuts down the container vmangos-mangos after 15 minutes (with a player announcement) and configures it to **not** automatically restart.
+ 
+- `sudo ./script/management/05-vmangos-startup.sh`
+  - Starts the container vmangos-mangos and configures it to automatically restart.
+
 #### Edit the crontab using the command below:
 
 ```sh
