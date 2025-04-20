@@ -60,32 +60,7 @@ collect_usage() {
        return
    }
    
-   cpu_raw=$(echo "$stats" | jq -r '.CPUPerc' || echo "0%")
-   # Remove percentage sign and convert to a proper number format
-   # Use 4 decimal places to capture small values like 0.0909
-   cpu_usage=$(echo "$cpu_raw" | tr -d '%' | awk '{printf "%.4f", $0}')
-   
-   # If cpu_usage is empty or not a number, set it to 0
-   if ! [[ "$cpu_usage" =~ ^[0-9]*\.?[0-9]*$ ]]; then
-       log_message "WARNING" "Invalid CPU usage value, setting to 0"
-       cpu_usage="0.0000"
-   }
-   
-   # For database container, normalize CPU usage if needed
-   if [[ "$container_name" == "vmangos-database" ]]; then
-       # Get the reported CPU value and ensure it's reasonable
-       # If it seems too high, adjust it - but preserve original behavior
-       if (( $(echo "$cpu_usage > 100" | bc -l) )); then
-           log_message "INFO" "Normalizing high CPU usage for database container"
-           # Get number of CPUs on the host system
-           cpu_count=$(grep -c ^processor /proc/cpuinfo)
-           # Only normalize if cpu_count is greater than 0
-           if [ "$cpu_count" -gt 0 ]; then
-               cpu_usage=$(echo "$cpu_usage / $cpu_count" | bc -l | awk '{printf "%.4f", $0}')
-               log_message "INFO" "Normalized CPU usage: $cpu_usage% (divided by $cpu_count CPUs)"
-           }
-       }
-   }
+   # CPU collection removed
    
    mem_raw=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' || echo "0MiB")
    
@@ -106,9 +81,9 @@ collect_usage() {
    # Get human-readable timestamp
    human_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
    
-   # Append data to log file
-   echo "$human_timestamp,$timestamp,$cpu_usage,$mem_usage" >> "$log_file"
-   log_message "INFO" "Recorded stats for $container_name - CPU: $cpu_usage%, Memory: $mem_usage MiB"
+   # Append data to log file - removed CPU data
+   echo "$human_timestamp,$timestamp,$mem_usage" >> "$log_file"
+   log_message "INFO" "Recorded stats for $container_name - Memory: $mem_usage MiB"
    
    # Clean up old entries
    clean_old_entries "$log_file"
