@@ -46,7 +46,7 @@ collect_usage() {
        log_message "WARNING" "Container $container_name is not running"
        echo "Warning: Container $container_name is not running." >> "${LOG_DIR}/error.log"
        return
-   fi
+   }
    
    log_message "INFO" "Collecting resource stats for container: $container_name"
    
@@ -58,9 +58,9 @@ collect_usage() {
        log_message "WARNING" "Unable to collect stats for $container_name"
        echo "Warning: Unable to collect stats for $container_name." >> "${LOG_DIR}/error.log"
        return
-   fi
+   }
    
-   # CPU collection removed
+   # CPU usage collection removed
    
    mem_raw=$(echo "$stats" | jq -r '.MemUsage' | awk -F'/' '{print $1}' || echo "0MiB")
    
@@ -70,18 +70,18 @@ collect_usage() {
        log_message "DEBUG" "Converted memory from GiB to MiB: $mem_raw -> $mem_usage MiB"
    else
        mem_usage=$(echo "$mem_raw" | tr -d 'MiB')
-   fi
+   }
    
    # If mem_usage is empty or not a number, set it to 0
    if ! [[ "$mem_usage" =~ ^[0-9]*\.?[0-9]*$ ]]; then
        log_message "WARNING" "Invalid memory usage value, setting to 0"
        mem_usage="0.00"
-   fi
+   }
    
    # Get human-readable timestamp
    human_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
    
-   # Append data to log file - removed CPU data
+   # Append data to log file (removed CPU data)
    echo "$human_timestamp,$timestamp,$mem_usage" >> "$log_file"
    log_message "INFO" "Recorded stats for $container_name - Memory: $mem_usage MiB"
    
