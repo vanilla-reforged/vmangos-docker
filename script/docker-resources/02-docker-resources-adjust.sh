@@ -48,58 +48,57 @@ TOTAL_MIN_RESERVATION=$(echo "scale=2; $MIN_RESERVATION_DB + $MIN_RESERVATION_MA
 REMAINING_MEMORY=$(echo "scale=2; $AVAILABLE_MEMORY - $TOTAL_MIN_RESERVATION" | bc)
 log_message "INFO" "Total minimum reservation: ${TOTAL_MIN_RESERVATION}GB, Remaining memory for distribution: ${REMAINING_MEMORY}GB"
 
-# Function to calculate average usage, including all values
-calculate_average() {
+# Function to calculate average memory usage
+calculate_average_memory() {
     local log_file=$1
     if [ ! -f "$log_file" ] || [ ! -s "$log_file" ]; then
-        log_message "WARNING" "Log file $log_file doesn't exist or is empty, returning zeros"
-        echo "0,0"
+        log_message "WARNING" "Log file $log_file doesn't exist or is empty, returning zero"
+        echo "0"
         return
-    fi
+    }
 
     # Use awk to process the log file, including all values within the time period
-    # Format: timestamp,epoch,cpu,memory
+    # New Format: timestamp,epoch,memory (CPU column was removed)
     local result=$(awk -F',' -v threshold=$SEVEN_DAYS_AGO '
         $2 >= threshold { 
-            cpu_sum += $3
-            mem_sum += $4
+            mem_sum += $3
             count++
         }
         END {
             if (count > 0) {
-                printf "%.2f,%.2f", cpu_sum/count, mem_sum/count
+                printf "%.2f", mem_sum/count
             } else {
-                print "0,0"
+                print "0"
             }
         }' "$log_file")
 
     echo "$result"
 }
 
-# Get averages
-log_message "INFO" "Calculating averages from logs"
-avg_db=$(calculate_average "$DB_LOG")
-avg_mangos=$(calculate_average "$MANGOS_LOG")
-avg_realmd=$(calculate_average "$REALMD_LOG")
+# Get average memory usage
+log_message "INFO" "Calculating memory averages from logs"
+avg_mem_db=$(calculate_average_memory "$DB_LOG")
+avg_mem_mangos=$(calculate_average_memory "$MANGOS_LOG")
+avg_mem_realmd=$(calculate_average_memory "$REALMD_LOG")
 
-# Extract memory values with validation
-avg_mem_db=$(echo "$avg_db" | cut -d',' -f2 | grep -E '^[0-9]*\.?[0-9]+$' || echo "0")
-avg_mem_mangos=$(echo "$avg_mangos" | cut -d',' -f2 | grep -E '^[0-9]*\.?[0-9]+$' || echo "0")
-avg_mem_realmd=$(echo "$avg_realmd" | cut -d',' -f2 | grep -E '^[0-9]*\.?[0-9]+$' || echo "0")
+# Validate memory values
+avg_mem_db=$(echo "$avg_mem_db" | grep -E '^[0-9]*\.?[0-9]+$' || echo "0")
+avg_mem_mangos=$(echo "$avg_mem_mangos" | grep -E '^[0-9]*\.?[0-9]+$' || echo "0")
+avg_mem_realmd=$(echo "$avg_mem_realmd" | grep -E '^[0-9]*\.?[0-9]+$' || echo "0")
 
-log_message "DEBUG" "Raw Memory Values - DB: $avg_mem_db MB, Mangos: $avg_mem_mangos MB, Realmd: $avg_mem_realmd MB"
+log_message "DEBUG" "Memory Values - DB: $avg_mem_db MB, Mangos: $avg_mem_mangos MB, Realmd: $avg_mem_realmd MB"
 
 # Calculate total memory usage for ratio calculation
 total_mem_usage=$(echo "scale=2; $avg_mem_db + $avg_mem_mangos + $avg_mem_realmd" | bc)
 
 log_message "INFO" "Total Memory Usage: $total_mem_usage MB"
 
-# Calculate ratios
+# Calculate memory ratios
 if [ "$(echo "$total_mem_usage > 0" | bc)" -eq 1 ]; then
     ratio_db=$(echo "scale=4; $avg_mem_db / $total_mem_usage" | bc)
     ratio_mangos=$(echo "scale=4; $avg_mem_mangos / $total_mem_usage" | bc)
     ratio_realmd=$(echo "scale=4; $avg_mem_realmd / $total_mem_usage" | bc)
-    log_message "INFO" "Calculated ratios from logs"
+    log_message "INFO" "Calculated memory ratios from logs"
 else
     # Default ratios if no usage data
     ratio_db=0.25
@@ -127,41 +126,8 @@ mem_limit_db=$mem_reservation_db
 mem_limit_mangos=$mem_reservation_mangos
 mem_limit_realmd=$mem_reservation_realmd
 
-# Extract CPU values and calculate shares
-avg_cpu_db=$(echo "$avg_db" | cut -d',' -f1)
-avg_cpu_mangos=$(echo "$avg_mangos" | cut -d',' -f1)
-avg_cpu_realmd=$(echo "$avg_realmd" | cut -d',' -f1)
-
-total_cpu=$(echo "scale=2; $avg_cpu_db + $avg_cpu_mangos + $avg_cpu_realmd" | bc)
-log_message "INFO" "Average CPU Usage - DB: $avg_cpu_db%, Mangos: $avg_cpu_mangos%, Realmd: $avg_cpu_realmd%, Total: $total_cpu%"
-
-# Calculate CPU shares based on usage
-BASE_CPU_SHARES=1024  # Default Docker CPU shares
-MAX_MULTIPLIER=30     # Maximum multiplier for shares
-
-if [ "$(echo "$total_cpu > 0" | bc)" -eq 1 ]; then
-    cpu_ratio_db=$(echo "scale=4; $avg_cpu_db / $total_cpu" | bc)
-    cpu_ratio_mangos=$(echo "scale=4; $avg_cpu_mangos / $total_cpu" | bc)
-    cpu_ratio_realmd=$(echo "scale=4; $avg_cpu_realmd / $total_cpu" | bc)
-    
-    # Calculate shares with new formula and force integer values:
-    # BASE_CPU_SHARES + (ratio * (MAX_MULTIPLIER-1) * BASE_CPU_SHARES)
-    cpu_shares_db=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_db * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | awk '{printf "%d", $0}')
-    cpu_shares_mangos=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_mangos * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | awk '{printf "%d", $0}')
-    cpu_shares_realmd=$(echo "$BASE_CPU_SHARES + ($cpu_ratio_realmd * ($MAX_MULTIPLIER - 1) * $BASE_CPU_SHARES)" | awk '{printf "%d", $0}')
-    log_message "INFO" "Calculated CPU shares based on usage ratios"
-else
-    # If no CPU usage data, use default shares
-    cpu_shares_db=$BASE_CPU_SHARES
-    cpu_shares_mangos=$BASE_CPU_SHARES
-    cpu_shares_realmd=$BASE_CPU_SHARES
-    log_message "WARNING" "No CPU usage data, using default CPU shares"
-fi
-
-# Ensure all CPU shares are integers
-cpu_shares_db=${cpu_shares_db%.*}
-cpu_shares_mangos=${cpu_shares_mangos%.*}
-cpu_shares_realmd=${cpu_shares_realmd%.*}
+# CPU shares configuration removed - we no longer collect CPU data
+log_message "INFO" "CPU data is no longer collected, removing CPU shares configuration"
 
 # Function to update or add a variable in the .env file
 update_env_variable() {
@@ -172,7 +138,7 @@ update_env_variable() {
     if [ -z "$var_value" ]; then
         log_message "WARNING" "Skipping update of $var_name as value is empty"
         return
-    fi
+    }
 
     if grep -q "^${var_name}=" "$env_file"; then
         sed -i "s|^${var_name}=.*|${var_name}=${var_value}|" "$env_file"
@@ -204,16 +170,14 @@ update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_limit_db}g"
 update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_limit_mangos}g"
 update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_limit_realmd}g"
 
-update_env_variable "CPU_SHARES_DB" "$cpu_shares_db"
-update_env_variable "CPU_SHARES_MANGOS" "$cpu_shares_mangos"
-update_env_variable "CPU_SHARES_REALMD" "$cpu_shares_realmd"
+# CPU shares variables removed as CPU data is no longer collected
 
 # Clean up old log entries
 cleanup_log() {
     log_file=$1
     if [ -f "$log_file" ]; then
         log_message "INFO" "Cleaning up old entries from $log_file"
-        awk -F',' -v threshold=$SEVEN_DAYS_AGO '$1 >= threshold' "$log_file" > "${log_file}.tmp" && mv "${log_file}.tmp" "$log_file"
+        awk -F',' -v threshold=$SEVEN_DAYS_AGO '$2 >= threshold' "$log_file" > "${log_file}.tmp" && mv "${log_file}.tmp" "$log_file"
     else
         log_message "WARNING" "Log file $log_file not found, skipping cleanup"
     fi
@@ -230,8 +194,8 @@ log_message "INFO" "Total Host Memory: ${TOTAL_HOST_MEMORY}GB"
 log_message "INFO" "Available Memory (75%): ${AVAILABLE_MEMORY}GB"
 log_message "INFO" "Total Minimum Reservation: ${TOTAL_MIN_RESERVATION}GB"
 log_message "INFO" "Remaining for Distribution: ${REMAINING_MEMORY}GB"
-log_message "INFO" "Usage Ratios (DB:Mangos:Realmd): ${ratio_db}:${ratio_mangos}:${ratio_realmd}"
-log_message "INFO" "Final Allocations - DB: ${mem_reservation_db}GB, Mangos: ${mem_reservation_mangos}GB, Realmd: ${mem_reservation_realmd}GB"
+log_message "INFO" "Memory Usage Ratios (DB:Mangos:Realmd): ${ratio_db}:${ratio_mangos}:${ratio_realmd}"
+log_message "INFO" "Final Memory Allocations - DB: ${mem_reservation_db}GB, Mangos: ${mem_reservation_mangos}GB, Realmd: ${mem_reservation_realmd}GB"
 
 # Send to Discord if webhook is configured
 if [ -n "$DISCORD_WEBHOOK" ]; then
@@ -243,14 +207,8 @@ if [ -n "$DISCORD_WEBHOOK" ]; then
     message+="DB: ${mem_reservation_db}GB\n"
     message+="Mangos: ${mem_reservation_mangos}GB\n"
     message+="Realmd: ${mem_reservation_realmd}GB\n\n"
-    message+="**CPU Usage (Average):**\n"
-    message+="DB: ${avg_cpu_db}%\n"
-    message+="Mangos: ${avg_cpu_mangos}%\n"
-    message+="Realmd: ${avg_cpu_realmd}%\n\n"
-    message+="**CPU Shares:**\n"
-    message+="DB: ${cpu_shares_db} (ratio: ${cpu_ratio_db})\n"
-    message+="Mangos: ${cpu_shares_mangos} (ratio: ${cpu_ratio_mangos})\n"
-    message+="Realmd: ${cpu_shares_realmd} (ratio: ${cpu_ratio_realmd})"
+    message+="**Note:**\n"
+    message+="CPU usage data is no longer being collected"
     
     if curl -s -H "Content-Type: application/json" \
          -X POST \
