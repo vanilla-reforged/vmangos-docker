@@ -1,19 +1,15 @@
 #!/bin/bash
-
 # Simple logging function
 log_message() {
     local message="$1"
     local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
     echo "[$timestamp] $message"
 }
-
 # Change to the directory where the script is located
 cd "$(dirname "$0")"
 log_message "Enable restart script started"
-
 # Load environment variables from .env-script if needed
 source ./../../.env-script
-
 # Function to enable automatic restart for the container and start it if needed
 enable_restart() {
     local CONTAINER_NAME="vmangos-mangos"
@@ -51,7 +47,6 @@ enable_restart() {
         return 1
     fi
 }
-
 # Main execution
 if enable_restart; then
     log_message "Container automatic restart enabled successfully"
