@@ -170,6 +170,11 @@ sudo docker compose up -d
 - `sudo ./script/management/05-vmangos-startup.sh`
   - Starts the container vmangos-mangos and configures it to automatically restart.
 
+### Monitoring (/script/monitoring/)
+
+- `sudo ./script/management/01-vmangos-uptime.sh`
+  - Sends current uptime to discord.
+
 #### Edit the crontab using the command below:
 
 ```sh
@@ -224,6 +229,14 @@ crontab -e
 
 # Weekly logs cleanup - Sunday at 12:00 PM
 00 12 * * 0 /home/user/vmangos-docker/script/logs/01-vmangos-logs-cleanup.sh >> /home/user/vmangos-docker/script/crontab-logs/01-vmangos-logs-cleanup.log 2>&1
+
+##############
+# Monitoring #
+##############
+
+# Mangos Uptime to discord - 03:55 AM
+03 55 * * * /home/user/vmangos-docker/script/monitoring/01-mangos-uptime.sh >> /home/user/vmangos-docker/script/crontab-logs/01-mangos-uptime.log 2>&1
+
 ```
 
 ## Vanilla Reforged Links
