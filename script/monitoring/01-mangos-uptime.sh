@@ -18,12 +18,8 @@ log_message "INFO" "Script started"
 log_message "INFO" "Loading environment variables"
 source ./../../.env-script
 
-# Get current timestamp
-timestamp=$(date +%s)
-log_message "INFO" "Current timestamp: $timestamp ($(date -d @$timestamp '+%Y-%m-%d %H:%M:%S'))"
-
 # Function to get server info from mangos container
-get_server_info() {
+get_uptime_only() {
     log_message "INFO" "Getting server info from vmangos-mangos container"
     
     # Check if the container is running
@@ -32,37 +28,42 @@ get_server_info() {
         return 1
     fi
     
-    # Use expect to connect to the container and execute the server info command
-    server_info=$(expect -c '
+    # Use expect to run the command and capture output
+    output_file="/tmp/mangos_uptime_$$.tmp"
+    
+    expect -c "
         set timeout 10
         spawn sudo docker attach vmangos-mangos
         sleep 2
-        send "server info\r"
+        send \"server info\r\"
         sleep 2
         expect {
-            "server info" {
-                expect -re "Server uptime:.*\r\n"
+            \"server info\" {
+                expect -re \"Server uptime:.*\r\n\"
             }
         }
-        send "\x10"
+        send \"\x10\"
         sleep 1
-        send "\x11"
+        send \"\x11\"
         expect eof
-    ')
+    " > "$output_file" 2>/dev/null
     
     # Check if we got any output
-    if [ -z "$server_info" ]; then
+    if [ ! -s "$output_file" ]; then
         log_message "ERROR" "Failed to get server info"
+        rm -f "$output_file"
         return 1
     fi
     
-    log_message "INFO" "Successfully retrieved server info"
+    # Extract only the uptime line
+    uptime_line=$(grep -o "Server uptime:.*" "$output_file" | head -1 | sed 's/\r//g')
     
-    # Extract only the uptime line and clean it
-    uptime_line=$(echo "$server_info" | grep "Server uptime:" | sed 's/\r//g' | sed 's/^[[:space:]]*//')
+    # Clean up the temp file
+    rm -f "$output_file"
     
     if [ -n "$uptime_line" ]; then
         echo "$uptime_line"
+        log_message "INFO" "Successfully extracted uptime info"
         return 0
     else
         log_message "ERROR" "Failed to extract uptime info"
@@ -107,18 +108,18 @@ calculate_last_restart() {
     echo "$restart_time"
 }
 
-# Get server info
-server_info=$(get_server_info)
+# Get server uptime info
+uptime_info=$(get_uptime_only)
 status=$?
 
 # Handle possible failure
-if [ $status -ne 0 ] || [ -z "$server_info" ]; then
-    log_message "ERROR" "Failed to get server info or server info is empty"
-    server_info="Unable to retrieve server information. The server might be down."
+if [ $status -ne 0 ] || [ -z "$uptime_info" ]; then
+    log_message "ERROR" "Failed to get server uptime info"
+    uptime_info="Server uptime: Unknown"
 fi
 
 # Calculate last restart time
-last_restart=$(calculate_last_restart "$server_info")
+last_restart=$(calculate_last_restart "$uptime_info")
 
 # Get current server time
 server_time=$(date "+%Y-%m-%d %H:%M:%S")
@@ -127,21 +128,27 @@ server_time=$(date "+%Y-%m-%d %H:%M:%S")
 if [ -n "$DISCORD_WEBHOOK" ]; then
     log_message "INFO" "Sending server info to Discord"
     
-    # Create message with only the desired information
-    message=""
-    message+="$server_info\\n"
-    message+="Last restart: $last_restart\\n"
-    message+="Server time: $server_time"
+    # Create an array of exactly what we want to send
+    discord_message_lines=(
+        "$uptime_info"
+        "Last restart: $last_restart"
+        "Server time: $server_time"
+    )
     
-    # Make the payload with proper JSON escaping
-    payload="{\"content\":\"$message\"}"
+    # Join the array with Discord's newline escaping
+    discord_message=$(printf "%s\\n" "${discord_message_lines[@]}" | sed 's/\\n$//')
     
-    # Output payload to a temp file to avoid command line escaping issues
-    echo "$payload" > /tmp/discord_payload.json
+    # Create the final payload
+    payload="{\"content\":\"$discord_message\"}"
     
+    # Output payload to a temp file
+    payload_file="/tmp/discord_payload_$$.json"
+    echo "$payload" > "$payload_file"
+    
+    # Send the message
     if curl -s -H "Content-Type: application/json" \
          -X POST \
-         --data @/tmp/discord_payload.json \
+         --data @"$payload_file" \
          "$DISCORD_WEBHOOK"; then
         log_message "SUCCESS" "Discord notification sent successfully"
     else
@@ -149,11 +156,11 @@ if [ -n "$DISCORD_WEBHOOK" ]; then
     fi
     
     # Clean up
-    rm -f /tmp/discord_payload.json
+    rm -f "$payload_file"
 else
     log_message "WARNING" "Discord webhook not configured, skipping notification"
     # Print the info to console anyway
-    echo -e "$server_info"
+    echo -e "$uptime_info"
     echo -e "Last restart: $last_restart"
     echo -e "Server time: $server_time"
 fi
