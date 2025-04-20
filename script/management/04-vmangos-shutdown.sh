@@ -16,6 +16,16 @@ shutdown_server() {
     # Set the shutdown delay in seconds (15 minutes = 900 seconds)
     local SHUTDOWN_DELAY=900
     
+    # First, update the restart policy to prevent automatic restarts
+    log_message "Updating container restart policy to 'no'"
+    if sudo docker update --restart=no vmangos-mangos; then
+        log_message "Container restart policy updated to 'no'"
+    else
+        log_message "Failed to update container restart policy"
+        return 1
+    fi
+    
+    # Now initiate the server shutdown
     log_message "Initiating server shutdown (${SHUTDOWN_DELAY} second countdown)"
     
     if expect <<EOF
@@ -48,15 +58,6 @@ EOF
     # Wait for the shutdown to complete (plus a small buffer)
     log_message "Waiting for server shutdown to complete..."
     sleep $((SHUTDOWN_DELAY + 10))
-    
-    # Stop the container from restarting
-    log_message "Stopping container vmangos-mangos from restarting"
-    if sudo docker update --restart=no vmangos-mangos; then
-        log_message "Container restart policy updated to 'no'"
-    else
-        log_message "Failed to update container restart policy"
-        return 1
-    fi
     
     return 0
 }
