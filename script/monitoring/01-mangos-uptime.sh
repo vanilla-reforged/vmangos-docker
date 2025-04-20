@@ -61,7 +61,8 @@ get_server_info() {
     uptime_info=$(echo "$server_info" | grep "Server uptime:" | sed 's/\r//g' | sed 's/^[[:space:]]*//')
     
     # Only include the players and uptime info
-    echo -e "$players_info\n$uptime_info"
+    echo "$players_info"
+    echo "$uptime_info"
     
     log_message "INFO" "Successfully retrieved server info"
     return 0
@@ -117,9 +118,6 @@ fi
 # Calculate last restart time
 last_restart=$(calculate_last_restart "$server_info")
 
-# Add the last restart info to server_info
-server_info+=$'\nLast restart: '"$last_restart"
-
 # Format date and time
 current_date=$(date "+%Y-%m-%d")
 current_time=$(date "+%H:%M:%S")
@@ -127,12 +125,18 @@ current_time=$(date "+%H:%M:%S")
 # Send to Discord if webhook is configured
 if [ -n "$DISCORD_WEBHOOK" ]; then
     log_message "INFO" "Sending server info to Discord"
-    message="**Server Status Report - $current_date $current_time**\n\n"
+    message="**Server Status Report - $current_date $current_time**\\n\\n"
     
-    # Add the server info to the message
-    message+="$server_info"
+    # Parse the server info line by line and add each line properly formatted
+    while IFS= read -r line; do
+        # Add each line with proper Discord line breaks
+        message+="${line}\\n"
+    done <<< "$server_info"
     
-    # Make the payload
+    # Add the last restart with proper line break
+    message+="Last restart: $last_restart"
+    
+    # Make the payload with proper JSON escaping
     payload="{\"content\":\"$message\"}"
     
     # Output payload to a temp file to avoid command line escaping issues
@@ -154,6 +158,7 @@ else
     # Print the info to console anyway
     echo -e "\nServer Status Report - $current_date $current_time"
     echo -e "$server_info"
+    echo -e "Last restart: $last_restart"
 fi
 
 log_message "SUCCESS" "Script completed"
