@@ -56,16 +56,21 @@ get_server_info() {
         return 1
     fi
     
-    # Extract only the relevant lines and clean them
-    players_info=$(echo "$server_info" | grep "Players online:" | sed 's/\r//g' | sed 's/^[[:space:]]*//')
-    uptime_info=$(echo "$server_info" | grep "Server uptime:" | sed 's/\r//g' | sed 's/^[[:space:]]*//')
-    
-    # Only include the players and uptime info
-    echo "$players_info"
-    echo "$uptime_info"
-    
     log_message "INFO" "Successfully retrieved server info"
-    return 0
+    
+    # Extract only the relevant lines and clean them
+    # Only return the lines we need, not all the server info
+    players_line=$(echo "$server_info" | grep "Players online:" | sed 's/\r//g' | sed 's/^[[:space:]]*//')
+    uptime_line=$(echo "$server_info" | grep "Server uptime:" | sed 's/\r//g' | sed 's/^[[:space:]]*//')
+    
+    if [ -n "$players_line" ] && [ -n "$uptime_line" ]; then
+        echo "$players_line"
+        echo "$uptime_line"
+        return 0
+    else
+        log_message "ERROR" "Failed to extract player or uptime info"
+        return 1
+    fi
 }
 
 # Function to calculate last restart time
@@ -125,12 +130,19 @@ current_time=$(date "+%H:%M:%S")
 # Send to Discord if webhook is configured
 if [ -n "$DISCORD_WEBHOOK" ]; then
     log_message "INFO" "Sending server info to Discord"
-    message="**Server Status Report - $current_date $current_time**\\n\\n"
     
-    # Parse the server info line by line and add each line properly formatted
+    # Start with an empty message
+    message=""
+    
+    # Add the header if desired
+    message+="**Server Status Report - $current_date $current_time**\\n\\n"
+    
+    # Parse the server info line by line
     while IFS= read -r line; do
-        # Add each line with proper Discord line breaks
-        message+="${line}\\n"
+        # Skip any lines that contain log message patterns
+        if [[ "$line" != *"["*"]"* ]]; then
+            message+="${line}\\n"
+        fi
     done <<< "$server_info"
     
     # Add the last restart with proper line break
