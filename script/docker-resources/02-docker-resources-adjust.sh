@@ -49,13 +49,13 @@ REMAINING_MEMORY=$(echo "scale=2; $AVAILABLE_MEMORY - $TOTAL_MIN_RESERVATION" | 
 log_message "INFO" "Total minimum reservation: ${TOTAL_MIN_RESERVATION}GB, Remaining memory for distribution: ${REMAINING_MEMORY}GB"
 
 # Function to calculate average memory usage
-calculate_average_memory() {
+calculate_memory_average() {
     local log_file=$1
     if [ ! -f "$log_file" ] || [ ! -s "$log_file" ]; then
         log_message "WARNING" "Log file $log_file doesn't exist or is empty, returning zero"
         echo "0"
         return
-    }
+    fi
 
     # Use awk to process the log file, including all values within the time period
     # New Format: timestamp,epoch,memory (CPU column was removed)
@@ -75,11 +75,11 @@ calculate_average_memory() {
     echo "$result"
 }
 
-# Get average memory usage
+# Get memory averages
 log_message "INFO" "Calculating memory averages from logs"
-avg_mem_db=$(calculate_average_memory "$DB_LOG")
-avg_mem_mangos=$(calculate_average_memory "$MANGOS_LOG")
-avg_mem_realmd=$(calculate_average_memory "$REALMD_LOG")
+avg_mem_db=$(calculate_memory_average "$DB_LOG")
+avg_mem_mangos=$(calculate_memory_average "$MANGOS_LOG")
+avg_mem_realmd=$(calculate_memory_average "$REALMD_LOG")
 
 # Validate memory values
 avg_mem_db=$(echo "$avg_mem_db" | grep -E '^[0-9]*\.?[0-9]+$' || echo "0")
@@ -93,7 +93,7 @@ total_mem_usage=$(echo "scale=2; $avg_mem_db + $avg_mem_mangos + $avg_mem_realmd
 
 log_message "INFO" "Total Memory Usage: $total_mem_usage MB"
 
-# Calculate memory ratios
+# Calculate ratios
 if [ "$(echo "$total_mem_usage > 0" | bc)" -eq 1 ]; then
     ratio_db=$(echo "scale=4; $avg_mem_db / $total_mem_usage" | bc)
     ratio_mangos=$(echo "scale=4; $avg_mem_mangos / $total_mem_usage" | bc)
@@ -126,8 +126,8 @@ mem_limit_db=$mem_reservation_db
 mem_limit_mangos=$mem_reservation_mangos
 mem_limit_realmd=$mem_reservation_realmd
 
-# CPU shares configuration removed - we no longer collect CPU data
-log_message "INFO" "CPU data is no longer collected, removing CPU shares configuration"
+# CPU shares section removed since CPU data is no longer collected
+log_message "INFO" "CPU data is no longer being collected or used"
 
 # Function to update or add a variable in the .env file
 update_env_variable() {
@@ -138,7 +138,7 @@ update_env_variable() {
     if [ -z "$var_value" ]; then
         log_message "WARNING" "Skipping update of $var_name as value is empty"
         return
-    }
+    fi
 
     if grep -q "^${var_name}=" "$env_file"; then
         sed -i "s|^${var_name}=.*|${var_name}=${var_value}|" "$env_file"
@@ -170,7 +170,7 @@ update_env_variable "MEMSWAP_LIMIT_DB" "${memswap_limit_db}g"
 update_env_variable "MEMSWAP_LIMIT_MANGOS" "${memswap_limit_mangos}g"
 update_env_variable "MEMSWAP_LIMIT_REALMD" "${memswap_limit_realmd}g"
 
-# CPU shares variables removed as CPU data is no longer collected
+# CPU shares variables no longer updated
 
 # Clean up old log entries
 cleanup_log() {
@@ -206,9 +206,7 @@ if [ -n "$DISCORD_WEBHOOK" ]; then
     message+="**Memory Allocations:**\n"
     message+="DB: ${mem_reservation_db}GB\n"
     message+="Mangos: ${mem_reservation_mangos}GB\n"
-    message+="Realmd: ${mem_reservation_realmd}GB\n\n"
-    message+="**Note:**\n"
-    message+="CPU usage data is no longer being collected"
+    message+="Realmd: ${mem_reservation_realmd}GB"
     
     if curl -s -H "Content-Type: application/json" \
          -X POST \
