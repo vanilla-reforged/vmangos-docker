@@ -46,7 +46,7 @@ collect_usage() {
        log_message "WARNING" "Container $container_name is not running"
        echo "Warning: Container $container_name is not running." >> "${LOG_DIR}/error.log"
        return
-   }
+   fi
    
    log_message "INFO" "Collecting resource stats for container: $container_name"
    
@@ -58,7 +58,7 @@ collect_usage() {
        log_message "WARNING" "Unable to collect stats for $container_name"
        echo "Warning: Unable to collect stats for $container_name." >> "${LOG_DIR}/error.log"
        return
-   }
+   fi
    
    # CPU collection removed
    
@@ -70,13 +70,13 @@ collect_usage() {
        log_message "DEBUG" "Converted memory from GiB to MiB: $mem_raw -> $mem_usage MiB"
    else
        mem_usage=$(echo "$mem_raw" | tr -d 'MiB')
-   }
+   fi
    
    # If mem_usage is empty or not a number, set it to 0
    if ! [[ "$mem_usage" =~ ^[0-9]*\.?[0-9]*$ ]]; then
        log_message "WARNING" "Invalid memory usage value, setting to 0"
        mem_usage="0.00"
-   }
+   fi
    
    # Get human-readable timestamp
    human_timestamp=$(date +"%Y-%m-%d %H:%M:%S")
