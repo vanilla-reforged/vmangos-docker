@@ -58,17 +58,14 @@ get_server_info() {
     
     log_message "INFO" "Successfully retrieved server info"
     
-    # Extract only the relevant lines and clean them
-    # Only return the lines we need, not all the server info
-    players_line=$(echo "$server_info" | grep "Players online:" | sed 's/\r//g' | sed 's/^[[:space:]]*//')
+    # Extract only the uptime line and clean it
     uptime_line=$(echo "$server_info" | grep "Server uptime:" | sed 's/\r//g' | sed 's/^[[:space:]]*//')
     
-    if [ -n "$players_line" ] && [ -n "$uptime_line" ]; then
-        echo "$players_line"
+    if [ -n "$uptime_line" ]; then
         echo "$uptime_line"
         return 0
     else
-        log_message "ERROR" "Failed to extract player or uptime info"
+        log_message "ERROR" "Failed to extract uptime info"
         return 1
     fi
 }
@@ -79,7 +76,7 @@ calculate_last_restart() {
     current_time=$(date +%s)
     
     # Extract uptime from server_info
-    uptime_line=$(echo "$1" | grep "Server uptime:")
+    uptime_line="$1"
     
     # Parse the uptime line
     hours=0
@@ -123,30 +120,18 @@ fi
 # Calculate last restart time
 last_restart=$(calculate_last_restart "$server_info")
 
-# Format date and time
-current_date=$(date "+%Y-%m-%d")
-current_time=$(date "+%H:%M:%S")
+# Get current server time
+server_time=$(date "+%Y-%m-%d %H:%M:%S")
 
 # Send to Discord if webhook is configured
 if [ -n "$DISCORD_WEBHOOK" ]; then
     log_message "INFO" "Sending server info to Discord"
     
-    # Start with an empty message
+    # Create message with only the desired information
     message=""
-    
-    # Add the header if desired
-    message+="**Server Status Report - $current_date $current_time**\\n\\n"
-    
-    # Parse the server info line by line
-    while IFS= read -r line; do
-        # Skip any lines that contain log message patterns
-        if [[ "$line" != *"["*"]"* ]]; then
-            message+="${line}\\n"
-        fi
-    done <<< "$server_info"
-    
-    # Add the last restart with proper line break
-    message+="Last restart: $last_restart"
+    message+="$server_info\\n"
+    message+="Last restart: $last_restart\\n"
+    message+="Server time: $server_time"
     
     # Make the payload with proper JSON escaping
     payload="{\"content\":\"$message\"}"
@@ -168,9 +153,9 @@ if [ -n "$DISCORD_WEBHOOK" ]; then
 else
     log_message "WARNING" "Discord webhook not configured, skipping notification"
     # Print the info to console anyway
-    echo -e "\nServer Status Report - $current_date $current_time"
     echo -e "$server_info"
     echo -e "Last restart: $last_restart"
+    echo -e "Server time: $server_time"
 fi
 
 log_message "SUCCESS" "Script completed"
