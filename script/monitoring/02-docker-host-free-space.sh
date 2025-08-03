@@ -31,16 +31,6 @@ use_percent=$(echo "$disk_info" | awk '{print $5}')
 
 log_message "INFO" "Disk info - Size: $size, Used: $used, Available: $available, Use%: $use_percent"
 
-# Also get Docker-specific disk usage if possible
-docker_disk_usage=""
-if command -v docker &> /dev/null; then
-    log_message "INFO" "Getting Docker disk usage"
-    docker_system_df=$(docker system df --format "table {{.Type}}\t{{.TotalCount}}\t{{.Size}}\t{{.Reclaimable}}" 2>/dev/null | tail -n +2)
-    if [ -n "$docker_system_df" ]; then
-        docker_disk_usage="\n\n**Docker Disk Usage:**\n\`\`\`\n$docker_system_df\n\`\`\`"
-    fi
-fi
-
 # Get current server time
 server_time=$(date "+%Y-%m-%d %H:%M:%S")
 log_message "INFO" "Server time: $server_time"
@@ -56,11 +46,6 @@ if [ -n "$DISCORD_WEBHOOK" ]; then
     discord_message+="**Used:** ${used} (${use_percent})\\n"
     discord_message+="**Available:** ${available}\\n"
     discord_message+="**Server Time:** ${server_time}"
-    
-    # Add Docker disk usage if available
-    if [ -n "$docker_disk_usage" ]; then
-        discord_message+="$docker_disk_usage"
-    fi
     
     # Create payload
     payload="{\"content\":\"$discord_message\"}"
@@ -88,11 +73,6 @@ else
     echo "Used: $used ($use_percent)"
     echo "Available: $available"
     echo "Server Time: $server_time"
-    
-    # Print Docker disk usage if available
-    if [ -n "$docker_disk_usage" ]; then
-        echo -e "$docker_disk_usage"
-    fi
 fi
 
 log_message "SUCCESS" "Script completed"
