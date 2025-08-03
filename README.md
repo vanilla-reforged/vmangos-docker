@@ -235,7 +235,7 @@ crontab -e
 ##############
 
 # Daily mangos uptime to discord - 03:50 AM
-500 03 * * * /home/user/vmangos-docker/script/monitoring/01-mangos-uptime.sh >> /home/user/vmangos-docker/script/crontab-logs/01-mangos-uptime.log 2>&1
+50 03 * * * /home/user/vmangos-docker/script/monitoring/01-mangos-uptime.sh >> /home/user/vmangos-docker/script/crontab-logs/01-mangos-uptime.log 2>&1
 
 # Daily docker host free space to discord - 03:55 AM
 55 03 * * * /home/user/vmangos-docker/script/monitoring/02-docker-host-free-space.sh >> /home/user/vmangos-docker/script/crontab-logs/02-docker-host-free-space.log 2>&1
