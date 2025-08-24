@@ -217,8 +217,8 @@ crontab -e
 # Faction-Balancer #
 ####################
 
-# Hourly population data collection - 45 minutes past each hour
-45 * * * * /home/user/vmangos-docker/script/faction-balancer/01-population-balance-collect.sh >> /home/user/vmangos-docker/script/crontab-logs/01-population-balance-collect.log 2>&1
+# Hourly population data collection - 40 minutes past each hour
+40 * * * * /home/user/vmangos-docker/script/faction-balancer/01-population-balance-collect.sh >> /home/user/vmangos-docker/script/crontab-logs/01-population-balance-collect.log 2>&1
 
 # Daily faction XP rates update - 04:00 AM
 00 4 * * * /home/user/vmangos-docker/script/faction-balancer/02-faction-specific-xp-rates-update.sh >> /home/user/vmangos-docker/script/crontab-logs/02-faction-specific-xp-rates-update.log 2>&1
