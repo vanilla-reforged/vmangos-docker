@@ -5,7 +5,7 @@ nice -n 19 ionice -c 2 -n 7 bash -c '
 # Define variables
 BACKUP_DIR="/vol/backup"
 DB_USER="mangos"
-DB_PASS="$MYSQL_ROOT_PASSWORD"  # No need to source the environment, its available in the container
+DB_PASS="$MYSQL_ROOT_PASSWORD"
 # Create the full SQL dump
 echo "Creating full SQL dump..."
 mariadb-dump \
