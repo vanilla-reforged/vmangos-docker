@@ -1,49 +1,46 @@
 #!/bin/bash
-# Binary log backup script (PITR-safe, incremental)
-# Runs INSIDE the MariaDB container
+# Copy CLOSED MariaDB binlogs into /vol/backup (inside container)
+# Option 2: host will compress each binlog individually
 
 set -euo pipefail
 
-# Apply low resource priority to this process
+# Be nice to the system
 renice -n 19 $$ >/dev/null 2>&1 || true
 ionice -c 3 -p $$ >/dev/null 2>&1 || true
 
-# Configuration
 CONTAINER_BACKUP_DIR="/vol/backup"
 MYSQL_DATA_DIR="/var/lib/mysql"
 DB_USER="mangos"
 DB_PASS="$MYSQL_ROOT_PASSWORD"
 
-echo "[INFO] Starting binary log backup (inside container)"
-
-# Ensure backup directory exists
+echo "[INFO] Starting binlog copy (inside container)"
 mkdir -p "$CONTAINER_BACKUP_DIR"
 
-# 1) Rotate binlogs so the active one is closed
-echo "[INFO] Rotating binary logs"
+echo "[INFO] FLUSH BINARY LOGS (rotate)"
 mariadb --user="$DB_USER" --password="$DB_PASS" -e "FLUSH BINARY LOGS;"
 
-# 2) Determine newest (active) binlog after rotation
-latest_binlog=$(ls -1 "$MYSQL_DATA_DIR"/mysql-bin.[0-9][0-9][0-9][0-9][0-9][0-9] | sort | tail -n 1)
-echo "[INFO] Active binlog: $(basename "$latest_binlog")"
+# Only match real binlog files
+pattern="$MYSQL_DATA_DIR/mysql-bin."[0-9][0-9][0-9][0-9][0-9][0-9]
 
-# 3) Copy only CLOSED binlogs that are not yet backed up
-for binlog in $(ls -1 "$MYSQL_DATA_DIR"/mysql-bin.[0-9][0-9][0-9][0-9][0-9][0-9] | sort); do
-    [[ "$binlog" == "$latest_binlog" ]] && continue
+latest_binlog=$(ls -1 $pattern | sort | tail -n 1)
+echo "[INFO] Active binlog (skip): $(basename "$latest_binlog")"
 
-    filename=$(basename "$binlog")
-    target="$CONTAINER_BACKUP_DIR/$filename"
+for binlog in $(ls -1 $pattern | sort); do
+  [[ "$binlog" == "$latest_binlog" ]] && continue
 
-    # Skip if already copied
-    if [[ -f "$target" ]]; then
-        echo "[INFO] Skipping already backed up $filename"
-        continue
-    fi
+  name="$(basename "$binlog")"
+  dst="$CONTAINER_BACKUP_DIR/$name"
 
-    echo "[INFO] Backing up $filename"
-    dd if="$binlog" of="$target" bs=1M iflag=fullblock status=none
-    sync
-    sleep 1
+  # IMPORTANT: skip if already copied OR already compressed by host
+  if [[ -f "$dst" || -f "$dst.7z" ]]; then
+    echo "[INFO] Skipping already present $name (raw or .7z)"
+    continue
+  fi
+
+  echo "[INFO] Copying $name"
+  dd if="$binlog" of="$dst" bs=1M iflag=fullblock status=none
+  sync
+  sleep 1
 done
 
-echo "[INFO] Binary log backup inside container completed"
+echo "[INFO] Binlog copy completed"
