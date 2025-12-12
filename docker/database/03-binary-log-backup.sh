@@ -1,39 +1,57 @@
 #!/bin/bash
-# Enhanced resource control for binary log backup
-# Use maximum nice value, idle I/O class, and additional throttling
+# Binary log backup script (PITR-safe)
+# Copies only CLOSED binlogs, never the active one
+# Designed for 7-day point-in-time recovery
 
-# Function that will run with strict limits
-copy_binary_logs_limited() {
-    # Configuration
-    CONTAINER_BACKUP_DIR="/vol/backup"  # Backup directory inside the Docker container
-    
-    echo "Copying binary logs to $CONTAINER_BACKUP_DIR..."
-    
-    # Get list of binary logs first
-    binlogs=$(ls /var/lib/mysql/mysql-bin.* 2>/dev/null)
-    
-    # Copy files one by one with pauses between each to reduce I/O spikes
-    for binlog in $binlogs; do
-        filename=$(basename "$binlog")
-        echo "Copying $filename..."
-        
-        # Use dd with rate limiting instead of cp
-        dd if="$binlog" of="$CONTAINER_BACKUP_DIR/$filename" bs=1M status=progress iflag=fullblock oflag=direct
-        
-        # Sleep between files to reduce resource impact
-        sleep 2
-        
-        # Check if copy was successful
-        if [[ $? -eq 0 ]]; then
-            echo "$filename copied successfully."
-        else
-            echo "Failed to copy $filename!"
-            exit 1
-        fi
-    done
-    
-    echo "Binary logs copied successfully to $CONTAINER_BACKUP_DIR."
-}
+set -euo pipefail
 
-# Execute with maximum resource limitations
-nice -n 19 ionice -c 3 bash -c "$(declare -f copy_binary_logs_limited); copy_binary_logs_limited"
+# Resource limits
+NICE_LEVEL=19
+IONICE_CLASS=3   # idle
+IONICE_LEVEL=0
+
+nice -n $NICE_LEVEL ionice -c $IONICE_CLASS -n $IONICE_LEVEL bash -c '
+
+# Configuration
+CONTAINER_BACKUP_DIR="/vol/backup"
+MYSQL_DATA_DIR="/var/lib/mysql"
+DB_USER="mangos"
+DB_PASS="$MYSQL_ROOT_PASSWORD"
+
+echo "[INFO] Starting binary log backup"
+
+# Ensure backup directory exists
+mkdir -p "$CONTAINER_BACKUP_DIR"
+
+# 1) Rotate binlogs so the current one is closed
+echo "[INFO] Rotating binary logs"
+mariadb --user="$DB_USER" --password="$DB_PASS" -e "FLUSH BINARY LOGS;"
+
+# 2) Identify the newest binlog (still active after rotation)
+latest_binlog=$(ls -1 "$MYSQL_DATA_DIR"/mysql-bin.* | sort | tail -n 1)
+
+echo "[INFO] Latest (active) binlog: $(basename "$latest_binlog")"
+
+# 3) Copy all CLOSED binlogs that have not yet been backed up
+for binlog in $(ls -1 "$MYSQL_DATA_DIR"/mysql-bin.* | sort); do
+    [[ "$binlog" == "$latest_binlog" ]] && continue
+
+    filename=$(basename "$binlog")
+    target="$CONTAINER_BACKUP_DIR/$filename"
+
+    # Skip if already backed up
+    if [[ -f "$target" ]]; then
+        echo "[INFO] Skipping already backed up $filename"
+        continue
+    fi
+
+    echo "[INFO] Backing up $filename"
+    dd if="$binlog" of="$target" bs=1M iflag=fullblock status=none
+    sync
+
+    # Small delay to reduce IO pressure
+    sleep 1
+done
+
+echo "[INFO] Binary log backup completed successfully"
+'
