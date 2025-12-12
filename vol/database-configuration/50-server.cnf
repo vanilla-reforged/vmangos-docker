@@ -7,4 +7,4 @@ expire_logs_days = 10
 # Set maximum size for each binary log file (100MB)
 max_binlog_size = 100M
 # Optional: Log format (MIXED combines STATEMENT and ROW logging)
-binlog_format = MIXED
+binlog_format = MINIMAL
