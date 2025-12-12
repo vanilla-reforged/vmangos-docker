@@ -8,7 +8,12 @@ DB_USER="mangos"
 DB_PASS="$MYSQL_ROOT_PASSWORD"  # No need to source the environment, its available in the container
 # Create the full SQL dump
 echo "Creating full SQL dump..."
-mariadb-dump --user="$DB_USER" --password="$DB_PASS" --single-transaction --quick --databases characters logs realmd > "$BACKUP_DIR/full_backup.sql"
+mariadb-dump \
+  --user="$DB_USER" --password="$DB_PASS" \
+  --single-transaction --quick \
+  --master-data=2 \
+  --databases characters logs realmd \
+  > "$BACKUP_DIR/full_backup.sql"
 if [[ $? -eq 0 ]]; then
     echo "Full SQL dump created successfully in $BACKUP_DIR."
 else
