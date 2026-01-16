@@ -42,7 +42,7 @@ while IFS= read -r file; do
   file_kb=$(du -k "$file" | cut -f1)
   total_kb=$((total_kb + file_kb))
   rm -f "$file"
-  ((deleted_count++))
+  ((++deleted_count))
   log_message "INFO" "Deleted: $(basename "$file") (${file_kb} KB)"
 done < <(
   find "$HOST_BACKUP_DIR" -type f -name "*.7z" -mtime +"$BACKUP_RETENTION_DAYS"
