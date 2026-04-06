@@ -67,7 +67,7 @@ Note: Linux extractors for VMaNGOS currently have some issues, i suggest getting
 - `sudo ./script/setup/01-docker-7zip-ufw-jq-expect-install.sh`
   - Install and modify Docker, 7zip, ufw, jq and expect.
 
-- `sudo ./script/setup/02-github-core-database-update.sh`
+- `./script/setup/02-github-core-database-update.sh`
   - Update the github directories in ./vol/.
 
 - `sudo ./script/setup/03-core-compile.sh`
