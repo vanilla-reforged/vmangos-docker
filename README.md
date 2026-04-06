@@ -64,22 +64,22 @@ Note: Linux extractors for VMaNGOS currently have some issues, i suggest getting
 
 ### Setup (/script/setup/)
 
-- `sudo ./script/setup/01-docker-7zip-ufw-jq-expect-install.sh`
+- `./script/setup/01-docker-7zip-ufw-jq-expect-install.sh`
   - Install and modify Docker, 7zip, ufw, jq and expect.
 
 - `./script/setup/02-github-core-database-update.sh`
   - Update the github directories in ./vol/.
 
-- `sudo ./script/setup/03-core-compile.sh`
+- `./script/setup/03-core-compile.sh`
   - Compile the core.
 
-- `sudo ./script/setup/04-client-data-extract.sh`
+- `./script/setup/04-client-data-extract.sh`
   - Extract the Client Data.
 
-- `sudo ./script/setup/05-docker-resources-initialize.sh`
+- `./script/setup/05-docker-resources-initialize.sh`
   - Initialize the ressource limits, based on the current hardware and start the containers.
 
-- `sudo ./script/setup/06-vmangos-database-create.sh`
+- `./script/setup/06-vmangos-database-create.sh`
   - Create and modify the vmangos databases.
 
 ### Configure MySQL Password
@@ -155,24 +155,24 @@ sudo docker compose up -d
 
 ### Management (/script/management/)
 
-- `sudo ./script/management/01-vmangos-database-migrations-import.sh`
+- `./script/management/01-vmangos-database-migrations-import.sh`
   - Import new migrations.
 
-- `sudo ./script/management/02-vmangos-database-world-recreate.sh`
+- `./script/management/02-vmangos-database-world-recreate.sh`
   - Recreate the world database.
 
-- `sudo ./script/management/03-core-recompile.sh`
+- `./script/management/03-core-recompile.sh`
   - Recompile the core.
 
-- `sudo ./script/management/04-vmangos-shutdown.sh`
+- `./script/management/04-vmangos-shutdown.sh`
   - Shuts down the container vmangos-mangos after 15 minutes (with a player announcement) and configures it to **not** automatically restart.
  
-- `sudo ./script/management/05-vmangos-startup.sh`
+- `./script/management/05-vmangos-startup.sh`
   - Starts the container vmangos-mangos and configures it to automatically restart.
 
 ### Monitoring (/script/monitoring/)
 
-- `sudo ./script/management/01-vmangos-uptime.sh`
+- `./script/management/01-vmangos-uptime.sh`
   - Sends current uptime to discord.
 
 #### Edit the crontab using the command below:
