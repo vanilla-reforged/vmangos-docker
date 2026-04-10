@@ -10,25 +10,31 @@
 - Docker compose 2
 - A POSIX-compliant shell as well as various core utilities (such as `cp` and `rm`) if you intend to use the provided scripts to install, update, and manage VMaNGOS.
 
-## Security
+## Security Considerations
 
-Secure your system by understanding the following information: [ufw-docker](https://github.com/chaifeng/ufw-docker).
+### Using Tailscale
 
-The ufw commands you will need to secure your installation:
+[Tailscale](https://tailscale.com/)
 
-### Management:
+Use Tailscale and keep in mind that any port you bind to a container may bypass UFW and become exposed to the public internet.
 
-```sh
-ufw allow from [your client ip] to any
-ufw route allow proto tcp from [your client ip] to any
-```
+This is fine as long as you only expose the ports that actually need internet access. For example, you can keep the Mangos database private and access it over Tailscale instead.
 
-### Public Access:
+### Using UFW
 
-```sh
-ufw route allow proto tcp from any to any port 3724
-ufw route allow proto tcp from any to any port 8085
-```
+To secure your system while using UFW, refer to the [ufw-docker guide](https://github.com/chaifeng/ufw-docker) for essential firewall configurations.
+
+- **Allow management access from a specific IP**:
+    ```sh
+    ufw allow from [your client ip] to any
+    ufw route allow proto tcp from [your client ip] to any
+    ```
+
+- **Allow public access to specific ports**:
+    ```sh
+    ufw route allow proto tcp from any to any port 3724
+    ufw route allow proto tcp from any to any port 8085
+    ```
 
 ## Docker Setup
 
