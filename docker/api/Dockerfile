@@ -1,9 +1,13 @@
 FROM php:8.2-cli
 
-# Install SOAP extension
-RUN docker-php-ext-install soap
+# Install dependencies for SOAP
+RUN apt-get update && apt-get install -y \
+    libxml2-dev \
+    && docker-php-ext-install soap
 
 WORKDIR /app
+
+# Copy API code
 COPY index.php /app/
 
 EXPOSE 8080
