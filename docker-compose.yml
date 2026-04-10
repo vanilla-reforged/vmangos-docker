@@ -89,7 +89,7 @@ services:
 
   vmangos-api:
     build:
-      context: ./api
+      context: ./docker/api
       dockerfile: Dockerfile
     container_name: vmangos-api
     environment:
