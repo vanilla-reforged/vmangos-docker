@@ -89,3 +89,22 @@ services:
     mem_limit: ${MEM_LIMIT_MANGOS}
     memswap_limit: ${MEMSWAP_LIMIT_MANGOS}
     cpu_shares: ${CPU_SHARES_MANGOS}
+
+  vmangos-api:
+    image: php:8.2-cli
+    container_name: vmangos-api
+    networks:
+      - vmangos-network
+    environment:
+      - API_KEY=${VMANGOS_API_KEY}
+      - REG_USER=${MANGOS_REG_USER}
+      - REG_PASS=${MANGOS_REG_PASS}
+      - MANGOS_HOST=vmangos-mangos
+      - SOAP_PORT=7878
+    volumes:
+      - ./api:/app
+    ports:
+      - "8080:8080"
+    command: >
+      sh -c "docker-php-ext-install soap &&
+             php -S 0.0.0.0:8080 -t /app"
