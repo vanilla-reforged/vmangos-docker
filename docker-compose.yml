@@ -90,21 +90,114 @@ services:
     memswap_limit: ${MEMSWAP_LIMIT_MANGOS}
     cpu_shares: ${CPU_SHARES_MANGOS}
 
-  vmangos-api:
-    image: php:8.2-cli
-    container_name: vmangos-api
+networks:
+  vmangos-network:
+    external: true
+
+services:
+  vmangos-database:
+    container_name: vmangos-database
+    build:
+      context: .
+      dockerfile: docker/database/Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    restart: unless-stopped
+    command: --max_allowed_packet=32505856
+    ports:
+      - 3306:3306
+    volumes:
+      - ./vol/database-configuration:/etc/mysql/mariadb.conf.d:ro
+      - ./vol/backup:/vol/backup
+      - ./vol/core-github:/vol/core-github
+      - ./vol/database-github:/vol/database-github
+      - ./vol/database:/var/lib/mysql
+      - ./vol/faction-balancer:/vol/faction-balancer
+    user: 1000:1000
     networks:
       - vmangos-network
+    mem_reservation: ${MEM_RESERVATION_DB}
+    mem_limit: ${MEM_LIMIT_DB}
+    memswap_limit: ${MEMSWAP_LIMIT_DB}
+    cpu_shares: ${CPU_SHARES_DB}
+
+  vmangos-realmd:
+    container_name: vmangos-realmd
+    build:
+      context: .
+      dockerfile: docker/realmd/Dockerfile
+    depends_on:
+      - vmangos-database
+    ports:
+      - 3724:3724
+    restart: unless-stopped
+    volumes:
+      - ./vol/configuration/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
+      - ./vol/logs/realmd:/opt/vmangos/storage/logs
     environment:
-      - API_KEY=${VMANGOS_API_KEY}
-      - REG_USER=${MANGOS_REG_USER}
-      - REG_PASS=${MANGOS_REG_PASS}
+      - TZ=${TZ}
+      - WAIT_HOSTS=vmangos-database:3306
+      - WAIT_TIMEOUT=120
+    user: 1000:1000
+    networks:
+      - vmangos-network
+    mem_reservation: ${MEM_RESERVATION_REALMD}
+    mem_limit: ${MEM_LIMIT_REALMD}
+    memswap_limit: ${MEMSWAP_LIMIT_REALMD}
+    cpu_shares: ${CPU_SHARES_REALMD}
+
+  vmangos-mangos:
+    container_name: vmangos-mangos
+    tty: true
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: docker/mangos/Dockerfile
+    depends_on:
+      - vmangos-database
+    ports:
+      - 8085:8085
+    restart: unless-stopped
+    volumes:
+      - ./vol/configuration/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro
+      - ./vol/client-data-extracted/${VMANGOS_CLIENT}:/opt/vmangos/bin/${VMANGOS_CLIENT}:ro
+      - ./vol/client-data-extracted/maps:/opt/vmangos/bin/maps:ro
+      - ./vol/client-data-extracted/mmaps:/opt/vmangos/bin/mmaps:ro
+      - ./vol/client-data-extracted/vmaps:/opt/vmangos/bin/vmaps:ro
+      - ./vol/logs/mangos:/opt/vmangos/storage/logs
+      - ./vol/logs/mangos/honor:/opt/vmangos/storage/honor
+      - ./vol/warden:/opt/vmangos/storage/warden-modules
+    environment:
+      - TZ=${TZ}
+      - WAIT_HOSTS=vmangos-database:3306
+      - WAIT_TIMEOUT=120
+    user: 1000:1000
+    networks:
+      - vmangos-network
+    mem_reservation: ${MEM_RESERVATION_MANGOS}
+    mem_limit: ${MEM_LIMIT_MANGOS}
+    memswap_limit: ${MEMSWAP_LIMIT_MANGOS}
+    cpu_shares: ${CPU_SHARES_MANGOS}
+
+  vmangos-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: vmangos-api
+    environment:
+      - VMANGOS_API_KEY=${VMANGOS_API_KEY}
+      - MANGOS_REG_USER=${MANGOS_REG_USER}
+      - MANGOS_REG_PASS=${MANGOS_REG_PASS}
+      - VMANGOS_DB_HOST=${VMANGOS_DB_HOST}
+      - VMANGOS_DB_USER=${VMANGOS_DB_USER}
+      - VMANGOS_DB_PASS=${VMANGOS_DB_PASS}
+      - VMANGOS_DB_NAME=${VMANGOS_DB_NAME}
       - MANGOS_HOST=vmangos-mangos
       - SOAP_PORT=7878
-    volumes:
-      - ./api:/app
+    networks:
+      - vmangos-network
     ports:
       - "8080:8080"
-    command: >
-      sh -c "docker-php-ext-install soap &&
-             php -S 0.0.0.0:8080 -t /app"
+    depends_on:
+      - vmangos-database
+      - vmangos-mangos
