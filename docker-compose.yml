@@ -22,6 +22,8 @@ services:
     user: 1000:1000
     networks:
       - vmangos-network
+    ports:
+      - "127.0.0.1:3306:3306"
     mem_reservation: ${MEM_RESERVATION_DB}
     mem_limit: ${MEM_LIMIT_DB}
     memswap_limit: ${MEMSWAP_LIMIT_DB}
