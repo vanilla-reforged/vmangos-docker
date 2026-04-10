@@ -24,15 +24,11 @@ Only expose ports that require internet access.
 
 For example, you can keep your Mangos database private and access it securely over Tailscale:
 
-    ```sh
     tailscale serve --tcp 3306 tcp://127.0.0.1:3306
-    ```
 
 To enable SSH access via Tailscale:
 
-    ```sh
     sudo tailscale up --ssh
-    ```
 
 This ensures sensitive services remain private while still being accessible over your Tailscale network.
 
