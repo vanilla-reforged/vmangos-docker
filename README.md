@@ -18,7 +18,7 @@
 
 Use Tailscale and keep in mind that any port you bind to a container may bypass UFW and become exposed to the public internet.
 
-This is fine as long as you only expose the ports that actually need internet access. For example, you can keep the Mangos database private and access it over Tailscale instead.
+This is fine as long as you only expose the ports that actually need internet access. For example, you can keep the Mangos database private and access it over Tailscale instead using f.e. ```tailscale serve --tcp 3306 tcp://127.0.0.1:3306```.
 
 ### Using UFW
 
