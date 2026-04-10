@@ -185,15 +185,15 @@ services:
       dockerfile: Dockerfile
     container_name: vmangos-api
     environment:
-      - VMANGOS_API_KEY=${VMANGOS_API_KEY}
-      - MANGOS_REG_USER=${MANGOS_REG_USER}
-      - MANGOS_REG_PASS=${MANGOS_REG_PASS}
-      - VMANGOS_DB_HOST=${VMANGOS_DB_HOST}
-      - VMANGOS_DB_USER=${VMANGOS_DB_USER}
-      - VMANGOS_DB_PASS=${VMANGOS_DB_PASS}
-      - VMANGOS_DB_NAME=${VMANGOS_DB_NAME}
-      - MANGOS_HOST=vmangos-mangos
-      - SOAP_PORT=7878
+      - VMANGOS_API_KEY=${VMANGOS_API_KEY}            # API authentication key
+      - VMANGOS_API_REG_USER=${VMANGOS_API_REG_USER}  # SOAP account username
+      - VMANGOS_API_REG_PASS=${VMANGOS_API_REG_PASS}  # SOAP account password
+      - VMANGOS_API_DB_HOST=${VMANGOS_API_DB_HOST}    # DB host for username checks
+      - VMANGOS_API_DB_USER=${VMANGOS_API_DB_USER}    # DB username for API
+      - VMANGOS_API_DB_PASS=${VMANGOS_API_DB_PASS}    # DB password for API
+      - VMANGOS_API_DB_NAME=${VMANGOS_API_DB_NAME}    # DB name
+      - VMANGOS_API_MANGOS_HOST=vmangos-mangos       # SOAP server hostname
+      - VMANGOS_API_SOAP_PORT=7878                   # SOAP server port
     networks:
       - vmangos-network
     ports:
