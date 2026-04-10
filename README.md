@@ -16,9 +16,25 @@
 
 [Tailscale](https://tailscale.com/)
 
-Use Tailscale and keep in mind that any port you bind to a container may bypass UFW and become exposed to the public internet.
+### Secure Container Access with Tailscale
 
-This is fine as long as you only expose the ports that actually need internet access. For example, you can keep the Mangos database private and access it over Tailscale instead using f.e. ```tailscale serve --tcp 3306 tcp://127.0.0.1:3306```.
+When using Tailscale, be aware that any port you bind to a container will bypass UFW without the modifcation below and become exposed to the public internet.
+
+Only expose ports that require internet access.
+
+For example, you can keep your Mangos database private and access it securely over Tailscale:
+
+    ```sh
+    tailscale serve --tcp 3306 tcp://127.0.0.1:3306
+    ```
+
+To enable SSH access via Tailscale:
+
+    ```sh
+    sudo tailscale up --ssh
+    ```
+
+This ensures sensitive services remain private while still being accessible over your Tailscale network.
 
 ### Using UFW
 
