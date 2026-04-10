@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: application/json');
 
-// API key validation
-$API_KEY = getenv('API_KEY') ?: '';
+// API key check
+$API_KEY = getenv('VMANGOS_API_KEY') ?: '';
 if ($_SERVER['HTTP_X_API_KEY'] !== $API_KEY) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
@@ -20,15 +20,38 @@ $username = trim($input['username'] ?? '');
 $password = trim($input['password'] ?? '');
 
 if (!$username || !$password) {
-    echo json_encode(['success' => false, 'message' => 'username & password required']);
+    echo json_encode(['success' => false, 'message' => 'Username and password required']);
     exit;
 }
 
-// Build SOAP command
-$host     = getenv('MANGOS_HOST');
-$soapport = getenv('SOAP_PORT');
-$regname  = getenv('REG_USER');
-$regpass  = getenv('REG_PASS');
+// Database credentials
+$dbHost = getenv('VMANGOS_DB_HOST');
+$dbUser = getenv('VMANGOS_DB_USER');
+$dbPass = getenv('VMANGOS_DB_PASS');
+$dbName = getenv('VMANGOS_DB_NAME');
+
+// Connect for username check
+$link = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
+if ($link->connect_error) {
+    echo json_encode(['success' => false, 'message' => 'Database connection failed']);
+    exit;
+}
+
+$stmt = $link->prepare("SELECT id FROM account WHERE username = ?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$stmt->store_result();
+if ($stmt->num_rows > 0) {
+    echo json_encode(['success' => false, 'message' => 'Username already taken']);
+    exit;
+}
+$stmt->close();
+
+// Now do SOAP account creation
+$host = getenv('MANGOS_HOST') ?: 'vmangos-mangos';
+$soapport = getenv('SOAP_PORT') ?: 7878;
+$regname = getenv('MANGOS_REG_USER');
+$regpass = getenv('MANGOS_REG_PASS');
 
 $command = sprintf("account create %s %s", strtoupper($username), strtoupper($password));
 
@@ -43,7 +66,7 @@ try {
 
     $result = $client->__soapCall("executeCommand", [new SoapParam($command, "command")]);
 
-    echo json_encode(['success' => true, 'message' => 'Account created', 'soap_result' => $result]);
+    echo json_encode(['success' => true, 'message' => 'Account created successfully']);
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'SOAP create failed: ' . $e->getMessage()]);
 }
