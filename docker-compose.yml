@@ -12,8 +12,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     restart: unless-stopped
     command: --max_allowed_packet=32505856
-    ports:
-      - 3306
     volumes:
       - ./vol/database-configuration:/etc/mysql/mariadb.conf.d:ro
       - ./vol/backup:/vol/backup
