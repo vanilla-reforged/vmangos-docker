@@ -25,10 +25,10 @@ if (!$username || !$password) {
 }
 
 // Database credentials
-$dbHost = getenv('VMANGOS_DB_HOST');
-$dbUser = getenv('VMANGOS_DB_USER');
-$dbPass = getenv('VMANGOS_DB_PASS');
-$dbName = getenv('VMANGOS_DB_NAME');
+$dbHost = getenv('VMANGOS_API_DB_HOST') ?: 'vmangos-database';
+$dbUser = getenv('VMANGOS_API_DB_USER') ?: '';
+$dbPass = getenv('VMANGOS_API_DB_PASS') ?: '';
+$dbName = getenv('VMANGOS_API_DB_NAME') ?: 'realmd';
 
 // Connect for username check
 $link = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
@@ -48,10 +48,10 @@ if ($stmt->num_rows > 0) {
 $stmt->close();
 
 // Now do SOAP account creation
-$host = getenv('MANGOS_HOST') ?: 'vmangos-mangos';
-$soapport = getenv('SOAP_PORT') ?: 7878;
-$regname = getenv('MANGOS_REG_USER');
-$regpass = getenv('MANGOS_REG_PASS');
+$host = getenv('VMANGOS_API_MANGOS_HOST') ?: 'vmangos-mangos';
+$soapport = getenv('VMANGOS_API_SOAP_PORT') ?: 7878;
+$regname = getenv('VMANGOS_API_REG_USER') ?: '';
+$regpass = getenv('VMANGOS_API_REG_PASS') ?: '';
 
 $command = sprintf("account create %s %s", strtoupper($username), strtoupper($password));
 
