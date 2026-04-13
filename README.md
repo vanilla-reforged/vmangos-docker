@@ -30,8 +30,6 @@ To enable SSH access via Tailscale:
 
     sudo tailscale up --ssh
 
-This ensures sensitive services remain private while still being accessible over your Tailscale network.
-
 ### Using UFW
 
 To secure your system while using UFW, refer to the [ufw-docker guide](https://github.com/chaifeng/ufw-docker) for essential firewall configurations.
