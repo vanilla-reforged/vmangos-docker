@@ -42,11 +42,6 @@ docker run \
   --rm \
   "$COMPILER_IMAGE" || handle_error "Compilation failed"
 
-echo "Normalizing recompiled core ownership..."
-
-chown -R 1000:1000 -- \
-  "$DOCKER_DIRECTORY/vol/core-github"
-
 echo "[VMaNGOS]: Compiling complete!"
 
 # Start the environment with rebuild
