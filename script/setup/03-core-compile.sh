@@ -34,9 +34,4 @@ docker run \
   --rm \
   "$IMAGE_NAME" || { echo "Compilation failed."; exit 1; }
 
-echo "Normalizing compiled core ownership..."
-
-chown -R 1000:1000 -- \
-  "$DOCKER_DIRECTORY/vol/core-github"
-
 echo "[VMaNGOS]: Compiling complete!"
