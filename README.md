@@ -1,9 +1,5 @@
 ## A Docker setup for VMaNGOS.
 
-## Todo
-
-- Use docker swarm to leverage docker secrets.
-
 ## Dependencies
 
 - Docker
