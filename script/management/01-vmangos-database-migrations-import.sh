@@ -13,7 +13,6 @@ docker exec -i vmangos-database mariadb -u root -p$MYSQL_ROOT_PASSWORD character
 docker exec -i vmangos-database mariadb -u root -p$MYSQL_ROOT_PASSWORD realmd < "$DOCKER_DIRECTORY/vol/core-github/sql/migrations/logon_db_updates.sql"
 docker exec -i vmangos-database mariadb -u root -p$MYSQL_ROOT_PASSWORD logs < "$DOCKER_DIRECTORY/vol/core-github/sql/migrations/logs_db_updates.sql"
 
-
 echo "[VMaNGOS]: Restarting environment..."
 docker compose down
 docker compose up -d
