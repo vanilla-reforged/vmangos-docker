@@ -8,37 +8,38 @@
 
 - Docker
 - Docker compose 2
-- A POSIX-compliant shell as well as various core utilities (such as `cp` and `rm`) if you intend to use the provided scripts to install, update, and manage VMaNGOS.
 
-## Security Considerations
+## Security
 
-Docker-published ports can bypass UFW and become publicly accessible unless you apply the UFW fix below.
+### Docker and UFW
 
-### Using Tailscale
+Docker ports can bypass UFW. Install [Chaifeng’s ufw-docker fix](https://github.com/chaifeng/ufw-docker) before exposing containers.
 
-[Tailscale](https://tailscale.com/)
+Only publish ports that must be public.
 
-### Secure Container Access with Tailscale
+### Tailscale
 
-Use the Tailscale network internal IP or make specific services available like this:
+Use [Tailscale](https://tailscale.com/) for private database access:
 
-    sudo tailscale serve --tcp 3306 tcp://127.0.0.1:3306
+```sh
+sudo tailscale serve --tcp 3306 tcp://127.0.0.1:3306
+```
 
-### Using UFW
+### UFW Rules
 
-To secure your system while using UFW, refer to the [ufw-docker guide](https://github.com/chaifeng/ufw-docker) for essential firewall configurations.
+Allow access from one IP:
 
-- **Allow management access from a specific IP**:
-    ```sh
-    ufw allow from [your client ip] to any
-    ufw route allow proto tcp from [your client ip] to any
-    ```
+```sh
+sudo ufw allow from [your-client-ip]
+sudo ufw route allow proto tcp from [your-client-ip] to any
+```
 
-- **Allow public access to specific ports**:
-    ```sh
-    ufw route allow proto tcp from any to any port 3724
-    ufw route allow proto tcp from any to any port 8085
-    ```
+Allow public access to ports `3724` and `8085`:
+
+```sh
+sudo ufw route allow proto tcp from any to any port 3724
+sudo ufw route allow proto tcp from any to any port 8085
+```
 
 ## Docker Setup
 
