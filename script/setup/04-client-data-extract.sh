@@ -63,7 +63,8 @@ mv "$DOCKER_DIRECTORY/vol/client-data/mmaps" "$DOCKER_DIRECTORY/vol/client-data-
 mv "$DOCKER_DIRECTORY/vol/client-data/vmaps" "$DOCKER_DIRECTORY/vol/client-data-extracted/"
 
 echo "Normalizing extracted client-data ownership..."
-chown -R 1000:1000 -- \
 
+chown -R 1000:1000 -- \
   "$DOCKER_DIRECTORY/vol/client-data-extracted"
+
 echo "[VMaNGOS]: Client data extraction complete!"
