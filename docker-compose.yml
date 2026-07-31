@@ -19,7 +19,7 @@ services:
       - ./vol/database-github:/vol/database-github
       - ./vol/database:/var/lib/mysql
       - ./vol/faction-balancer:/vol/faction-balancer
-    user: 1000:1000
+    user: "${VMANGOS_USER_ID:-1000}:${VMANGOS_GROUP_ID:-1000}"
     networks:
       - vmangos-network
     ports:
@@ -46,7 +46,7 @@ services:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos-database:3306
       - WAIT_TIMEOUT=120
-    user: 1000:1000
+    user: "${VMANGOS_USER_ID:-1000}:${VMANGOS_GROUP_ID:-1000}"
     networks:
       - vmangos-network
     mem_reservation: ${MEM_RESERVATION_REALMD}
@@ -79,7 +79,7 @@ services:
       - TZ=${TZ}
       - WAIT_HOSTS=vmangos-database:3306
       - WAIT_TIMEOUT=120
-    user: 1000:1000
+    user: "${VMANGOS_USER_ID:-1000}:${VMANGOS_GROUP_ID:-1000}"
     networks:
       - vmangos-network
     mem_reservation: ${MEM_RESERVATION_MANGOS}
