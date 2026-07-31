@@ -185,10 +185,10 @@ sudo docker compose up -d
 - `./script/management/01-vmangos-uptime.sh`
   - Sends current uptime to discord.
 
-#### Edit the crontab using the command below:
+#### Edit the crontab using the command below (use sudo!):
 
 ```sh
-crontab -e
+sudo crontab -e
 ```
 
 #### Add the following lines to the crontab file, change the paths to fit your installation:
