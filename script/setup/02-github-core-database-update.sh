@@ -26,10 +26,4 @@ cd $DOCKER_DIRECTORY/vol/core-github/sql/migrations
 ./merge.sh
 cd "$repository_path"
 
-echo "Normalizing Git repository ownership..."
-
-chown -R 1000:1000 -- \
-  "$DOCKER_DIRECTORY/vol/core-github" \
-  "$DOCKER_DIRECTORY/vol/database-github"
-
 echo "[VMaNGOS]: VMaNGOS data prepared."
