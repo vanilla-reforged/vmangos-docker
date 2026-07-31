@@ -168,6 +168,94 @@ echo "Resource limits have been updated in the .env file:"
 grep -E "MEM_RESERVATION_DB|MEM_RESERVATION_MANGOS|MEM_RESERVATION_REALMD|MEM_LIMIT_DB|MEM_LIMIT_MANGOS|MEM_LIMIT_REALMD|MEMSWAP_LIMIT_DB|MEMSWAP_LIMIT_MANGOS|MEMSWAP_LIMIT_REALMD|CPU_SHARES_DB|CPU_SHARES_MANGOS|CPU_SHARES_REALMD" "$DOCKER_DIRECTORY/.env"
 
 # ==============================
+# Normalize Docker Volume Ownership
+# ==============================
+
+echo "Creating and normalizing writable Docker volume directories..."
+
+# These values must match the `user:` values in docker-compose.yml.
+VMANGOS_UID=1000
+VMANGOS_GID=1000
+VMANGOS_OWNER="${VMANGOS_UID}:${VMANGOS_GID}"
+
+# Validate the configured numeric IDs.
+if ! [[ "$VMANGOS_UID" =~ ^[0-9]+$ ]]; then
+  echo "Error: VMANGOS_UID must be numeric: $VMANGOS_UID"
+  exit 1
+fi
+
+if ! [[ "$VMANGOS_GID" =~ ^[0-9]+$ ]]; then
+  echo "Error: VMANGOS_GID must be numeric: $VMANGOS_GID"
+  exit 1
+fi
+
+# Top-level writable bind-mount source directories.
+#
+# vol/logs/mangos/honor is created separately below, but it does not need
+# to be listed here because it is already covered recursively by
+# vol/logs/mangos.
+WRITABLE_VOLUME_DIRECTORIES=(
+  "$DOCKER_DIRECTORY/vol/backup"
+  "$DOCKER_DIRECTORY/vol/core-github"
+  "$DOCKER_DIRECTORY/vol/database-github"
+  "$DOCKER_DIRECTORY/vol/database"
+  "$DOCKER_DIRECTORY/vol/faction-balancer"
+  "$DOCKER_DIRECTORY/vol/logs/realmd"
+  "$DOCKER_DIRECTORY/vol/logs/mangos"
+  "$DOCKER_DIRECTORY/vol/warden"
+)
+
+# Create every writable bind source before Docker Compose can create it
+# as root.
+for directory in "${WRITABLE_VOLUME_DIRECTORIES[@]}"; do
+  install \
+    -d \
+    -m 0755 \
+    -o "$VMANGOS_UID" \
+    -g "$VMANGOS_GID" \
+    "$directory"
+done
+
+# `honor` is a separate bind mount even though it is located underneath
+# vol/logs/mangos.
+install \
+  -d \
+  -m 0755 \
+  -o "$VMANGOS_UID" \
+  -g "$VMANGOS_GID" \
+  "$DOCKER_DIRECTORY/vol/logs/mangos/honor"
+
+# Repair files created by previous setup stages.
+#
+# The containers have already been stopped near the beginning of this
+# script, so changing ownership of the MariaDB directory is safe here.
+chown -R -- "$VMANGOS_OWNER" "${WRITABLE_VOLUME_DIRECTORIES[@]}"
+
+# Verify the ownership before starting any containers.
+OWNERSHIP_ERROR=false
+
+for directory in "${WRITABLE_VOLUME_DIRECTORIES[@]}"; do
+  mismatched_path=$(
+    find "$directory" -xdev \
+      \( ! -uid "$VMANGOS_UID" -o ! -gid "$VMANGOS_GID" \) \
+      -print -quit
+  )
+
+  if [ -n "$mismatched_path" ]; then
+    echo "Error: Incorrect ownership remains under: $directory"
+    echo "First mismatched path: $mismatched_path"
+    OWNERSHIP_ERROR=true
+  fi
+done
+
+if [ "$OWNERSHIP_ERROR" = true ]; then
+  echo "Error: Docker volume ownership validation failed."
+  exit 1
+fi
+
+echo "Writable Docker volumes are owned by $VMANGOS_OWNER."
+
+# ==============================
 # Create vmangos-network
 # ==============================
 
