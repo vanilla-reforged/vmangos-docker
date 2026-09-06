@@ -1,56 +1,94 @@
-#!/bin/bash
-set -euo pipefail
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+readonly SCRIPT_NAME="${0##*/}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+readonly CONTAINER_NAME="vmangos-database"
+readonly CONTAINER_SCRIPT="/home/default/scripts/03-binary-log-backup.sh"
+readonly BACKUP_DIR="$PROJECT_ROOT/backup"
 
 log_message() {
-  local level="$1"
-  local message="$2"
-  local script_name
-  script_name=$(basename "$0")
-  local timestamp
-  timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-  echo "[$timestamp] [$script_name] [$level] $message"
+    local level="$1"
+    local message="$2"
+    local timestamp
+
+    timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+
+    printf '[%s] [%s] [%s] %s\n' \
+        "$timestamp" \
+        "$SCRIPT_NAME" \
+        "$level" \
+        "$message"
 }
 
-cd "$(dirname "$0")"
-log_message "INFO" "Script started"
+compress_binlogs() {
+    local binlog
+    local filename
+    local archive
 
-source ./../../.env-script
+    shopt -s nullglob
 
-BACKUP_DIR="$DOCKER_DIRECTORY/vol/backup"
+    for binlog in "$BACKUP_DIR"/mysql-bin.[0-9][0-9][0-9][0-9][0-9][0-9]; do
+        filename="${binlog##*/}"
+        archive="$BACKUP_DIR/${filename}.7z"
 
-log_message "INFO" "Running binlog copy inside container"
-sudo docker exec vmangos-database /home/default/scripts/03-binary-log-backup.sh
-log_message "SUCCESS" "Container binlog copy completed"
+        if [ -f "$archive" ]; then
+            log_message "INFO" "Archive already exists: ${filename}.7z"
+            rm -f "$binlog"
+            continue
+        fi
 
-# Optional: remove old accidental .idx files (doesn't hurt if none exist)
-rm -f "$BACKUP_DIR"/mysql-bin.[0-9][0-9][0-9][0-9][0-9][0-9].idx || true
+        log_message "INFO" "Compressing $filename"
 
-log_message "INFO" "Compressing each binlog individually"
+        if ! 7z a -bd -y "$archive" "$binlog" > /dev/null; then
+            log_message "ERROR" "Failed to compress $filename"
+            return 1
+        fi
 
-shopt -s nullglob
-for f in "$BACKUP_DIR"/mysql-bin.[0-9][0-9][0-9][0-9][0-9][0-9]; do
-  base="$(basename "$f")"
-  archive="$BACKUP_DIR/$base.7z"
+        if [ ! -s "$archive" ]; then
+            log_message "ERROR" "Archive is missing or empty: ${filename}.7z"
+            rm -f "$archive"
+            return 1
+        fi
 
-  # Skip if already compressed (paranoia)
-  if [[ -f "$archive" ]]; then
-    log_message "INFO" "Already compressed: $base"
-    rm -f "$f"  # raw file not needed anymore
-    continue
-  fi
+        rm -f "$binlog"
 
-  log_message "INFO" "7z -> $base.7z"
-  7z a -bd -y "$archive" "$f" >/dev/null
+        log_message "SUCCESS" "Compressed and removed raw binlog: $filename"
+    done
 
-  # Verify archive created and non-empty, then delete raw
-  if [[ -s "$archive" ]]; then
-    rm -f "$f"
-    log_message "SUCCESS" "Compressed and removed raw: $base"
-  else
-    log_message "ERROR" "Archive missing/empty for $base (keeping raw)"
-    exit 1
-  fi
-done
-shopt -u nullglob
+    shopt -u nullglob
+}
 
-log_message "INFO" "Script completed successfully"
+main() {
+    log_message "INFO" "Script started"
+
+    if [ ! -d "$BACKUP_DIR" ]; then
+        log_message "ERROR" "Backup directory not found: $BACKUP_DIR"
+        return 1
+    fi
+
+    log_message "INFO" "Copying binary logs from database container"
+
+    if ! sudo docker exec "$CONTAINER_NAME" "$CONTAINER_SCRIPT"; then
+        log_message "ERROR" "Failed to copy binary logs from database container"
+        return 1
+    fi
+
+    log_message "SUCCESS" "Binary logs copied successfully"
+
+    # Remove accidental index files from previous backup runs
+    rm -f "$BACKUP_DIR"/mysql-bin.[0-9][0-9][0-9][0-9][0-9][0-9].idx
+
+    log_message "INFO" "Compressing binary logs"
+
+    if ! compress_binlogs; then
+        return 1
+    fi
+
+    log_message "SUCCESS" "Script completed successfully"
+}
+
+main "$@"
