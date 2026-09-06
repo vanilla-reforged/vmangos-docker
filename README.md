@@ -11,7 +11,9 @@ A Docker setup for VMaNGOS.
 
 ### Docker and UFW
 
-Docker-published ports can bypass normal UFW rules if Docker and UFW are not configured to work together.
+Docker-published ports can bypass normal UFW rules.
+
+This project uses [Chaifeng's ufw-docker solution](https://github.com/chaifeng/ufw-docker) to allow UFW to control access to Docker-published ports without disabling Docker's iptables support.
 
 The setup script configures Docker and the required UFW/Docker forwarding rules:
 
