@@ -1,55 +1,64 @@
-#!/bin/bash
-# Simple logging function
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+readonly SCRIPT_NAME="${0##*/}"
+readonly CONTAINER_NAME="vmangos-mangos"
+readonly RESTART_POLICY="always"
+
 log_message() {
-    local message="$1"
-    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-    echo "[$timestamp] $message"
+    local level="$1"
+    local message="$2"
+    local timestamp
+
+    timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    printf '[%s] [%s] [%s] %s\n' "$timestamp" "$SCRIPT_NAME" "$level" "$message"
 }
-# Change to the directory where the script is located
-cd "$(dirname "$0")"
-log_message "Enable restart script started"
-# Load environment variables from .env-script if needed
-source ./../../.env-script
-# Function to enable automatic restart for the container and start it if needed
-enable_restart() {
-    local CONTAINER_NAME="vmangos-mangos"
-    local RESTART_POLICY="always"
-    
-    log_message "Enabling automatic restart for container $CONTAINER_NAME"
-    
-    # Get current container status before change
-    log_message "Current container status:"
-    sudo docker inspect --format='{{.Name}} - Status: {{.State.Status}} - AutoRestart: {{.HostConfig.RestartPolicy.Name}}' $CONTAINER_NAME
-    
-    # Update the container restart policy
-    if sudo docker update --restart=$RESTART_POLICY $CONTAINER_NAME; then
-        log_message "Container restart policy updated to '$RESTART_POLICY'"
-        
-        # Check if the container is running
-        if [[ $(sudo docker inspect --format='{{.State.Status}}' $CONTAINER_NAME) != "running" ]]; then
-            log_message "Container is not running. Starting it now..."
-            if sudo docker start $CONTAINER_NAME; then
-                log_message "Container started successfully"
-            else
-                log_message "Failed to start container"
-                return 1
-            fi
-        else
-            log_message "Container is already running"
-        fi
-        
-        # Get new container status after change
-        log_message "New container status:"
-        sudo docker inspect --format='{{.Name}} - Status: {{.State.Status}} - AutoRestart: {{.HostConfig.RestartPolicy.Name}}' $CONTAINER_NAME
-        return 0
+
+main() {
+    local container_status
+
+    log_message "INFO" "Script started"
+
+    log_message "INFO" "Current container status"
+
+    sudo docker inspect \
+        --format='{{.Name}} - Status: {{.State.Status}} - AutoRestart: {{.HostConfig.RestartPolicy.Name}}' \
+        "$CONTAINER_NAME"
+
+    log_message "INFO" \
+        "Setting restart policy to '$RESTART_POLICY'"
+
+    sudo docker update \
+        --restart="$RESTART_POLICY" \
+        "$CONTAINER_NAME" > /dev/null
+
+    log_message "SUCCESS" \
+        "Container restart policy updated to '$RESTART_POLICY'"
+
+    container_status=$(
+        sudo docker inspect \
+            --format='{{.State.Status}}' \
+            "$CONTAINER_NAME"
+    )
+
+    if [ "$container_status" != "running" ]; then
+        log_message "INFO" "Container is not running, starting it"
+
+        sudo docker start "$CONTAINER_NAME" > /dev/null
+
+        log_message "SUCCESS" "Container started successfully"
     else
-        log_message "Failed to update container restart policy"
-        return 1
+        log_message "INFO" "Container is already running"
     fi
+
+    log_message "INFO" "Updated container status"
+
+    sudo docker inspect \
+        --format='{{.Name}} - Status: {{.State.Status}} - AutoRestart: {{.HostConfig.RestartPolicy.Name}}' \
+        "$CONTAINER_NAME"
+
+    log_message "SUCCESS" "Script completed successfully"
 }
-# Main execution
-if enable_restart; then
-    log_message "Container automatic restart enabled successfully"
-else
-    log_message "Failed to enable container automatic restart"
-fi
+
+main "$@"
