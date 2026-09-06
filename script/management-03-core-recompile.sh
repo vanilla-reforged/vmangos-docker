@@ -37,7 +37,7 @@ main() {
 
     log_message "INFO" "Removing old core and build files"
 
-    rm -rf \
+    sudo rm -rf \
         "$CORE_DIR" \
         "$CORE_GITHUB_DIR/build"
 
