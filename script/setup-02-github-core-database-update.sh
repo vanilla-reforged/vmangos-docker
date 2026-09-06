@@ -18,21 +18,23 @@ log_message() {
 main() {
     log_message "INFO" "Script started"
 
-    # Load environment variables
+    if [ ! -f "$PROJECT_ROOT/.env-script" ]; then
+        log_message "ERROR" "Environment file not found: $PROJECT_ROOT/.env-script"
+        return 1
+    fi
+
     source "$PROJECT_ROOT/.env-script"
 
     readonly CORE_GITHUB_DIR="$PROJECT_ROOT/vol/core-github"
     readonly DATABASE_GITHUB_DIR="$PROJECT_ROOT/vol/database-github"
     readonly MIGRATIONS_DIR="$CORE_GITHUB_DIR/sql/migrations"
 
-    # Remove old repositories
     log_message "INFO" "Removing old GitHub repositories"
 
     rm -rf \
         "$CORE_GITHUB_DIR" \
         "$DATABASE_GITHUB_DIR"
 
-    # Clone repositories
     log_message "INFO" "Cloning VMaNGOS core repository"
 
     git clone \
@@ -45,7 +47,6 @@ main() {
         "$VMANGOS_GIT_SOURCE_DATABASE_URL" \
         "$DATABASE_GITHUB_DIR"
 
-    # Extract world database
     log_message "INFO" "Extracting VMaNGOS world database"
 
     (
@@ -53,7 +54,6 @@ main() {
         7z e "${VMANGOS_WORLD_DATABASE}.7z"
     )
 
-    # Merge core migrations
     log_message "INFO" "Merging VMaNGOS core migrations"
 
     (
