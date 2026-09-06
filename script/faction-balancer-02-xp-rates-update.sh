@@ -1,176 +1,307 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Logger function for standardized logging
+set -Eeuo pipefail
+
+readonly SCRIPT_NAME="${0##*/}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+readonly ENV_SCRIPT_FILE="$PROJECT_ROOT/.env-script"
+
+readonly POPULATION_DATA_FILE="$PROJECT_ROOT/vol/faction-balancer/population_data.csv"
+readonly CONFIG_FILE="$PROJECT_ROOT/vol/configuration/mangosd.conf"
+
+readonly DATA_WINDOW_DAYS=7
+readonly MANGOS_CONTAINER="vmangos-mangos"
+
 log_message() {
     local level="$1"
     local message="$2"
-    local script_name=$(basename "$0")
-    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-    
-    echo "[$timestamp] [$script_name] [$level] $message"
+    local timestamp
+
+    timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+
+    printf '[%s] [%s] [%s] %s\n' \
+        "$timestamp" \
+        "$SCRIPT_NAME" \
+        "$level" \
+        "$message"
 }
 
-# Change to the directory where the script is located
-cd "$(dirname "$0")"
-log_message "INFO" "Script started"
-
-# Load environment variables from .env-script
-log_message "INFO" "Loading environment variables"
-source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
-
-# Configuration and data files
-POPULATION_DATA_FILE="$DOCKER_DIRECTORY/vol/faction-balancer/population_data.csv"  # Use $DOCKER_DIRECTORY for the population data file path
-CONFIG_FILE="$DOCKER_DIRECTORY/vol/configuration/mangosd.conf"  # Use $DOCKER_DIRECTORY for the mangosd.conf file path
-DAYS_TO_KEEP=7
-log_message "INFO" "Using population data file: $POPULATION_DATA_FILE"
-log_message "INFO" "Using config file: $CONFIG_FILE"
-log_message "INFO" "Days to keep data: $DAYS_TO_KEEP"
-
-# Function to send message to Discord
 send_discord_message() {
-  local message=$1
-  log_message "INFO" "Sending Discord message: $message"
-  if curl -s -H "Content-Type: application/json" \
-       -X POST \
-       -d "{\"content\": \"$message\"}" \
-       "$DISCORD_WEBHOOK"; then
-    log_message "SUCCESS" "Discord message sent successfully"
-  else
-    log_message "ERROR" "Failed to send Discord message"
-  fi
-}
+    local message="$1"
 
-# Calculate the date 7 days ago
-SEVEN_DAYS_AGO=$(date -d '7 days ago' '+%Y-%m-%d %H:%M:%S')
-log_message "INFO" "Analyzing data from the last 7 days (since $SEVEN_DAYS_AGO)"
-
-# Calculate the average online population for the last 7 days
-if [ -f "$POPULATION_DATA_FILE" ]; then
-    ALLIANCE_AVG=$(awk -v date="$SEVEN_DAYS_AGO" -F, '$1 >= date { total += $2; count++ } END { if (count > 0) print total / count; else print 0; }' "$POPULATION_DATA_FILE")
-    HORDE_AVG=$(awk -v date="$SEVEN_DAYS_AGO" -F, '$1 >= date { total += $3; count++ } END { if (count > 0) print total / count; else print 0; }' "$POPULATION_DATA_FILE")
-    log_message "INFO" "Data loaded successfully from population file"
-else
-    log_message "WARNING" "Population data file not found, using zeros"
-    ALLIANCE_AVG=0
-    HORDE_AVG=0
-fi
-
-log_message "INFO" "Alliance average: $ALLIANCE_AVG, Horde average: $HORDE_AVG"
-
-# Calculate total average population
-TOTAL_AVG=$(echo "$ALLIANCE_AVG + $HORDE_AVG" | bc -l)
-
-if (( $(echo "$TOTAL_AVG > 0" | bc -l) )); then
-    # Calculate percentages
-    ALLIANCE_PERCENT=$(echo "scale=2; ($ALLIANCE_AVG / $TOTAL_AVG) * 100" | bc -l)
-    HORDE_PERCENT=$(echo "scale=2; ($HORDE_AVG / $TOTAL_AVG) * 100" | bc -l)
-else
-    log_message "WARNING" "Total average population is zero, setting equal percentages"
-    ALLIANCE_PERCENT=50
-    HORDE_PERCENT=50
-fi
-
-log_message "INFO" "Alliance percentage: $ALLIANCE_PERCENT%, Horde percentage: $HORDE_PERCENT%"
-
-# Determine if the ratio is worse than 55% to 45%
-OVERPOP_STATUS=""
-BALANCE_STATUS=""
-if (( $(echo "$ALLIANCE_PERCENT > 55" | bc -l) )) && (( $(echo "$HORDE_PERCENT < 45" | bc -l) )); then
-    OVERPOP_STATUS="Alliance"
-    log_message "INFO" "Population imbalance detected: Alliance overpopulated"
-elif (( $(echo "$HORDE_PERCENT > 55" | bc -l) )) && (( $(echo "$ALLIANCE_PERCENT < 45" | bc -l) )); then
-    OVERPOP_STATUS="Horde"
-    log_message "INFO" "Population imbalance detected: Horde overpopulated"
-else
-    BALANCE_STATUS="Balanced"
-    log_message "INFO" "Population is balanced"
-fi
-
-# Function to update the configuration file based on the population balance
-update_config_file() {
-    local update_message=""
-    if [ "$OVERPOP_STATUS" == "Alliance" ]; then
-        log_message "INFO" "Updating XP rates: Horde=2, Alliance=1"
-        update_message="Horde is underpopulated. Setting Horde XP rate to 2 and Alliance XP rate to 1."
-        sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 2/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 2/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 1/' "$CONFIG_FILE"
-    elif [ "$OVERPOP_STATUS" == "Horde" ]; then
-        log_message "INFO" "Updating XP rates: Alliance=2, Horde=1"
-        update_message="Alliance is underpopulated. Setting Alliance XP rate to 2 and Horde XP rate to 1."
-        sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 2/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 2/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 1/' "$CONFIG_FILE"
-    else
-        log_message "INFO" "Updating XP rates: Both factions=1"
-        update_message="Populations are balanced. Setting both Alliance and Horde XP rates to 1."
-        sed -i 's/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = 1/' "$CONFIG_FILE"
-        sed -i 's/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = 1/' "$CONFIG_FILE"
+    if [ -z "${DISCORD_WEBHOOK:-}" ]; then
+        log_message "WARNING" \
+            "Discord webhook not configured, skipping notification"
+        return
     fi
 
-    # Send update message to Discord
-    send_discord_message "Population balance: Alliance: $ALLIANCE_PERCENT%, Horde: $HORDE_PERCENT%. $update_message"
+    log_message "INFO" "Sending Discord notification"
+
+    if curl -fsS \
+        -H "Content-Type: application/json" \
+        -X POST \
+        -d "$(jq -nc --arg content "$message" '{content: $content}')" \
+        "$DISCORD_WEBHOOK" > /dev/null; then
+
+        log_message "SUCCESS" "Discord notification sent successfully"
+    else
+        log_message "ERROR" "Failed to send Discord notification"
+    fi
+}
+
+calculate_population_averages() {
+    local cutoff_date="$1"
+
+    awk -F',' -v cutoff="$cutoff_date" '
+        $1 >= cutoff {
+            alliance_total += $2
+            horde_total += $3
+            count++
+        }
+
+        END {
+            if (count > 0) {
+                printf "%.2f,%.2f\n",
+                    alliance_total / count,
+                    horde_total / count
+            } else {
+                print "0.00,0.00"
+            }
+        }
+    ' "$POPULATION_DATA_FILE"
+}
+
+update_xp_rates() {
+    local alliance_rate="$1"
+    local horde_rate="$2"
+    local temp_file
+
+    temp_file=$(mktemp "${CONFIG_FILE}.tmp.XXXXXX")
+
+    if ! sed \
+        -e "s/^Rate\.XP\.Kill\.Alliance = .*/Rate.XP.Kill.Alliance = $alliance_rate/" \
+        -e "s/^Rate\.XP\.Kill\.Elite\.Alliance = .*/Rate.XP.Kill.Elite.Alliance = $alliance_rate/" \
+        -e "s/^Rate\.XP\.Kill\.Horde = .*/Rate.XP.Kill.Horde = $horde_rate/" \
+        -e "s/^Rate\.XP\.Kill\.Elite\.Horde = .*/Rate.XP.Kill.Elite.Horde = $horde_rate/" \
+        "$CONFIG_FILE" > "$temp_file"; then
+
+        rm -f "$temp_file"
+
+        log_message "ERROR" "Failed to prepare configuration update"
+        return 1
+    fi
+
+    # Rewrite the existing file instead of replacing it.
+    # This preserves ownership, permissions, and inode.
+    if ! cat "$temp_file" > "$CONFIG_FILE"; then
+        rm -f "$temp_file"
+
+        log_message "ERROR" "Failed to update configuration file"
+        return 1
+    fi
+
+    rm -f "$temp_file"
+
+    log_message "SUCCESS" \
+        "XP rates updated: Alliance=$alliance_rate, Horde=$horde_rate"
+}
+
+cleanup_population_data() {
+    local cutoff_date="$1"
+    local temp_file
+    local before_count
+    local after_count
+    local removed_count
+
+    if [ ! -f "$POPULATION_DATA_FILE" ]; then
+        log_message "WARNING" \
+            "Population data file not found, skipping cleanup"
+        return
+    fi
+
+    temp_file=$(mktemp "${POPULATION_DATA_FILE}.tmp.XXXXXX")
+    before_count=$(wc -l < "$POPULATION_DATA_FILE")
+
+    if ! awk -F',' -v cutoff="$cutoff_date" \
+        '$1 >= cutoff' "$POPULATION_DATA_FILE" > "$temp_file"; then
+
+        rm -f "$temp_file"
+
+        log_message "ERROR" "Failed to clean population data"
+        return 1
+    fi
+
+    after_count=$(wc -l < "$temp_file")
+    removed_count=$((before_count - after_count))
+
+    # Rewrite the existing file instead of replacing it.
+    # This preserves ownership, permissions, and inode.
+    if ! cat "$temp_file" > "$POPULATION_DATA_FILE"; then
+        rm -f "$temp_file"
+
+        log_message "ERROR" "Failed to update population data file"
+        return 1
+    fi
+
+    rm -f "$temp_file"
+
+    log_message "SUCCESS" \
+        "Population data cleaned up: $removed_count old entrie(s) removed"
 }
 
 restart_server() {
-    log_message "INFO" "Initiating server restart (15 minute countdown)"
+    log_message "INFO" \
+        "Scheduling server restart with a 15 minute countdown"
+
     if expect <<EOF
-        set timeout -1  ;# Wait indefinitely for the process to finish
-        # Start docker attach
-        spawn sudo docker attach vmangos-mangos
-        # Wait for 2 seconds to ensure the session is fully attached
-        sleep 2
-        # Send the command to restart the server gracefully
-        send "server restart 900\r"
-        # Wait for 5 seconds to ensure the command is processed
-        sleep 5
-        # Simulate Ctrl+P
-        send "\x10"
-        # Brief delay before simulating Ctrl+Q
-        sleep 1
-        # Simulate Ctrl+Q
-        send "\x11"
-        # End the expect script
-        expect eof
+set timeout -1
+spawn sudo docker attach $MANGOS_CONTAINER
+sleep 2
+send "server restart 900\r"
+sleep 5
+send "\x10"
+sleep 1
+send "\x11"
+expect eof
 EOF
     then
-        log_message "SUCCESS" "Server restart command sent successfully (15 minute countdown)"
+        log_message "SUCCESS" \
+            "Server restart scheduled successfully"
     else
-        log_message "ERROR" "Failed to send server restart command"
+        log_message "ERROR" \
+            "Failed to schedule server restart"
+        return 1
     fi
 }
 
-# Clean up data older than 7 days
-log_message "INFO" "Cleaning up old population data"
+main() {
+    local cutoff_date
+    local alliance_avg
+    local horde_avg
+    local total_avg
+    local alliance_percent
+    local horde_percent
 
-if [ -f "$POPULATION_DATA_FILE" ]; then
-    TEMP_FILE=$(mktemp "${POPULATION_DATA_FILE}.tmp.XXXXXX")
+    local alliance_rate
+    local horde_rate
+    local update_message
 
-    if awk -v date="$SEVEN_DAYS_AGO" -F, '$1 >= date' \
-        "$POPULATION_DATA_FILE" > "$TEMP_FILE"; then
+    log_message "INFO" "Script started"
 
-        # Preserve ownership and permissions of the original file
-        chown --reference="$POPULATION_DATA_FILE" "$TEMP_FILE"
-        chmod --reference="$POPULATION_DATA_FILE" "$TEMP_FILE"
-
-        mv "$TEMP_FILE" "$POPULATION_DATA_FILE"
-
-        log_message "SUCCESS" "Old population data cleaned up"
+    # Load optional Discord configuration
+    if [ -f "$ENV_SCRIPT_FILE" ]; then
+        source "$ENV_SCRIPT_FILE"
     else
-        rm -f "$TEMP_FILE"
-        log_message "ERROR" "Failed to clean up old population data"
+        log_message "WARNING" \
+            "Environment file not found: $ENV_SCRIPT_FILE"
     fi
-else
-    log_message "WARNING" "Population data file not found, skipping cleanup"
-fi
 
-# Main execution flow
-log_message "INFO" "Updating configuration file based on population balance"
-update_config_file
-log_message "INFO" "Initiating server restart"
-restart_server
-log_message "SUCCESS" "Script completed successfully"
+    # Validate required files
+    if [ ! -f "$CONFIG_FILE" ]; then
+        log_message "ERROR" \
+            "Configuration file not found: $CONFIG_FILE"
+        return 1
+    fi
+
+    cutoff_date=$(
+        date -d "$DATA_WINDOW_DAYS days ago" \
+            "+%Y-%m-%d %H:%M:%S"
+    )
+
+    log_message "INFO" \
+        "Analyzing population data from the last $DATA_WINDOW_DAYS days"
+
+    if [ -f "$POPULATION_DATA_FILE" ]; then
+        IFS=',' read -r alliance_avg horde_avg < <(
+            calculate_population_averages "$cutoff_date"
+        )
+    else
+        log_message "WARNING" \
+            "Population data file not found, using zero population"
+
+        alliance_avg="0.00"
+        horde_avg="0.00"
+    fi
+
+    log_message "INFO" \
+        "Average population - Alliance: $alliance_avg, Horde: $horde_avg"
+
+    total_avg=$(
+        awk -v alliance="$alliance_avg" -v horde="$horde_avg" \
+            'BEGIN { printf "%.2f", alliance + horde }'
+    )
+
+    if awk -v total="$total_avg" \
+        'BEGIN { exit !(total > 0) }'; then
+
+        alliance_percent=$(
+            awk -v alliance="$alliance_avg" -v total="$total_avg" \
+                'BEGIN { printf "%.2f", alliance / total * 100 }'
+        )
+
+        horde_percent=$(
+            awk -v horde="$horde_avg" -v total="$total_avg" \
+                'BEGIN { printf "%.2f", horde / total * 100 }'
+        )
+    else
+        alliance_percent="50.00"
+        horde_percent="50.00"
+
+        log_message "WARNING" \
+            "No population data available, treating factions as balanced"
+    fi
+
+    log_message "INFO" \
+        "Population balance - Alliance: ${alliance_percent}%, Horde: ${horde_percent}%"
+
+    if awk -v alliance="$alliance_percent" \
+        'BEGIN { exit !(alliance > 55) }'; then
+
+        alliance_rate=1
+        horde_rate=2
+
+        update_message="Alliance is overpopulated. Setting Alliance XP rate to 1 and Horde XP rate to 2."
+
+        log_message "INFO" \
+            "Alliance is overpopulated"
+
+    elif awk -v horde="$horde_percent" \
+        'BEGIN { exit !(horde > 55) }'; then
+
+        alliance_rate=2
+        horde_rate=1
+
+        update_message="Horde is overpopulated. Setting Horde XP rate to 1 and Alliance XP rate to 2."
+
+        log_message "INFO" \
+            "Horde is overpopulated"
+
+    else
+        alliance_rate=1
+        horde_rate=1
+
+        update_message="Populations are balanced. Setting both faction XP rates to 1."
+
+        log_message "INFO" \
+            "Population is balanced"
+    fi
+
+    update_xp_rates \
+        "$alliance_rate" \
+        "$horde_rate"
+
+    send_discord_message \
+        "Population balance: Alliance: ${alliance_percent}%, Horde: ${horde_percent}%. $update_message"
+
+    log_message "INFO" "Cleaning old population data"
+
+    cleanup_population_data "$cutoff_date"
+
+    restart_server
+
+    log_message "SUCCESS" "Script completed successfully"
+}
+
+main "$@"
