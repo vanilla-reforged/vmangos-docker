@@ -15,9 +15,7 @@ Docker-published ports can bypass normal UFW rules if Docker and UFW are not con
 
 The setup script configures Docker and the required UFW/Docker forwarding rules:
 
-```sh
-./script/setup-01-docker-dependencies-install.sh
-```
+* **`./script/setup-01-docker-dependencies-install.sh`**
 
 Only publish ports that must be publicly accessible.
 
@@ -53,10 +51,8 @@ The persistent VMaNGOS containers (`vmangos-database`, `vmangos-realmd`, and `vm
 
 You can adjust these values in `.env`:
 
-```text
-VMANGOS_USER_ID
-VMANGOS_GROUP_ID
-```
+* `VMANGOS_USER_ID`
+* `VMANGOS_GROUP_ID`
 
 Using the same UID/GID on the host helps avoid permission issues with bind-mounted files.
 
@@ -91,9 +87,9 @@ cd vmangos-docker
 
 Configure the environment files for your installation:
 
-* `.env` — Docker Compose configuration
-* `.env-script` — host script configuration
-* `.env-vmangos-build` — compiler and CMake build configuration
+* `.env` — Docker Compose configuration.
+* `.env-script` — Host script configuration.
+* `.env-vmangos-build` — Compiler and CMake build configuration.
 
 The scripts determine the repository directory automatically from their own location. `DOCKER_DIRECTORY` is no longer required.
 
@@ -117,9 +113,7 @@ If you already have extracted client data, place it under:
 
 and skip:
 
-```sh
-./script/setup-04-client-data-extract.sh
-```
+* **`./script/setup-04-client-data-extract.sh`**
 
 Pre-extracted client data may also be available here:
 
@@ -129,53 +123,29 @@ https://www.ownedcore.com/forums/world-of-warcraft/world-of-warcraft-emulator-se
 
 Run the setup scripts in order.
 
-* **`setup-01-docker-dependencies-install.sh`**
+* **`./script/setup-01-docker-dependencies-install.sh`**
 
-  Installs and configures Docker, Docker Compose, 7zip, UFW, jq, bc, expect, and the required passwordless Docker sudo commands.
+  * Installs and configures Docker, Docker Compose, 7zip, UFW, jq, bc, expect, and the required passwordless Docker sudo commands.
 
-  ```sh
-  ./script/setup-01-docker-dependencies-install.sh
-  ```
+* **`./script/setup-02-github-core-database-update.sh`**
 
-* **`setup-02-github-core-database-update.sh`**
+  * Clones the VMaNGOS core and database repositories, extracts the world database, and merges core migrations.
 
-  Clones the VMaNGOS core and database repositories, extracts the world database, and merges core migrations.
+* **`./script/setup-03-core-compile.sh`**
 
-  ```sh
-  ./script/setup-02-github-core-database-update.sh
-  ```
+  * Builds the compiler image and compiles the VMaNGOS core.
 
-* **`setup-03-core-compile.sh`**
+* **`./script/setup-04-client-data-extract.sh`**
 
-  Builds the compiler image and compiles the VMaNGOS core.
+  * Extracts DBC, maps, vmaps, and mmaps from the client data.
 
-  ```sh
-  ./script/setup-03-core-compile.sh
-  ```
+* **`./script/setup-05-docker-resources-initialize.sh`**
 
-* **`setup-04-client-data-extract.sh`**
+  * Initializes Docker resource limits, configures Docker logging, creates the VMaNGOS Docker network if required, and starts the containers.
 
-  Extracts DBC, maps, vmaps, and mmaps from the client data.
+* **`./script/setup-06-vmangos-database-create.sh`**
 
-  ```sh
-  ./script/setup-04-client-data-extract.sh
-  ```
-
-* **`setup-05-docker-resources-initialize.sh`**
-
-  Initializes Docker resource limits, configures Docker logging, creates the VMaNGOS Docker network if required, and starts the containers.
-
-  ```sh
-  ./script/setup-05-docker-resources-initialize.sh
-  ```
-
-* **`setup-06-vmangos-database-create.sh`**
-
-  Creates and imports the VMaNGOS databases, configures the database user and realm, enables binary logging, and restarts the database service.
-
-  ```sh
-  ./script/setup-06-vmangos-database-create.sh
-  ```
+  * Creates and imports the VMaNGOS databases, configures the database user and realm, enables binary logging, and restarts the database service.
 
 ## MySQL Configuration
 
@@ -239,157 +209,85 @@ script/*.log
 
 ### Backup
 
-* **`backup-01-mangos-database.sh`**
+* **`./script/backup-01-mangos-database.sh`**
 
-  Creates an SQL dump of the `mangos` database.
+  * Creates an SQL dump of the `mangos` database.
 
-  ```sh
-  ./script/backup-01-mangos-database.sh
-  ```
+* **`./script/backup-02-characters-logs-realmd-databases.sh`**
 
-* **`backup-02-characters-logs-realmd-databases.sh`**
+  * Creates and compresses an SQL dump of the `characters`, `logs`, and `realmd` databases.
 
-  Creates and compresses an SQL dump of the `characters`, `logs`, and `realmd` databases.
+* **`./script/backup-03-binary-log.sh`**
 
-  ```sh
-  ./script/backup-02-characters-logs-realmd-databases.sh
-  ```
+  * Copies and compresses MariaDB binary logs.
 
-* **`backup-03-binary-log.sh`**
+* **`./script/backup-04-s3-upload.sh`**
 
-  Copies and compresses MariaDB binary logs.
+  * Uploads `.7z` backup files to S3.
 
-  ```sh
-  ./script/backup-03-binary-log.sh
-  ```
+* **`./script/backup-05-retention-cleanup.sh`**
 
-* **`backup-04-s3-upload.sh`**
-
-  Uploads `.7z` backup files to S3.
-
-  ```sh
-  ./script/backup-04-s3-upload.sh
-  ```
-
-* **`backup-05-retention-cleanup.sh`**
-
-  Deletes old `.7z` backup files according to the configured retention period.
-
-  ```sh
-  ./script/backup-05-retention-cleanup.sh
-  ```
+  * Deletes old `.7z` backup files according to the configured retention period.
 
 ### Docker Resources
 
-* **`docker-resources-01-collect.sh`**
+* **`./script/docker-resources-01-collect.sh`**
 
-  Collects memory usage data for the database, mangos, and realmd containers.
+  * Collects memory usage data for the database, mangos, and realmd containers.
 
-  ```sh
-  ./script/docker-resources-01-collect.sh
-  ```
+* **`./script/docker-resources-02-adjust.sh`**
 
-* **`docker-resources-02-adjust.sh`**
-
-  Adjusts Docker resource allocations based on seven-day average memory usage and restarts the Docker Compose environment.
-
-  ```sh
-  ./script/docker-resources-02-adjust.sh
-  ```
+  * Adjusts Docker resource allocations based on seven-day average memory usage and restarts the Docker Compose environment.
 
 ### Faction Balancer
 
-* **`faction-balancer-01-population-collect.sh`**
+* **`./script/faction-balancer-01-population-collect.sh`**
 
-  Collects Alliance and Horde population data.
+  * Collects Alliance and Horde population data.
 
-  ```sh
-  ./script/faction-balancer-01-population-collect.sh
-  ```
+* **`./script/faction-balancer-02-xp-rates-update.sh`**
 
-* **`faction-balancer-02-xp-rates-update.sh`**
-
-  Calculates the faction balance from the previous seven days, updates faction-specific XP rates, removes old population data, and schedules a mangos server restart.
-
-  ```sh
-  ./script/faction-balancer-02-xp-rates-update.sh
-  ```
-
-  Requires:
-
-  [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232)
+  * Calculates faction balance from the previous seven days, updates faction-specific XP rates, removes old population data, and schedules a mangos server restart.
+  * Requires [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
 
 ### Logs
 
-* **`logs-01-vmangos-cleanup.sh`**
+* **`./script/logs-01-vmangos-cleanup.sh`**
 
-  Removes entries older than 21 days from mangos, honor, and realmd logs.
-
-  The existing log files are rewritten without replacing them so their ownership, permissions, and file inodes remain unchanged.
-
-  ```sh
-  ./script/logs-01-vmangos-cleanup.sh
-  ```
+  * Removes entries older than 21 days from mangos, honor, and realmd logs.
+  * Preserves the existing log files, ownership, permissions, and file inodes.
 
 ### Management
 
-* **`management-01-vmangos-database-migrations-import.sh`**
+* **`./script/management-01-vmangos-database-migrations-import.sh`**
 
-  Imports current database migrations and restarts the Docker Compose environment.
+  * Imports current database migrations and restarts the Docker Compose environment.
 
-  ```sh
-  ./script/management-01-vmangos-database-migrations-import.sh
-  ```
+* **`./script/management-02-vmangos-database-world-recreate.sh`**
 
-* **`management-02-vmangos-database-world-recreate.sh`**
+  * Recreates and imports the VMaNGOS world database and world migrations.
 
-  Recreates and imports the VMaNGOS world database and world migrations.
+* **`./script/management-03-core-recompile.sh`**
 
-  ```sh
-  ./script/management-02-vmangos-database-world-recreate.sh
-  ```
+  * Stops the environment, rebuilds and recompiles the VMaNGOS core, and starts the environment again.
 
-* **`management-03-core-recompile.sh`**
+* **`./script/management-04-vmangos-shutdown.sh`**
 
-  Stops the environment, rebuilds and recompiles the VMaNGOS core, and starts the environment again.
+  * Disables automatic restart for `vmangos-mangos` and schedules a graceful shutdown after 15 minutes.
 
-  ```sh
-  ./script/management-03-core-recompile.sh
-  ```
+* **`./script/management-05-vmangos-startup.sh`**
 
-* **`management-04-vmangos-shutdown.sh`**
-
-  Disables automatic restart for `vmangos-mangos` and schedules a graceful shutdown after 15 minutes.
-
-  ```sh
-  ./script/management-04-vmangos-shutdown.sh
-  ```
-
-* **`management-05-vmangos-startup.sh`**
-
-  Enables the automatic restart policy for `vmangos-mangos` and starts the container if it is stopped.
-
-  ```sh
-  ./script/management-05-vmangos-startup.sh
-  ```
+  * Enables the automatic restart policy for `vmangos-mangos` and starts the container if it is stopped.
 
 ### Monitoring
 
-* **`monitoring-01-mangos-uptime.sh`**
+* **`./script/monitoring-01-mangos-uptime.sh`**
 
-  Reads the current VMaNGOS uptime and sends the uptime, calculated last restart time, and current server time to Discord.
+  * Reads the current VMaNGOS uptime and sends the uptime, calculated last restart time, and current server time to Discord.
 
-  ```sh
-  ./script/monitoring-01-mangos-uptime.sh
-  ```
+* **`./script/monitoring-02-docker-host-free-space.sh`**
 
-* **`monitoring-02-docker-host-free-space.sh`**
-
-  Sends Docker host disk-space usage to Discord.
-
-  ```sh
-  ./script/monitoring-02-docker-host-free-space.sh
-  ```
+  * Sends Docker host disk-space usage to Discord.
 
 ## Cron Jobs
 
