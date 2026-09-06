@@ -1,4 +1,6 @@
-# A Docker setup for VMaNGOS
+# VMaNGOS Docker
+
+A Docker setup for VMaNGOS.
 
 ## Dependencies
 
@@ -11,13 +13,11 @@
 
 Docker-published ports can bypass normal UFW rules if Docker and UFW are not configured to work together.
 
-The setup script:
+The setup script configures Docker and the required UFW/Docker forwarding rules:
 
 ```sh
 ./script/setup-01-docker-dependencies-install.sh
 ```
-
-installs Docker and configures the required UFW/Docker forwarding rules.
 
 Only publish ports that must be publicly accessible.
 
@@ -47,54 +47,59 @@ sudo ufw route allow proto tcp from any to any port 8085
 
 ## Docker Setup
 
-The assumed client version is `5875` (patch `1.12.1`). To use a different client version, modify the `VMANGOS_CLIENT` entry in the `.env` file accordingly.
+The default client version is `5875` (patch `1.12.1`).
 
-The user used inside the persistent containers (`vmangos-database`, `vmangos-realmd`, and `vmangos-mangos`) has UID `1000` and GID `1000` by default.
+The persistent VMaNGOS containers (`vmangos-database`, `vmangos-realmd`, and `vmangos-mangos`) run with UID `1000` and GID `1000` by default.
 
-You can adjust this to match your host UID/GID by changing:
+You can adjust these values in `.env`:
 
 ```text
 VMANGOS_USER_ID
 VMANGOS_GROUP_ID
 ```
 
-in the `.env` file.
+Using the same UID/GID on the host helps avoid permission issues with bind-mounted files.
 
-The `./vol/client-data-extracted` directory is mounted into the mangos container to provide DBC and map data.
-
-Persistent database, configuration, log, client-data, and other runtime data is stored under:
+Persistent runtime data is stored under:
 
 ```text
 ./vol/
 ```
 
-Database backups are stored separately under:
+Backups are stored separately under:
 
 ```text
 ./backup/
 ```
 
+Operational scripts are stored under:
+
+```text
+./script/
+```
+
 ### Clone the Repository
 
-Use a user with UID/GID `1000:1000` for this step where possible, such as the default Ubuntu user. This avoids permission problems with containers running as UID/GID `1000:1000`.
+Using a host user with UID/GID `1000:1000`, such as the default Ubuntu user, is recommended.
 
 ```sh
 git clone --recurse-submodules https://github.com/vanilla-reforged/vmangos-docker
+cd vmangos-docker
 ```
 
-### Adjust `.env` Files
+### Adjust Environment Files
 
-Adjust the environment files for your desired setup:
+Configure the environment files for your installation:
 
 * `.env` — Docker Compose configuration
-* `.env-script` — configuration used by host scripts
-* `.env-vmangos-build` — compiler image and CMake build options
+* `.env-script` — host script configuration
+* `.env-vmangos-build` — compiler and CMake build configuration
 
-The scripts automatically determine the repository directory from their own location. A `DOCKER_DIRECTORY` variable is no longer required.
+The scripts determine the repository directory automatically from their own location. `DOCKER_DIRECTORY` is no longer required.
 
-To make the server public, change the `VMANGOS_REALM_IP` variable in `.env-script`.
+To make the server publicly accessible, configure `VMANGOS_REALM_IP` in `.env-script`.
 
-### Generate / Extract Client Data
+### Generate or Extract Client Data
 
 Copy the contents of your World of Warcraft client directory into:
 
@@ -102,9 +107,9 @@ Copy the contents of your World of Warcraft client directory into:
 ./vol/client-data/
 ```
 
-Generating the required data will take many hours.
+Generating DBC, maps, vmaps, and mmaps can take several hours.
 
-If you already have extracted client data, place it in:
+If you already have extracted client data, place it under:
 
 ```text
 ./vol/client-data-extracted/
@@ -116,63 +121,65 @@ and skip:
 ./script/setup-04-client-data-extract.sh
 ```
 
-An additional source for the required files is:
+Pre-extracted client data may also be available here:
 
 https://www.ownedcore.com/forums/world-of-warcraft/world-of-warcraft-emulator-servers/wow-emu-general-releases/613280-elysium-core-1-12-repack-including-mmaps-optional-vendors.html
 
 ## Setup Scripts
 
-### `setup-01-docker-dependencies-install.sh`
+Run the setup scripts in order.
 
-```sh
-./script/setup-01-docker-dependencies-install.sh
-```
+* **`setup-01-docker-dependencies-install.sh`**
 
-Installs and configures Docker, Docker Compose, 7zip, UFW, jq, bc, expect, and the required passwordless Docker sudo commands.
+  Installs and configures Docker, Docker Compose, 7zip, UFW, jq, bc, expect, and the required passwordless Docker sudo commands.
 
-### `setup-02-github-core-database-update.sh`
+  ```sh
+  ./script/setup-01-docker-dependencies-install.sh
+  ```
 
-```sh
-./script/setup-02-github-core-database-update.sh
-```
+* **`setup-02-github-core-database-update.sh`**
 
-Updates the VMaNGOS core and database GitHub repositories under `./vol/`, extracts the world database, and merges core migrations.
+  Clones the VMaNGOS core and database repositories, extracts the world database, and merges core migrations.
 
-### `setup-03-core-compile.sh`
+  ```sh
+  ./script/setup-02-github-core-database-update.sh
+  ```
 
-```sh
-./script/setup-03-core-compile.sh
-```
+* **`setup-03-core-compile.sh`**
 
-Builds the compiler image and compiles the VMaNGOS core.
+  Builds the compiler image and compiles the VMaNGOS core.
 
-### `setup-04-client-data-extract.sh`
+  ```sh
+  ./script/setup-03-core-compile.sh
+  ```
 
-```sh
-./script/setup-04-client-data-extract.sh
-```
+* **`setup-04-client-data-extract.sh`**
 
-Extracts DBC, maps, vmaps, and mmaps from the client data.
+  Extracts DBC, maps, vmaps, and mmaps from the client data.
 
-### `setup-05-docker-resources-initialize.sh`
+  ```sh
+  ./script/setup-04-client-data-extract.sh
+  ```
 
-```sh
-./script/setup-05-docker-resources-initialize.sh
-```
+* **`setup-05-docker-resources-initialize.sh`**
 
-Initializes Docker resource limits, configures Docker logging, creates the VMaNGOS Docker network if necessary, and starts the containers.
+  Initializes Docker resource limits, configures Docker logging, creates the VMaNGOS Docker network if required, and starts the containers.
 
-### `setup-06-vmangos-database-create.sh`
+  ```sh
+  ./script/setup-05-docker-resources-initialize.sh
+  ```
 
-```sh
-./script/setup-06-vmangos-database-create.sh
-```
+* **`setup-06-vmangos-database-create.sh`**
 
-Creates and imports the VMaNGOS databases, configures the database user and realm, enables binary logging, and restarts the database service.
+  Creates and imports the VMaNGOS databases, configures the database user and realm, enables binary logging, and restarts the database service.
 
-## Configure MySQL Password
+  ```sh
+  ./script/setup-06-vmangos-database-create.sh
+  ```
 
-Keep the MySQL root password consistent between the relevant `.env` and `.env-script` configuration.
+## MySQL Configuration
+
+Keep the MySQL root password consistent between the relevant environment files.
 
 If you change the database password, also update the database connection settings in:
 
@@ -181,7 +188,7 @@ If you change the database password, also update the database connection setting
 ./vol/configuration/realmd.conf
 ```
 
-## Create Account
+## Create an Account
 
 Attach to the mangos container:
 
@@ -189,7 +196,7 @@ Attach to the mangos container:
 sudo docker attach vmangos-mangos
 ```
 
-Create the account:
+Create an account:
 
 ```text
 account create <account name> <account password>
@@ -200,7 +207,7 @@ Detach without stopping the container by pressing:
 
 <kbd>Ctrl</kbd>+<kbd>P</kbd>, then <kbd>Ctrl</kbd>+<kbd>Q</kbd>.
 
-## Stopping and Starting VMaNGOS
+## Starting and Stopping VMaNGOS
 
 Stop the environment:
 
@@ -214,7 +221,7 @@ Start the environment:
 sudo docker compose up -d
 ```
 
-## Scripts
+## Operational Scripts
 
 All operational scripts are stored directly under:
 
@@ -222,7 +229,9 @@ All operational scripts are stored directly under:
 ./script/
 ```
 
-Cron output logs are also written directly into this directory beside their corresponding scripts and should be ignored by Git with:
+Cron output logs are written beside their corresponding scripts.
+
+Add the following to `.gitignore`:
 
 ```gitignore
 script/*.log
@@ -230,155 +239,157 @@ script/*.log
 
 ### Backup
 
-#### `backup-01-mangos-database.sh`
+* **`backup-01-mangos-database.sh`**
 
-```sh
-./script/backup-01-mangos-database.sh
-```
+  Creates an SQL dump of the `mangos` database.
 
-Creates an SQL dump of the `mangos` database.
+  ```sh
+  ./script/backup-01-mangos-database.sh
+  ```
 
-#### `backup-02-characters-logs-realmd-databases.sh`
+* **`backup-02-characters-logs-realmd-databases.sh`**
 
-```sh
-./script/backup-02-characters-logs-realmd-databases.sh
-```
+  Creates and compresses an SQL dump of the `characters`, `logs`, and `realmd` databases.
 
-Creates and compresses an SQL dump of the `characters`, `logs`, and `realmd` databases.
+  ```sh
+  ./script/backup-02-characters-logs-realmd-databases.sh
+  ```
 
-#### `backup-03-binary-log.sh`
+* **`backup-03-binary-log.sh`**
 
-```sh
-./script/backup-03-binary-log.sh
-```
+  Copies and compresses MariaDB binary logs.
 
-Copies and compresses MariaDB binary logs.
+  ```sh
+  ./script/backup-03-binary-log.sh
+  ```
 
-#### `backup-04-s3-upload.sh`
+* **`backup-04-s3-upload.sh`**
 
-```sh
-./script/backup-04-s3-upload.sh
-```
+  Uploads `.7z` backup files to S3.
 
-Uploads `.7z` backups to S3.
+  ```sh
+  ./script/backup-04-s3-upload.sh
+  ```
 
-#### `backup-05-retention-cleanup.sh`
+* **`backup-05-retention-cleanup.sh`**
 
-```sh
-./script/backup-05-retention-cleanup.sh
-```
+  Deletes old `.7z` backup files according to the configured retention period.
 
-Deletes old `.7z` backups according to the configured retention period.
+  ```sh
+  ./script/backup-05-retention-cleanup.sh
+  ```
 
 ### Docker Resources
 
-#### `docker-resources-01-collect.sh`
+* **`docker-resources-01-collect.sh`**
 
-```sh
-./script/docker-resources-01-collect.sh
-```
+  Collects memory usage data for the database, mangos, and realmd containers.
 
-Collects memory usage data for the database, mangos, and realmd containers.
+  ```sh
+  ./script/docker-resources-01-collect.sh
+  ```
 
-#### `docker-resources-02-adjust.sh`
+* **`docker-resources-02-adjust.sh`**
 
-```sh
-./script/docker-resources-02-adjust.sh
-```
+  Adjusts Docker resource allocations based on seven-day average memory usage and restarts the Docker Compose environment.
 
-Adjusts resource allocations in `.env` based on seven-day average resource usage and restarts the Docker Compose environment.
+  ```sh
+  ./script/docker-resources-02-adjust.sh
+  ```
 
 ### Faction Balancer
 
-#### `faction-balancer-01-population-collect.sh`
+* **`faction-balancer-01-population-collect.sh`**
 
-```sh
-./script/faction-balancer-01-population-collect.sh
-```
+  Collects Alliance and Horde population data.
 
-Collects Alliance and Horde population balance data.
+  ```sh
+  ./script/faction-balancer-01-population-collect.sh
+  ```
 
-#### `faction-balancer-02-xp-rates-update.sh`
+* **`faction-balancer-02-xp-rates-update.sh`**
 
-```sh
-./script/faction-balancer-02-xp-rates-update.sh
-```
+  Calculates the faction balance from the previous seven days, updates faction-specific XP rates, removes old population data, and schedules a mangos server restart.
 
-Calculates faction balance from the previous seven days, updates faction-specific XP rates, cleans old population data, and schedules a mangos server restart.
+  ```sh
+  ./script/faction-balancer-02-xp-rates-update.sh
+  ```
 
-Requires the core change:
+  Requires:
 
-[Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232)
+  [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232)
 
 ### Logs
 
-#### `logs-01-vmangos-cleanup.sh`
+* **`logs-01-vmangos-cleanup.sh`**
 
-```sh
-./script/logs-01-vmangos-cleanup.sh
-```
+  Removes entries older than 21 days from mangos, honor, and realmd logs.
 
-Removes entries older than 21 days from mangos, honor, and realmd logs while preserving the existing log files, ownership, permissions, and file inodes.
+  The existing log files are rewritten without replacing them so their ownership, permissions, and file inodes remain unchanged.
+
+  ```sh
+  ./script/logs-01-vmangos-cleanup.sh
+  ```
 
 ### Management
 
-#### `management-01-vmangos-database-migrations-import.sh`
+* **`management-01-vmangos-database-migrations-import.sh`**
 
-```sh
-./script/management-01-vmangos-database-migrations-import.sh
-```
+  Imports current database migrations and restarts the Docker Compose environment.
 
-Imports current database migrations and restarts the Docker Compose environment.
+  ```sh
+  ./script/management-01-vmangos-database-migrations-import.sh
+  ```
 
-#### `management-02-vmangos-database-world-recreate.sh`
+* **`management-02-vmangos-database-world-recreate.sh`**
 
-```sh
-./script/management-02-vmangos-database-world-recreate.sh
-```
+  Recreates and imports the VMaNGOS world database and world migrations.
 
-Recreates and imports the VMaNGOS world database and world migrations.
+  ```sh
+  ./script/management-02-vmangos-database-world-recreate.sh
+  ```
 
-#### `management-03-core-recompile.sh`
+* **`management-03-core-recompile.sh`**
 
-```sh
-./script/management-03-core-recompile.sh
-```
+  Stops the environment, rebuilds and recompiles the VMaNGOS core, and starts the environment again.
 
-Stops the environment, rebuilds and recompiles the VMaNGOS core, and starts the environment again.
+  ```sh
+  ./script/management-03-core-recompile.sh
+  ```
 
-#### `management-04-vmangos-shutdown.sh`
+* **`management-04-vmangos-shutdown.sh`**
 
-```sh
-./script/management-04-vmangos-shutdown.sh
-```
+  Disables automatic restart for `vmangos-mangos` and schedules a graceful shutdown after 15 minutes.
 
-Disables automatic restart for `vmangos-mangos` and schedules a graceful shutdown after 15 minutes.
+  ```sh
+  ./script/management-04-vmangos-shutdown.sh
+  ```
 
-#### `management-05-vmangos-startup.sh`
+* **`management-05-vmangos-startup.sh`**
 
-```sh
-./script/management-05-vmangos-startup.sh
-```
+  Enables the automatic restart policy for `vmangos-mangos` and starts the container if it is stopped.
 
-Enables the automatic restart policy for `vmangos-mangos` and starts the container if it is stopped.
+  ```sh
+  ./script/management-05-vmangos-startup.sh
+  ```
 
 ### Monitoring
 
-#### `monitoring-01-mangos-uptime.sh`
+* **`monitoring-01-mangos-uptime.sh`**
 
-```sh
-./script/monitoring-01-mangos-uptime.sh
-```
+  Reads the current VMaNGOS uptime and sends the uptime, calculated last restart time, and current server time to Discord.
 
-Reads the current VMaNGOS uptime and sends the uptime, calculated last restart time, and current server time to Discord.
+  ```sh
+  ./script/monitoring-01-mangos-uptime.sh
+  ```
 
-#### `monitoring-02-docker-host-free-space.sh`
+* **`monitoring-02-docker-host-free-space.sh`**
 
-```sh
-./script/monitoring-02-docker-host-free-space.sh
-```
+  Sends Docker host disk-space usage to Discord.
 
-Sends Docker host disk-space usage to Discord.
+  ```sh
+  ./script/monitoring-02-docker-host-free-space.sh
+  ```
 
 ## Cron Jobs
 
@@ -388,7 +399,7 @@ Edit root's crontab:
 sudo crontab -e
 ```
 
-Change `/home/user/vmangos-docker` below to match your installation path.
+Change `/home/user/vmangos-docker` to match your installation path.
 
 ```cron
 ##########
@@ -452,14 +463,14 @@ Change `/home/user/vmangos-docker` below to match your installation path.
 55 3 * * * /home/user/vmangos-docker/script/monitoring-02-docker-host-free-space.sh >> /home/user/vmangos-docker/script/monitoring-02-docker-host-free-space.log 2>&1
 ```
 
-## Vanilla Reforged Links
+## Vanilla Reforged
 
 * [Vanilla Reforged Website](https://vanillareforged.org/)
 * [Vanilla Reforged Discord](https://discord.gg/KkkDV5zmPb)
 
-## My Links
+## Support
 
-* [My Patreon](https://www.patreon.com/flyingfrog23)
+* [Patreon](https://www.patreon.com/flyingfrog23)
 * [Buy Me a Coffee](https://buymeacoffee.com/flyingfrog23)
 
 ## Based Upon
