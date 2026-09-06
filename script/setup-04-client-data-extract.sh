@@ -34,12 +34,15 @@ main() {
 
     log_message "INFO" "Script started"
 
-    # Load environment variables
+    if [ ! -f "$PROJECT_ROOT/.env-script" ]; then
+        log_message "ERROR" "Environment file not found: $PROJECT_ROOT/.env-script"
+        return 1
+    fi
+
     source "$PROJECT_ROOT/.env-script"
 
     extracted_data_dir="$PROJECT_ROOT/vol/client-data-extracted"
 
-    # Verify client data
     if [ ! -d "$CLIENT_DATA_DIR/Data" ]; then
         log_message "ERROR" "Client data not found: $CLIENT_DATA_DIR/Data"
         return 1
@@ -70,20 +73,17 @@ main() {
             "Completed ${extractor_command##*/}"
     done
 
-    # Remove temporary extractor data
     log_message "INFO" "Removing temporary extractor data"
 
     rm -rf \
         "$CLIENT_DATA_DIR/Buildings" \
         "$CLIENT_DATA_DIR/Cameras"
 
-    # Prepare extracted data directory
     log_message "INFO" "Preparing extracted data directory"
 
     rm -rf "$extracted_data_dir"
     mkdir -p "$extracted_data_dir/$VMANGOS_CLIENT"
 
-    # Move extracted data
     log_message "INFO" "Moving extracted client data"
 
     mv \
