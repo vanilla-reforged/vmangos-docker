@@ -6,7 +6,7 @@ readonly SCRIPT_NAME="${0##*/}"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-readonly LOG_DIR="$PROJECT_ROOT/vol/docker-resources"
+readonly LOG_DIR="$PROJECT_ROOT/data/docker-resources"
 readonly DB_LOG="$LOG_DIR/db_usage.log"
 readonly MANGOS_LOG="$LOG_DIR/mangos_usage.log"
 readonly REALMD_LOG="$LOG_DIR/realmd_usage.log"
@@ -86,8 +86,11 @@ clean_old_entries() {
 
         rm -f "$temp_file"
 
-        log_message "ERROR" "Failed to clean old entries from ${log_file##*/}"
-        log_error "Failed to clean old entries from $log_file"
+        log_message "ERROR" \
+            "Failed to clean old entries from ${log_file##*/}"
+
+        log_error \
+            "Failed to clean old entries from $log_file"
 
         return 1
     fi
@@ -96,7 +99,7 @@ clean_old_entries() {
     removed_count=$((before_count - after_count))
 
     # Rewrite the existing file instead of replacing it.
-    # This preserves its ownership, permissions, and inode.
+    # This preserves ownership, permissions, and inode.
     if ! cat "$temp_file" > "$log_file"; then
         rm -f "$temp_file"
 
@@ -126,13 +129,17 @@ collect_usage() {
         --format '{{.State.Running}}' \
         "$container_name" 2>/dev/null | grep -qx 'true'; then
 
-        log_message "WARNING" "Container is not running: $container_name"
-        log_error "Container is not running: $container_name"
+        log_message "WARNING" \
+            "Container is not running: $container_name"
+
+        log_error \
+            "Container is not running: $container_name"
 
         return
     fi
 
-    log_message "INFO" "Collecting memory usage for $container_name"
+    log_message "INFO" \
+        "Collecting memory usage for $container_name"
 
     memory_raw=$(
         sudo docker stats \
@@ -143,8 +150,11 @@ collect_usage() {
     )
 
     if [ -z "$memory_raw" ]; then
-        log_message "WARNING" "Unable to collect memory usage for $container_name"
-        log_error "Unable to collect memory usage for $container_name"
+        log_message "WARNING" \
+            "Unable to collect memory usage for $container_name"
+
+        log_error \
+            "Unable to collect memory usage for $container_name"
 
         return
     fi
@@ -152,6 +162,7 @@ collect_usage() {
     if ! memory_usage=$(convert_memory_to_mib "$memory_raw"); then
         log_message "WARNING" \
             "Unable to parse memory usage for $container_name: $memory_raw"
+
         log_error \
             "Unable to parse memory usage for $container_name: $memory_raw"
 
@@ -176,7 +187,8 @@ main() {
     log_message "INFO" "Script started"
 
     if ! mkdir -p "$LOG_DIR"; then
-        log_message "ERROR" "Failed to create log directory: $LOG_DIR"
+        log_message "ERROR" \
+            "Failed to create log directory: $LOG_DIR"
         return 1
     fi
 
