@@ -74,26 +74,15 @@ remove_old_entries() {
 
     if ! awk -v cutoff="$cutoff" '
         {
-            match(
-                $0,
-                /^([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})/,
-                timestamp_match
-            )
+            timestamp = substr($0, 1, 19)
 
-            if (timestamp_match[1] == "") {
+            if (timestamp !~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]$/) {
                 print
                 next
             }
 
-            timestamp = timestamp_match[1]
-
             gsub(/[-: ]/, " ", timestamp)
-            split(timestamp, parts, " ")
-
-            epoch = mktime(
-                parts[1] " " parts[2] " " parts[3] " " \
-                parts[4] " " parts[5] " " parts[6]
-            )
+            epoch = mktime(timestamp)
 
             if (epoch >= cutoff) {
                 print
@@ -175,7 +164,7 @@ main() {
     cleanup_directory "$REALMD_LOG_DIR"
 
     send_discord_message \
-        "Log cleanup completed. Entries older than $RETENTION_DAYS days were removed from mangos and realmd logs."
+        "Log cleanup completed. Entries older than $RETENTION_DAYS days were removed from mangos, honor, and realmd logs."
 
     log_message "SUCCESS" "Script completed successfully"
 }
