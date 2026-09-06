@@ -71,7 +71,7 @@ I suggest getting the required files from here: https://www.ownedcore.com/forums
 
 ### Setup (/script/)
 
-- `./script/setup-01-docker-7zip-ufw-jq-expect-install.sh`
+- `./script/setup-01-docker-dependencies-install.sh`
   - Install and modify Docker, 7zip, ufw, jq and expect.
 
 - `./script/setup-02-github-core-database-update.sh`
