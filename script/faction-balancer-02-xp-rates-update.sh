@@ -146,11 +146,24 @@ EOF
 
 # Clean up data older than 7 days
 log_message "INFO" "Cleaning up old population data"
+
 if [ -f "$POPULATION_DATA_FILE" ]; then
-    # Create temp directory if it doesn't exist
-    mkdir -p "$DOCKER_DIRECTORY/vol/backup"
-    awk -v date="$SEVEN_DAYS_AGO" -F, '$1 >= date' "$POPULATION_DATA_FILE" > "$DOCKER_DIRECTORY/vol/backup/population_data.csv.tmp" && mv "$DOCKER_DIRECTORY/vol/backup/population_data.csv.tmp" "$POPULATION_DATA_FILE"
-    log_message "SUCCESS" "Old population data cleaned up"
+    TEMP_FILE=$(mktemp "${POPULATION_DATA_FILE}.tmp.XXXXXX")
+
+    if awk -v date="$SEVEN_DAYS_AGO" -F, '$1 >= date' \
+        "$POPULATION_DATA_FILE" > "$TEMP_FILE"; then
+
+        # Preserve ownership and permissions of the original file
+        chown --reference="$POPULATION_DATA_FILE" "$TEMP_FILE"
+        chmod --reference="$POPULATION_DATA_FILE" "$TEMP_FILE"
+
+        mv "$TEMP_FILE" "$POPULATION_DATA_FILE"
+
+        log_message "SUCCESS" "Old population data cleaned up"
+    else
+        rm -f "$TEMP_FILE"
+        log_message "ERROR" "Failed to clean up old population data"
+    fi
 else
     log_message "WARNING" "Population data file not found, skipping cleanup"
 fi
