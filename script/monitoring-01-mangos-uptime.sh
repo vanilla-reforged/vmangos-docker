@@ -1,112 +1,146 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Logger function for standardized logging
+set -Eeuo pipefail
+
+readonly SCRIPT_NAME="${0##*/}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+readonly ENV_SCRIPT_FILE="$PROJECT_ROOT/.env-script"
+readonly CONTAINER_NAME="vmangos-mangos"
+
 log_message() {
     local level="$1"
     local message="$2"
-    local script_name=$(basename "$0")
-    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-    
-    echo "[$timestamp] [$script_name] [$level] $message" >&2
+    local timestamp
+
+    timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    printf '[%s] [%s] [%s] %s\n' "$timestamp" "$SCRIPT_NAME" "$level" "$message"
 }
 
-# Change to the directory where the script is located
-cd "$(dirname "$0")" >/dev/null 2>&1
-log_message "INFO" "Script started"
+send_discord_message() {
+    local message="$1"
 
-# Load environment variables from .env-script
-log_message "INFO" "Loading environment variables"
-source ./../../.env-script >/dev/null 2>&1
+    if [ -z "${DISCORD_WEBHOOK:-}" ]; then
+        log_message "WARNING" \
+            "Discord webhook not configured, printing server information"
 
-# Use expect to get server info
-log_message "INFO" "Getting server info"
-server_info=$(expect <<EOF
-    set timeout 10
-    spawn sudo docker attach vmangos-mangos
-    sleep 2
-    send "server info\r"
-    sleep 2
-    expect {
-        "server info" {
-            expect -re "Server uptime:.*\r\n"
-        }
-    }
-    send "\x10"
-    sleep 1
-    send "\x11"
-    expect eof
-EOF
-)
+        printf '%s\n' "$message"
+        return
+    fi
 
-# Extract the uptime line
-server_uptime=$(echo "$server_info" | grep "Server uptime:" | tr -d '\r' | sed 's/^[[:space:]]*//')
+    log_message "INFO" "Sending Discord notification"
 
-if [ -z "$server_uptime" ]; then
-    log_message "ERROR" "Failed to get server uptime"
-    server_uptime="Server uptime: Unknown"
-else
-    log_message "INFO" "Got server uptime: $server_uptime"
-fi
+    if curl -fsS \
+        -H "Content-Type: application/json" \
+        -X POST \
+        -d "$(jq -nc --arg content "$message" '{content: $content}')" \
+        "$DISCORD_WEBHOOK" > /dev/null; then
 
-# Calculate last restart time
-current_time=$(date +%s)
-hours=0
-minutes=0
-seconds=0
-
-if [[ "$server_uptime" =~ ([0-9]+)[[:space:]]+Hours ]]; then
-    hours=${BASH_REMATCH[1]}
-fi
-
-if [[ "$server_uptime" =~ ([0-9]+)[[:space:]]+Minutes ]]; then
-    minutes=${BASH_REMATCH[1]}
-fi
-
-if [[ "$server_uptime" =~ ([0-9]+)[[:space:]]+Seconds ]]; then
-    seconds=${BASH_REMATCH[1]}
-fi
-
-total_seconds=$(( (hours * 3600) + (minutes * 60) + seconds ))
-restart_timestamp=$((current_time - total_seconds))
-last_restart=$(date -d "@$restart_timestamp" "+%Y-%m-%d %H:%M:%S")
-log_message "INFO" "Calculated last restart: $last_restart"
-
-# Get current server time
-server_time=$(date "+%Y-%m-%d %H:%M:%S")
-log_message "INFO" "Server time: $server_time"
-
-# Send to Discord if webhook is configured
-if [ -n "$DISCORD_WEBHOOK" ]; then
-    log_message "INFO" "Sending to Discord"
-    
-    # Use proper Discord linebreak escaping
-    discord_message="${server_uptime}\\n"
-    discord_message+="Last restart: ${last_restart}\\n"
-    discord_message+="Server time: ${server_time}"
-    
-    # Create payload
-    payload="{\"content\":\"$discord_message\"}"
-    
-    # Write to temp file
-    echo "$payload" > /tmp/discord_payload.json
-    
-    # Send the message
-    if curl -s -H "Content-Type: application/json" \
-         -X POST \
-         --data @/tmp/discord_payload.json \
-         "$DISCORD_WEBHOOK" > /dev/null 2>&1; then
         log_message "SUCCESS" "Discord notification sent successfully"
     else
         log_message "ERROR" "Failed to send Discord notification"
     fi
-    
-    # Clean up
-    rm -f /tmp/discord_payload.json
-else
-    log_message "WARNING" "Discord webhook not configured, printing to console"
-    echo "$server_uptime"
-    echo "Last restart: $last_restart"
-    echo "Server time: $server_time"
-fi
+}
 
-log_message "SUCCESS" "Script completed"
+main() {
+    local server_info
+    local server_uptime
+    local server_time
+    local last_restart
+
+    local days=0
+    local hours=0
+    local minutes=0
+    local seconds=0
+    local total_seconds
+    local restart_timestamp
+
+    log_message "INFO" "Script started"
+
+    # Load optional Discord configuration
+    if [ -f "$ENV_SCRIPT_FILE" ]; then
+        source "$ENV_SCRIPT_FILE"
+    else
+        log_message "WARNING" \
+            "Environment file not found: $ENV_SCRIPT_FILE"
+    fi
+
+    # Get server information
+    log_message "INFO" "Getting server uptime"
+
+    if ! server_info=$(expect <<EOF
+set timeout 10
+spawn sudo docker attach $CONTAINER_NAME
+sleep 2
+send "server info\r"
+sleep 2
+send "\x10"
+sleep 1
+send "\x11"
+expect eof
+EOF
+    ); then
+        log_message "ERROR" "Failed to get server information"
+        return 1
+    fi
+
+    server_uptime=$(
+        printf '%s\n' "$server_info" |
+        grep -m1 "Server uptime:" |
+        tr -d '\r' |
+        sed 's/^[[:space:]]*//' || true
+    )
+
+    if [ -z "$server_uptime" ]; then
+        log_message "ERROR" "Failed to extract server uptime"
+        server_uptime="Server uptime: Unknown"
+        last_restart="Unknown"
+    else
+        log_message "INFO" "Got server uptime: $server_uptime"
+
+        # Extract uptime components
+        if [[ "$server_uptime" =~ ([0-9]+)[[:space:]]+Day[s]? ]]; then
+            days="${BASH_REMATCH[1]}"
+        fi
+
+        if [[ "$server_uptime" =~ ([0-9]+)[[:space:]]+Hour[s]? ]]; then
+            hours="${BASH_REMATCH[1]}"
+        fi
+
+        if [[ "$server_uptime" =~ ([0-9]+)[[:space:]]+Minute[s]? ]]; then
+            minutes="${BASH_REMATCH[1]}"
+        fi
+
+        if [[ "$server_uptime" =~ ([0-9]+)[[:space:]]+Second[s]? ]]; then
+            seconds="${BASH_REMATCH[1]}"
+        fi
+
+        total_seconds=$(
+            (
+                days * 86400 +
+                hours * 3600 +
+                minutes * 60 +
+                seconds
+            )
+        )
+
+        restart_timestamp=$(($(date +%s) - total_seconds))
+        last_restart=$(date -d "@$restart_timestamp" "+%Y-%m-%d %H:%M:%S")
+
+        log_message "INFO" "Calculated last restart: $last_restart"
+    fi
+
+    server_time=$(date "+%Y-%m-%d %H:%M:%S")
+
+    send_discord_message "$(
+        printf '%s\nLast restart: %s\nServer time: %s' \
+            "$server_uptime" \
+            "$last_restart" \
+            "$server_time"
+    )"
+
+    log_message "SUCCESS" "Script completed successfully"
+}
+
+main "$@"
