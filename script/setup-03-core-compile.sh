@@ -1,37 +1,54 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Change to the directory where the script is located
-cd "$(dirname "$0")"
+set -Eeuo pipefail
 
-# Load environment variables from .env-script
-source ./../../.env-script  # Adjusted to load .env-script from the project root using $DOCKER_DIRECTORY
+readonly SCRIPT_NAME="${0##*/}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Define Docker image and container details
-IMAGE_NAME="vmangos-build"
-DOCKERFILE_PATH="$DOCKER_DIRECTORY/docker/build/Dockerfile"  # Use $DOCKER_DIRECTORY for the correct path
-VOLUMES=(
-  "$DOCKER_DIRECTORY/vol/ccache:/vol/ccache"
-  "$DOCKER_DIRECTORY/vol/core:/vol/core"
-  "$DOCKER_DIRECTORY/vol/core-github:/vol/core-github"
-)
-ENV_FILE="$DOCKER_DIRECTORY/.env-vmangos-build"  # Use $DOCKER_DIRECTORY for the env file
+readonly IMAGE_NAME="vmangos-build"
+readonly DOCKERFILE_PATH="$PROJECT_ROOT/docker/build/Dockerfile"
+readonly BUILD_ENV_FILE="$PROJECT_ROOT/.env-vmangos-build"
 
-echo "[VMaNGOS]: Building compiler image..."
+readonly CCACHE_DIR="$PROJECT_ROOT/vol/ccache"
+readonly CORE_DIR="$PROJECT_ROOT/vol/core"
+readonly CORE_GITHUB_DIR="$PROJECT_ROOT/vol/core-github"
 
-# Build the Docker image and handle errors
-docker build \
-  --build-arg DEBIAN_FRONTEND=noninteractive \
-  --no-cache \
-  -t "$IMAGE_NAME" \
-  -f "$DOCKERFILE_PATH" . || { echo "Failed to build Docker image."; exit 1; }
+log_message() {
+    local level="$1"
+    local message="$2"
+    local timestamp
 
-echo "[VMaNGOS]: Compiling VMaNGOS..."
+    timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    printf '[%s] [%s] [%s] %s\n' "$timestamp" "$SCRIPT_NAME" "$level" "$message"
+}
 
-# Compile using the Docker image
-docker run \
-  $(printf '%s ' "${VOLUMES[@]/#/ -v }") \
-  --env-file "$ENV_FILE" \
-  --rm \
-  "$IMAGE_NAME" || { echo "Compilation failed."; exit 1; }
+main() {
+    log_message "INFO" "Script started"
 
-echo "[VMaNGOS]: Compiling complete!"
+    # Build compiler image
+    log_message "INFO" "Building compiler image"
+
+    sudo docker build \
+        --build-arg DEBIAN_FRONTEND=noninteractive \
+        --no-cache \
+        -t "$IMAGE_NAME" \
+        -f "$DOCKERFILE_PATH" \
+        "$PROJECT_ROOT/docker/build"
+
+    # Compile VMaNGOS
+    log_message "INFO" "Compiling VMaNGOS"
+
+    sudo docker run \
+        -v "$CCACHE_DIR:/vol/ccache" \
+        -v "$CORE_DIR:/vol/core" \
+        -v "$CORE_GITHUB_DIR:/vol/core-github" \
+        --env-file "$BUILD_ENV_FILE" \
+        --rm \
+        "$IMAGE_NAME"
+
+    log_message "SUCCESS" "VMaNGOS compilation completed successfully"
+    log_message "SUCCESS" "Script completed successfully"
+}
+
+main "$@"
