@@ -44,21 +44,22 @@ main() {
 
     log_message "INFO" "Script started"
 
-    # Load environment variables
+    if [ ! -f "$PROJECT_ROOT/.env-script" ]; then
+        log_message "ERROR" "Environment file not found: $PROJECT_ROOT/.env-script"
+        return 1
+    fi
+
     source "$PROJECT_ROOT/.env-script"
 
-    # Check for existing databases
     log_message "INFO" "Checking for existing VMaNGOS databases"
 
     for db in "${databases[@]}"; do
         if exec_sql "SHOW DATABASES LIKE '$db';" | grep -qx "$db"; then
-            log_message "ERROR" \
-                "Database already exists: $db"
+            log_message "ERROR" "Database already exists: $db"
             return 1
         fi
     done
 
-    # Create databases
     log_message "INFO" "Creating VMaNGOS databases"
 
     for db in "${databases[@]}"; do
@@ -68,7 +69,6 @@ main() {
         log_message "SUCCESS" "Created database: $db"
     done
 
-    # Create database user
     log_message "INFO" "Creating mangos database user"
 
     exec_sql \
@@ -81,7 +81,6 @@ main() {
 
     log_message "SUCCESS" "Database user created and privileges granted"
 
-    # Database imports
     local import_files=(
         "mangos:$PROJECT_ROOT/vol/database-github/$VMANGOS_WORLD_DATABASE.sql"
         "realmd:$PROJECT_ROOT/vol/core-github/sql/logon.sql"
@@ -117,13 +116,11 @@ main() {
             "Imported ${sql_file##*/} into $database"
     done
 
-    # Enable MariaDB binary logging
     log_message "INFO" "Configuring MariaDB binary logging"
 
     sudo docker exec -i "$CONTAINER_NAME" \
         sh -c "printf '\n[mysqld]\nlog-bin=mysql-bin\nexpire_logs_days=7\n' >> /etc/mysql/my.cnf"
 
-    # Configure default realm
     log_message "INFO" "Creating default realm"
 
     exec_sql "
@@ -158,16 +155,17 @@ main() {
 
     log_message "SUCCESS" "Default realm configured"
 
-    # Restart database service to apply MariaDB configuration
     log_message "INFO" "Restarting database service"
 
     sudo docker compose \
         --project-directory "$PROJECT_ROOT" \
+        --env-file "$PROJECT_ROOT/.env" \
         -f "$COMPOSE_FILE" \
         stop "$SERVICE_NAME"
 
     sudo docker compose \
         --project-directory "$PROJECT_ROOT" \
+        --env-file "$PROJECT_ROOT/.env" \
         -f "$COMPOSE_FILE" \
         up -d "$SERVICE_NAME"
 
