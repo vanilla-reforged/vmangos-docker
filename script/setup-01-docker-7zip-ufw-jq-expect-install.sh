@@ -1,78 +1,40 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Change to the directory where the script is located
-cd "$(dirname "$0")"
+set -Eeuo pipefail
 
-# Get variables defined in .env-script
-source ./../../.env-script  # Correctly load .env-script from the project root using $DOCKER_DIRECTORY
+readonly SCRIPT_NAME="${0##*/}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# This script installs Docker, Docker Compose, 7zip, jq, and sets up ufw-docker on an Ubuntu system
+readonly ENV_SCRIPT_FILE="$PROJECT_ROOT/.env-script"
 
-# Step 1: Update the package index
-echo "Updating package index..."
-apt-get update -y
+log_message() {
+    local level="$1"
+    local message="$2"
+    local timestamp
 
-# Step 2: Install required packages for Docker installation
-echo "Installing required packages..."
-apt-get install -y \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release
+    timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    printf '[%s] [%s] [%s] %s\n' "$timestamp" "$SCRIPT_NAME" "$level" "$message"
+}
 
-# Step 3: Add Docker’s official GPG key
-echo "Adding Docker's official GPG key..."
-mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+configure_ufw_docker() {
+    readonly UFW_RULES_FILE="/etc/ufw/after.rules"
 
-# Step 4: Set up the Docker repository
-echo "Setting up Docker repository..."
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    log_message "INFO" "Configuring UFW for Docker"
 
-# Step 5: Update the package index again
-echo "Updating package index again..."
-apt-get update -y
+    # Remove an existing VMaNGOS Docker block to make this idempotent
+    sudo sed -i \
+        '/^# BEGIN UFW AND DOCKER$/,/^# END UFW AND DOCKER$/d' \
+        "$UFW_RULES_FILE"
 
-# Step 6: Install Docker Engine, CLI, Containerd, and Docker Compose
-echo "Installing Docker Engine and Docker Compose..."
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# Step 7: Verify Docker installation
-echo "Verifying Docker installation..."
-docker --version
-
-# Step 8: Verify Docker Compose installation
-echo "Verifying Docker Compose installation..."
-docker compose version
-
-# Step 9: Install 7zip
-echo "Installing 7zip..."
-apt-get install -y p7zip-full
-
-# Step 10: Revoke the original modification and apply new UFW configuration
-
-echo "Reverting any previous modifications and applying UFW configuration..."
-
-# Create the /etc/docker/daemon.json file if it doesn't exist
-if [ ! -f /etc/docker/daemon.json ]; then
-    sudo touch /etc/docker/daemon.json
-fi
-
-# Revert changes to Docker and UFW configurations
-sed -i '/--iptables=false/d' /etc/docker/daemon.json
-sed -i '/FORWARD/d' /etc/ufw/after.rules
-systemctl restart docker
-
-# Modify the UFW configuration file to add Docker rules
-tee -a /etc/ufw/after.rules > /dev/null <<EOF
+    sudo tee -a "$UFW_RULES_FILE" > /dev/null <<'EOF'
 
 # BEGIN UFW AND DOCKER
 *filter
 :ufw-user-forward - [0:0]
 :ufw-docker-logging-deny - [0:0]
 :DOCKER-USER - [0:0]
+
 -A DOCKER-USER -j ufw-user-forward
 
 -A DOCKER-USER -j RETURN -s 10.0.0.0/8
@@ -84,87 +46,171 @@ tee -a /etc/ufw/after.rules > /dev/null <<EOF
 -A DOCKER-USER -j ufw-docker-logging-deny -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 192.168.0.0/16
 -A DOCKER-USER -j ufw-docker-logging-deny -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 10.0.0.0/8
 -A DOCKER-USER -j ufw-docker-logging-deny -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 172.16.0.0/12
+
 -A DOCKER-USER -j ufw-docker-logging-deny -p udp -m udp --dport 0:32767 -d 192.168.0.0/16
 -A DOCKER-USER -j ufw-docker-logging-deny -p udp -m udp --dport 0:32767 -d 10.0.0.0/8
 -A DOCKER-USER -j ufw-docker-logging-deny -p udp -m udp --dport 0:32767 -d 172.16.0.0/12
 
 -A DOCKER-USER -j RETURN
 
--A ufw-docker-logging-deny -m limit --limit 3/min --limit-burst 10 -j LOG --log-prefix "[UFW DOCKER BLOCK] "
+-A ufw-docker-logging-deny -m limit --limit 3/min --limit-burst 10 \
+    -j LOG --log-prefix "[UFW DOCKER BLOCK] "
+
 -A ufw-docker-logging-deny -j DROP
 
 COMMIT
 # END UFW AND DOCKER
 EOF
 
-# Restart UFW and enable it before rebooting
-systemctl restart ufw
-ufw enable
+    sudo ufw --force enable
+    sudo systemctl restart ufw
 
-# Clean up temporary files
-rm -rf ./ufw-docker
-
-# Step 11: Notify the user about Docker usage
-echo "Installation complete! Note: Since you are not added to the Docker group, you will need to use 'sudo' when running Docker commands."
-
-# Step 12: Check if jq is installed; if not, attempt to install it
-install_jq() {
-  if ! command -v jq &> /dev/null; then
-    echo "jq is not installed. Attempting to install jq..."
-    if [ -x "$(command -v apt-get)" ]; then
-      apt-get update && apt-get install -y jq
-    elif [ -x "$(command -v yum)" ]; then
-      yum install -y jq
-    elif [ -x "$(command -v dnf)" ]; then
-      dnf install -y jq
-    elif [ -x "$(command -v brew)" ]; then
-      brew install jq
-    else
-      echo "Error: Could not determine package manager or install jq. Please install jq manually."
-      exit 1
-    fi
-
-    if ! command -v jq &> /dev/null; then
-      echo "Error: jq installation failed. Please install jq manually."
-      exit 1
-    else
-      echo "jq successfully installed."
-    fi
-  else
-    echo "jq is already installed. Skipping installation."
-  fi
+    log_message "SUCCESS" "UFW Docker configuration applied"
 }
 
-# Install jq if not already installed
-install_jq
+configure_sudoers() {
+    local sudoers_file="/etc/sudoers.d/${LOCAL_USER}-docker"
+    local temp_file
 
-# Step 13: Configure sudoers for Docker commands
+    log_message "INFO" \
+        "Configuring passwordless Docker commands for $LOCAL_USER"
 
-echo "Configuring sudoers for Docker commands for user '$LOCAL_USER'..."
+    temp_file=$(mktemp)
 
-# Ensure sudoers file is updated to allow passwordless sudo for specific Docker commands
-echo "$LOCAL_USER ALL=(ALL) NOPASSWD: \
+    cat > "$temp_file" <<EOF
+$LOCAL_USER ALL=(ALL) NOPASSWD: \
     /usr/bin/docker attach vmangos-mangos, \
     /usr/bin/docker ps *, \
     /usr/bin/docker stats *, \
+    /usr/bin/docker container inspect *, \
+    /usr/bin/docker inspect *, \
+    /usr/bin/docker start vmangos-mangos, \
+    /usr/bin/docker update --restart=no vmangos-mangos, \
+    /usr/bin/docker update --restart=always vmangos-mangos, \
     /usr/bin/docker compose *, \
     /usr/bin/docker exec vmangos-database /home/default/scripts/01-mangos-database-backup.sh, \
     /usr/bin/docker exec vmangos-database /home/default/scripts/01-population-balance-collect.sh, \
     /usr/bin/docker exec vmangos-database /home/default/scripts/02-characters-logs-realmd-databases-backup.sh, \
-    /usr/bin/docker exec vmangos-database /home/default/scripts/03-binary-log-backup.sh" | tee /etc/sudoers.d/$LOCAL_USER-docker > /dev/null
+    /usr/bin/docker exec vmangos-database /home/default/scripts/03-binary-log-backup.sh
+EOF
 
-# Verify if sudoers file was created
-if [ -f /etc/sudoers.d/$LOCAL_USER-docker ]; then
-    # Ensure the sudoers file has the correct permissions
-    chmod 440 /etc/sudoers.d/$LOCAL_USER-docker
-    echo "Passwordless sudo for Docker commands has been configured for user '$LOCAL_USER'."
-else
-    echo "Failed to configure passwordless sudo for Docker commands."
-    exit 1
-fi
+    # Validate before installing the sudoers file
+    if ! sudo visudo -cf "$temp_file" > /dev/null; then
+        rm -f "$temp_file"
 
-# Step 12: Install expect
+        log_message "ERROR" "Generated sudoers configuration is invalid"
+        return 1
+    fi
 
-apt-get install expect
+    sudo install \
+        -o root \
+        -g root \
+        -m 0440 \
+        "$temp_file" \
+        "$sudoers_file"
 
-# End of script
+    rm -f "$temp_file"
+
+    log_message "SUCCESS" \
+        "Passwordless Docker commands configured for $LOCAL_USER"
+}
+
+main() {
+    local ubuntu_codename
+    local architecture
+
+    log_message "INFO" "Script started"
+
+    # Load configuration
+    if [ ! -f "$ENV_SCRIPT_FILE" ]; then
+        log_message "ERROR" \
+            "Environment file not found: $ENV_SCRIPT_FILE"
+        return 1
+    fi
+
+    source "$ENV_SCRIPT_FILE"
+
+    if [ -z "${LOCAL_USER:-}" ]; then
+        log_message "ERROR" "LOCAL_USER is not configured"
+        return 1
+    fi
+
+    if ! id "$LOCAL_USER" > /dev/null 2>&1; then
+        log_message "ERROR" "Local user does not exist: $LOCAL_USER"
+        return 1
+    fi
+
+    # Install base dependencies
+    log_message "INFO" "Updating package index"
+    sudo apt-get update
+
+    log_message "INFO" "Installing base dependencies"
+
+    sudo apt-get install -y \
+        ca-certificates \
+        curl \
+        ufw \
+        p7zip-full \
+        jq \
+        bc \
+        expect
+
+    # Configure Docker repository
+    log_message "INFO" "Configuring Docker package repository"
+
+    sudo install -m 0755 -d /etc/apt/keyrings
+
+    sudo curl -fsSL \
+        https://download.docker.com/linux/ubuntu/gpg \
+        -o /etc/apt/keyrings/docker.asc
+
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    # Remove files created by the previous repository configuration
+    sudo rm -f \
+        /etc/apt/keyrings/docker.gpg \
+        /etc/apt/sources.list.d/docker.list
+
+    source /etc/os-release
+
+    ubuntu_codename="${UBUNTU_CODENAME:-$VERSION_CODENAME}"
+    architecture=$(dpkg --print-architecture)
+
+    sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $ubuntu_codename
+Components: stable
+Architectures: $architecture
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+    # Install Docker
+    log_message "INFO" "Updating package index with Docker repository"
+    sudo apt-get update
+
+    log_message "INFO" "Installing Docker Engine and Docker Compose"
+
+    sudo apt-get install -y \
+        docker-ce \
+        docker-ce-cli \
+        containerd.io \
+        docker-buildx-plugin \
+        docker-compose-plugin
+
+    # Verify Docker
+    log_message "INFO" "Verifying Docker installation"
+
+    docker --version
+    docker compose version
+
+    # Configure firewall
+    configure_ufw_docker
+
+    # Configure passwordless Docker commands
+    configure_sudoers
+
+    log_message "SUCCESS" "Script completed successfully"
+}
+
+main "$@"
