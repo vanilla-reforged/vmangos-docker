@@ -71,22 +71,22 @@ I suggest getting the required files from here: https://www.ownedcore.com/forums
 
 ### Setup (/script/setup/)
 
-- `./script/setup/01-docker-7zip-ufw-jq-expect-install.sh`
+- `./script/setup-01-docker-7zip-ufw-jq-expect-install.sh`
   - Install and modify Docker, 7zip, ufw, jq and expect.
 
-- `./script/setup/02-github-core-database-update.sh`
+- `./script/setup-02-github-core-database-update.sh`
   - Update the github directories in ./vol/.
 
-- `./script/setup/03-core-compile.sh`
+- `./script/setup/setup-03-core-compile.sh`
   - Compile the core.
 
 - `./script/setup/04-client-data-extract.sh`
   - Extract the Client Data.
 
-- `./script/setup/05-docker-resources-initialize.sh`
+- `./script/setup-05-docker-resources-initialize.sh`
   - Initialize the ressource limits, based on the current hardware and start the containers.
 
-- `./script/setup/06-vmangos-database-create.sh`
+- `./script/setup-06-vmangos-database-create.sh`
   - Create and modify the vmangos databases.
 
 ### Configure MySQL Password
@@ -124,63 +124,66 @@ sudo docker compose up -d
 
 ### Backup (/script/backup/)
 
-- `./script/backup/01-mangos-database-backup.sh`
+- `./script/backup-01-mangos-database.sh`
   - SQL Dump of Database mangos.
 
-- `./script/backup/02-characters-logs-realmd-databases-backup.sh`
+- `./script/backup-02-characters-logs-realmd-databases.sh`
   - SQL Dump of Databases characters, logs, realmd.
 
-- `./script/backup/03-binary-log-backup.sh`
+- `./script/backup-03-binary-log.sh`
   - Binary log backup.
 
-- `./script/backup/04-s3-upload-backup.sh`
+- `./script/backup-04-s3-upload.sh`
   - Upload backups to s3.
 
-- `./script/backup/05-backup-retention-cleanup.sh`
+- `./script/backup-05-retention-cleanup.sh`
   - Cleanup old Backups, retention is configurable in script.
 
 ### Docker-Resources (/script/docker-resources/)
 
-- `./script/docker-resources/01-docker-resources-collect.sh`
+- `./script/docker-resources-01-collect.sh`
   - Collect ressource usage for database, mangos and realmd containers.
 
-- `./script/docker-resources/02-docker-resources-adjust.sh`
+- `./script/docker-resources-02-adjust.sh`
   - Adjusts ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `01-docker-resources-collect.sh` and restarts vmangos-mangos, vmangos-realmd and vmangos-database **through docker compose**.
 
 ### Faction Balancer (/script/faction-balancer/)
 
-- `./script/faction-balancer/01-Population-Balance-Collect.sh`
+- `./script/faction-balancer-01-population-collect.sh`
   - Collect faction balance data.
 
-- `./script/faction-balancer/02-Faction-Specific-XP-Rates-Update.sh`
+- `./script/faction-balancer-02-xp-rates-update.sh`
   - Sets faction-specific XP rates and restarts vmangos-mangos **through the mangos console** to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
 
 ### Logs (/script/logs/)
 
-- `./script/logs/01-vmangos-logs-cleanup.sh`
+- `./script/logs-01-vmangos-cleanup.sh`
   - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. 
 
 ### Management (/script/management/)
 
-- `./script/management/01-vmangos-database-migrations-import.sh`
+- `./script/management-01-vmangos-database-migrations-import.sh`
   - Import new migrations.
 
-- `./script/management/02-vmangos-database-world-recreate.sh`
+- `./script/management-02-vmangos-database-world-recreate.sh`
   - Recreate the world database.
 
-- `./script/management/03-core-recompile.sh`
+- `./script/management-03-core-recompile.sh`
   - Recompile the core.
 
-- `./script/management/04-vmangos-shutdown.sh`
+- `./script/management-04-vmangos-shutdown.sh`
   - Shuts down the container vmangos-mangos after 15 minutes (with a player announcement) and configures it to **not** automatically restart.
  
-- `./script/management/05-vmangos-startup.sh`
+- `./script/management-05-vmangos-startup.sh`
   - Starts the container vmangos-mangos and configures it to automatically restart.
 
 ### Monitoring (/script/monitoring/)
 
-- `./script/management/01-vmangos-uptime.sh`
+- `./script/monitoring-01-mangos-uptime.sh`
   - Sends current uptime to discord.
+
+- `./script/monitoring-02-docker-host-free-space.sh`
+  - Sends docker host disk space usage to discord.
 
 #### Edit the crontab using the command below (use sudo!):
 
