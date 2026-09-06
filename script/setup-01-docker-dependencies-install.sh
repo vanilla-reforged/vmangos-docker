@@ -7,6 +7,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 readonly ENV_SCRIPT_FILE="$PROJECT_ROOT/.env-script"
+readonly UFW_RULES_FILE="/etc/ufw/after.rules"
 
 log_message() {
     local level="$1"
@@ -18,15 +19,14 @@ log_message() {
 }
 
 configure_ufw_docker() {
-    readonly UFW_RULES_FILE="/etc/ufw/after.rules"
-
     log_message "INFO" "Configuring UFW for Docker"
 
-    # Remove an existing VMaNGOS Docker block to make this idempotent
+    # Remove an existing ufw-docker block so the script can be rerun safely
     sudo sed -i \
         '/^# BEGIN UFW AND DOCKER$/,/^# END UFW AND DOCKER$/d' \
         "$UFW_RULES_FILE"
 
+    # Chaifeng ufw-docker rules
     sudo tee -a "$UFW_RULES_FILE" > /dev/null <<'EOF'
 
 # BEGIN UFW AND DOCKER
@@ -34,36 +34,35 @@ configure_ufw_docker() {
 :ufw-user-forward - [0:0]
 :ufw-docker-logging-deny - [0:0]
 :DOCKER-USER - [0:0]
-
 -A DOCKER-USER -j ufw-user-forward
 
+-A DOCKER-USER -m conntrack --ctstate RELATED,ESTABLISHED -j RETURN
+-A DOCKER-USER -m conntrack --ctstate INVALID -j DROP
+-A DOCKER-USER -i docker0 -o docker0 -j ACCEPT
 -A DOCKER-USER -j RETURN -s 10.0.0.0/8
 -A DOCKER-USER -j RETURN -s 172.16.0.0/12
 -A DOCKER-USER -j RETURN -s 192.168.0.0/16
 
--A DOCKER-USER -p udp -m udp --sport 53 --dport 1024:65535 -j RETURN
-
--A DOCKER-USER -j ufw-docker-logging-deny -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 192.168.0.0/16
--A DOCKER-USER -j ufw-docker-logging-deny -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 10.0.0.0/8
--A DOCKER-USER -j ufw-docker-logging-deny -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -d 172.16.0.0/12
-
--A DOCKER-USER -j ufw-docker-logging-deny -p udp -m udp --dport 0:32767 -d 192.168.0.0/16
--A DOCKER-USER -j ufw-docker-logging-deny -p udp -m udp --dport 0:32767 -d 10.0.0.0/8
--A DOCKER-USER -j ufw-docker-logging-deny -p udp -m udp --dport 0:32767 -d 172.16.0.0/12
+-A DOCKER-USER -j ufw-docker-logging-deny -m conntrack --ctstate NEW -d 10.0.0.0/8
+-A DOCKER-USER -j ufw-docker-logging-deny -m conntrack --ctstate NEW -d 172.16.0.0/12
+-A DOCKER-USER -j ufw-docker-logging-deny -m conntrack --ctstate NEW -d 192.168.0.0/16
 
 -A DOCKER-USER -j RETURN
-
--A ufw-docker-logging-deny -m limit --limit 3/min --limit-burst 10 \
-    -j LOG --log-prefix "[UFW DOCKER BLOCK] "
-
+-A ufw-docker-logging-deny -m limit --limit 3/min --limit-burst 10 -j LOG --log-prefix "[UFW DOCKER BLOCK] "
 -A ufw-docker-logging-deny -j DROP
 
 COMMIT
 # END UFW AND DOCKER
 EOF
 
-    sudo ufw --force enable
-    sudo systemctl restart ufw
+    log_message "INFO" "Reloading UFW"
+
+    if sudo ufw status | grep -q '^Status: active'; then
+        sudo ufw reload
+    else
+        log_message "WARNING" \
+            "UFW is currently disabled; rules were installed but UFW was not enabled automatically"
+    fi
 
     log_message "SUCCESS" "UFW Docker configuration applied"
 }
@@ -94,11 +93,12 @@ $LOCAL_USER ALL=(ALL) NOPASSWD: \
     /usr/bin/docker exec vmangos-database /home/default/scripts/03-binary-log-backup.sh
 EOF
 
-    # Validate before installing the sudoers file
     if ! sudo visudo -cf "$temp_file" > /dev/null; then
         rm -f "$temp_file"
 
-        log_message "ERROR" "Generated sudoers configuration is invalid"
+        log_message "ERROR" \
+            "Generated sudoers configuration is invalid"
+
         return 1
     fi
 
@@ -121,7 +121,7 @@ main() {
 
     log_message "INFO" "Script started"
 
-    # Load configuration
+    # Load script configuration
     if [ ! -f "$ENV_SCRIPT_FILE" ]; then
         log_message "ERROR" \
             "Environment file not found: $ENV_SCRIPT_FILE"
@@ -131,17 +131,20 @@ main() {
     source "$ENV_SCRIPT_FILE"
 
     if [ -z "${LOCAL_USER:-}" ]; then
-        log_message "ERROR" "LOCAL_USER is not configured"
+        log_message "ERROR" \
+            "LOCAL_USER is not configured in $ENV_SCRIPT_FILE"
         return 1
     fi
 
     if ! id "$LOCAL_USER" > /dev/null 2>&1; then
-        log_message "ERROR" "Local user does not exist: $LOCAL_USER"
+        log_message "ERROR" \
+            "Local user does not exist: $LOCAL_USER"
         return 1
     fi
 
     # Install base dependencies
     log_message "INFO" "Updating package index"
+
     sudo apt-get update
 
     log_message "INFO" "Installing base dependencies"
@@ -166,7 +169,7 @@ main() {
 
     sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-    # Remove files created by the previous repository configuration
+    # Remove files created by older Docker repository configurations
     sudo rm -f \
         /etc/apt/keyrings/docker.gpg \
         /etc/apt/sources.list.d/docker.list
@@ -186,10 +189,13 @@ Signed-By: /etc/apt/keyrings/docker.asc
 EOF
 
     # Install Docker
-    log_message "INFO" "Updating package index with Docker repository"
+    log_message "INFO" \
+        "Updating package index with Docker repository"
+
     sudo apt-get update
 
-    log_message "INFO" "Installing Docker Engine and Docker Compose"
+    log_message "INFO" \
+        "Installing Docker Engine and Docker Compose"
 
     sudo apt-get install -y \
         docker-ce \
@@ -198,13 +204,13 @@ EOF
         docker-buildx-plugin \
         docker-compose-plugin
 
-    # Verify Docker
+    # Verify Docker installation
     log_message "INFO" "Verifying Docker installation"
 
     docker --version
     docker compose version
 
-    # Configure firewall
+    # Configure UFW/Docker integration
     configure_ufw_docker
 
     # Configure passwordless Docker commands
