@@ -2,4 +2,5 @@
 .env-script
 .env-vmangos-build
 vol/*
+backup/*
 /.vs
