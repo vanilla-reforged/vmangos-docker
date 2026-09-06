@@ -14,7 +14,7 @@ services:
     command: --max_allowed_packet=32505856
     volumes:
       - ./vol/database-configuration:/etc/mysql/mariadb.conf.d:ro
-      - ./vol/backup:/vol/backup
+      - ./backup:/vol/backup
       - ./vol/core-github:/vol/core-github
       - ./vol/database-github:/vol/database-github
       - ./vol/database:/var/lib/mysql
@@ -37,7 +37,7 @@ services:
     depends_on:
       - vmangos-database
     ports:
-      - 3724:3724
+      - "3724:3724"
     restart: unless-stopped
     volumes:
       - ./vol/configuration/realmd.conf:/opt/vmangos/etc/realmd.conf:ro
@@ -64,7 +64,7 @@ services:
     depends_on:
       - vmangos-database
     ports:
-      - 8085:8085
+      - "8085:8085"
     restart: unless-stopped
     volumes:
       - ./vol/configuration/mangosd.conf:/opt/vmangos/etc/mangosd.conf:ro
@@ -88,24 +88,24 @@ services:
     cpu_shares: ${CPU_SHARES_MANGOS}
 
   vmangos-api:
+    container_name: vmangos-api
     build:
       context: ./docker/api
       dockerfile: Dockerfile
-    container_name: vmangos-api
     environment:
-      - VMANGOS_API_KEY=${VMANGOS_API_KEY}             # API authentication key
-      - VMANGOS_API_REG_USER=${VMANGOS_API_REG_USER}   # SOAP account username
-      - VMANGOS_API_REG_PASS=${VMANGOS_API_REG_PASS}   # SOAP account password
-      - VMANGOS_API_DB_HOST=${VMANGOS_API_DB_HOST}     # DB host for username checks
-      - VMANGOS_API_DB_USER=${VMANGOS_API_DB_USER}     # DB username for API
-      - VMANGOS_API_DB_PASS=${VMANGOS_API_DB_PASS}     # DB password for API
-      - VMANGOS_API_DB_NAME=${VMANGOS_API_DB_NAME}     # DB name
-      - VMANGOS_API_MANGOS_HOST=vmangos-mangos        # SOAP server hostname
-      - VMANGOS_API_SOAP_PORT=7878                    # SOAP server port
+      - VMANGOS_API_KEY=${VMANGOS_API_KEY}
+      - VMANGOS_API_REG_USER=${VMANGOS_API_REG_USER}
+      - VMANGOS_API_REG_PASS=${VMANGOS_API_REG_PASS}
+      - VMANGOS_API_DB_HOST=${VMANGOS_API_DB_HOST}
+      - VMANGOS_API_DB_USER=${VMANGOS_API_DB_USER}
+      - VMANGOS_API_DB_PASS=${VMANGOS_API_DB_PASS}
+      - VMANGOS_API_DB_NAME=${VMANGOS_API_DB_NAME}
+      - VMANGOS_API_MANGOS_HOST=vmangos-mangos
+      - VMANGOS_API_SOAP_PORT=7878
     networks:
       - vmangos-network
     ports:
-      - "127.0.0.1:8090:8090" 
+      - "127.0.0.1:8090:8090"
     depends_on:
       - vmangos-database
       - vmangos-mangos
