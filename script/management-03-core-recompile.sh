@@ -1,51 +1,79 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Change to the directory where the script is located
-cd "$(dirname "$0")"
+set -Eeuo pipefail
 
-set -e  # Exit immediately if a command exits with a non-zero status
+readonly SCRIPT_NAME="${0##*/}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Load environment variables
-source ./../../.env-script  # Adjusted to load .env-script from the project root using $DOCKER_DIRECTORY
+readonly CORE_DIR="$PROJECT_ROOT/vol/core"
+readonly CORE_GITHUB_DIR="$PROJECT_ROOT/vol/core-github"
+readonly CCACHE_DIR="$PROJECT_ROOT/vol/ccache"
 
-# Define variables
-CORE_DIR="$DOCKER_DIRECTORY/vol/core"  # Updated to use $DOCKER_DIRECTORY
-CORE_GITHUB_DIR="$DOCKER_DIRECTORY/vol/core-github"  # Updated to use $DOCKER_DIRECTORY
-COMPILER_IMAGE="vmangos_build"
-DOCKERFILE="$DOCKER_DIRECTORY/docker/build/Dockerfile"  # Updated to use $DOCKER_DIRECTORY
+readonly COMPILER_IMAGE="vmangos_build"
+readonly DOCKERFILE="$PROJECT_ROOT/docker/build/Dockerfile"
+readonly BUILD_ENV_FILE="$PROJECT_ROOT/.env-vmangos-build"
+readonly COMPOSE_FILE="$PROJECT_ROOT/docker-compose.yml"
 
-# Function to handle errors
-handle_error() {
-  echo "[VMaNGOS]: Error occurred: $1"
-  exit 1
+log_message() {
+    local level="$1"
+    local message="$2"
+    local timestamp
+
+    timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    printf '[%s] [%s] [%s] %s\n' "$timestamp" "$SCRIPT_NAME" "$level" "$message"
 }
 
-# Shut down the environment
-echo "[VMaNGOS]: Shutting down environment..."
-docker compose down || handle_error "Failed to shut down environment"
+main() {
+    log_message "INFO" "Script started"
 
-# Remove old files
-echo "[VMaNGOS]: Removing old core and installation files..."
-rm -rf "$CORE_DIR" "$CORE_GITHUB_DIR/build" || handle_error "Failed to remove old files"
+    # Stop the environment
+    log_message "INFO" "Stopping Docker Compose environment"
 
-# Build the compiler image
-echo "[VMaNGOS]: Building compiler image..."
-docker build --build-arg DEBIAN_FRONTEND=noninteractive --no-cache -t "$COMPILER_IMAGE" -f "$DOCKERFILE" . || handle_error "Failed to build compiler image"
+    sudo docker compose \
+        --project-directory "$PROJECT_ROOT" \
+        -f "$COMPOSE_FILE" \
+        down
 
-# Compile VMaNGOS
-echo "[VMaNGOS]: Compiling VMaNGOS..."
-docker run \
-  -v "$CORE_DIR:/vol/core" \
-  -v "$CORE_GITHUB_DIR:/vol/core-github" \
-  -v "$DOCKER_DIRECTORY/vol/ccache:/vol/ccache" \
-  --env-file "$DOCKER_DIRECTORY/.env-vmangos-build" \
-  --rm \
-  "$COMPILER_IMAGE" || handle_error "Compilation failed"
+    # Remove old build files
+    log_message "INFO" "Removing old core and build files"
 
-echo "[VMaNGOS]: Compiling complete!"
+    rm -rf \
+        "$CORE_DIR" \
+        "$CORE_GITHUB_DIR/build"
 
-# Start the environment with rebuild
-echo "[VMaNGOS]: Starting environment..."
-docker compose up --build -d || handle_error "Failed to start environment"
+    # Build compiler image
+    log_message "INFO" "Building compiler image"
 
-echo "[VMaNGOS]: Environment started successfully."
+    sudo docker build \
+        --build-arg DEBIAN_FRONTEND=noninteractive \
+        --no-cache \
+        -t "$COMPILER_IMAGE" \
+        -f "$DOCKERFILE" \
+        "$PROJECT_ROOT/docker/build"
+
+    # Compile VMaNGOS
+    log_message "INFO" "Compiling VMaNGOS"
+
+    sudo docker run \
+        -v "$CORE_DIR:/vol/core" \
+        -v "$CORE_GITHUB_DIR:/vol/core-github" \
+        -v "$CCACHE_DIR:/vol/ccache" \
+        --env-file "$BUILD_ENV_FILE" \
+        --rm \
+        "$COMPILER_IMAGE"
+
+    log_message "SUCCESS" "VMaNGOS compilation completed"
+
+    # Start the environment
+    log_message "INFO" "Starting Docker Compose environment"
+
+    sudo docker compose \
+        --project-directory "$PROJECT_ROOT" \
+        -f "$COMPOSE_FILE" \
+        up --build -d
+
+    log_message "SUCCESS" "Script completed successfully"
+}
+
+main "$@"
