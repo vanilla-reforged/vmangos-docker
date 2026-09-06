@@ -1,39 +1,73 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Change to the directory where the script is located
-cd "$(dirname "$0")"
+set -Eeuo pipefail
 
-# Load environment variables
-source ./../../.env-script  # Adjusted to load .env-script from the project root using $DOCKER_DIRECTORY
+readonly SCRIPT_NAME="${0##*/}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Define the container name
-CONTAINER_NAME="vmangos-database"
+log_message() {
+    local level="$1"
+    local message="$2"
+    local timestamp
 
-# Function to execute commands inside the Docker container
-exec_docker() {
-  local command=$1
-  docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MYSQL_ROOT_PASSWORD" -e "$command"
+    timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    printf '[%s] [%s] [%s] %s\n' "$timestamp" "$SCRIPT_NAME" "$level" "$message"
 }
 
-# Recreate world database
-echo "[VMaNGOS]: Recreating world database..."
-docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MYSQL_ROOT_PASSWORD" -e "DROP DATABASE IF EXISTS mangos; CREATE DATABASE mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;" || { echo "[VMaNGOS]: Failed to recreate world database."; exit 1; }
+main() {
+    log_message "INFO" "Script started"
 
-# Import databases
-echo "[VMaNGOS]: Importing databases…"
-import_files=(
-  "mangos:$DOCKER_DIRECTORY/vol/database-github/$VMANGOS_WORLD_DATABASE.sql"
-  "mangos:$DOCKER_DIRECTORY/vol/core-github/sql/migrations/world_db_updates.sql"
-)
-for entry in "${import_files[@]}"; do
-  db=$(echo $entry | cut -d: -f1)
-  file=$(echo $entry | cut -d: -f2)
-  echo "[VMaNGOS]: Importing $db from $file"
-  docker exec -i "$CONTAINER_NAME" mariadb -u root -p"$MYSQL_ROOT_PASSWORD" "$db" < "$file"
-done
+    # Load environment variables
+    source "$PROJECT_ROOT/.env-script"
 
-echo "[VMaNGOS]: World database recreation complete."
+    readonly DATABASE_CONTAINER="vmangos-database"
+    readonly WORLD_DATABASE_FILE="$PROJECT_ROOT/vol/database-github/$VMANGOS_WORLD_DATABASE.sql"
+    readonly WORLD_MIGRATIONS_FILE="$PROJECT_ROOT/vol/core-github/sql/migrations/world_db_updates.sql"
 
-echo "[VMaNGOS]: Restarting environment..."
-docker compose down
-docker compose up -d
+    # Recreate world database
+    log_message "INFO" "Recreating world database"
+
+    sudo docker exec \
+        -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" \
+        -i "$DATABASE_CONTAINER" \
+        mariadb -u root \
+        -e "DROP DATABASE IF EXISTS mangos; CREATE DATABASE mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"
+
+    # Import world database
+    log_message "INFO" "Importing world database"
+
+    sudo docker exec \
+        -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" \
+        -i "$DATABASE_CONTAINER" \
+        mariadb -u root mangos \
+        < "$WORLD_DATABASE_FILE"
+
+    # Import world migrations
+    log_message "INFO" "Importing world database migrations"
+
+    sudo docker exec \
+        -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" \
+        -i "$DATABASE_CONTAINER" \
+        mariadb -u root mangos \
+        < "$WORLD_MIGRATIONS_FILE"
+
+    log_message "SUCCESS" "World database recreated successfully"
+
+    # Restart environment
+    log_message "INFO" "Restarting Docker Compose environment"
+
+    sudo docker compose \
+        --project-directory "$PROJECT_ROOT" \
+        -f "$PROJECT_ROOT/docker-compose.yml" \
+        down
+
+    sudo docker compose \
+        --project-directory "$PROJECT_ROOT" \
+        -f "$PROJECT_ROOT/docker-compose.yml" \
+        up -d
+
+    log_message "SUCCESS" "Script completed successfully"
+}
+
+main "$@"
