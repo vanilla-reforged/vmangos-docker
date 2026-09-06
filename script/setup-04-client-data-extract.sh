@@ -34,12 +34,17 @@ main() {
 
     log_message "INFO" "Script started"
 
-    if [ ! -f "$PROJECT_ROOT/.env-script" ]; then
-        log_message "ERROR" "Environment file not found: $PROJECT_ROOT/.env-script"
+    if [ ! -f "$PROJECT_ROOT/.env" ]; then
+        log_message "ERROR" "Environment file not found: $PROJECT_ROOT/.env"
         return 1
     fi
 
-    source "$PROJECT_ROOT/.env-script"
+    source "$PROJECT_ROOT/.env"
+
+    if [ -z "${VMANGOS_CLIENT:-}" ]; then
+        log_message "ERROR" "VMANGOS_CLIENT is not configured in .env"
+        return 1
+    fi
 
     extracted_data_dir="$PROJECT_ROOT/vol/client-data-extracted"
 
@@ -69,8 +74,7 @@ main() {
             "$EXTRACTORS_IMAGE" \
             "$extractor_command"
 
-        log_message "SUCCESS" \
-            "Completed ${extractor_command##*/}"
+        log_message "SUCCESS" "Completed ${extractor_command##*/}"
     done
 
     log_message "INFO" "Removing temporary extractor data"
