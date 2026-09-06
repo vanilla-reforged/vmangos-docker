@@ -69,7 +69,7 @@ Copy the contents of your World of Warcraft client directory into `./vol/client-
 
 I suggest getting the required files from here: https://www.ownedcore.com/forums/world-of-warcraft/world-of-warcraft-emulator-servers/wow-emu-general-releases/613280-elysium-core-1-12-repack-including-mmaps-optional-vendors.html.
 
-### Setup (/script/setup/)
+### Setup (/script/)
 
 - `./script/setup-01-docker-7zip-ufw-jq-expect-install.sh`
   - Install and modify Docker, 7zip, ufw, jq and expect.
@@ -77,10 +77,10 @@ I suggest getting the required files from here: https://www.ownedcore.com/forums
 - `./script/setup-02-github-core-database-update.sh`
   - Update the github directories in ./vol/.
 
-- `./script/setup/setup-03-core-compile.sh`
+- `./script/setup-03-core-compile.sh`
   - Compile the core.
 
-- `./script/setup/04-client-data-extract.sh`
+- `./script/setup-04-client-data-extract.sh`
   - Extract the Client Data.
 
 - `./script/setup-05-docker-resources-initialize.sh`
@@ -120,9 +120,9 @@ sudo docker compose down
 sudo docker compose up -d
 ```
 
-## Scripts
+## Scripts (/script/)
 
-### Backup (/script/backup/)
+### Backup
 
 - `./script/backup-01-mangos-database.sh`
   - SQL Dump of Database mangos.
@@ -139,7 +139,7 @@ sudo docker compose up -d
 - `./script/backup-05-retention-cleanup.sh`
   - Cleanup old Backups, retention is configurable in script.
 
-### Docker-Resources (/script/docker-resources/)
+### Docker-Resources
 
 - `./script/docker-resources-01-collect.sh`
   - Collect ressource usage for database, mangos and realmd containers.
@@ -147,7 +147,7 @@ sudo docker compose up -d
 - `./script/docker-resources-02-adjust.sh`
   - Adjusts ressource allocations in docker-compose.yml based on 7 day averages of the Data collected with `01-docker-resources-collect.sh` and restarts vmangos-mangos, vmangos-realmd and vmangos-database **through docker compose**.
 
-### Faction Balancer (/script/faction-balancer/)
+### Faction Balancer
 
 - `./script/faction-balancer-01-population-collect.sh`
   - Collect faction balance data.
@@ -155,12 +155,12 @@ sudo docker compose up -d
 - `./script/faction-balancer-02-xp-rates-update.sh`
   - Sets faction-specific XP rates and restarts vmangos-mangos **through the mangos console** to activate them. Requires core change [Vanilla Reforged - Faction specific XP rates](https://github.com/vmangos/core/commit/6a91ac278954431f615583ddf98137efede74232).
 
-### Logs (/script/logs/)
+### Logs
 
 - `./script/logs-01-vmangos-cleanup.sh`
   - Cleanup mangos logs older than 3 days, honor logs older than 2 weeks, realmd logs older than 1 week. 
 
-### Management (/script/management/)
+### Management
 
 - `./script/management-01-vmangos-database-migrations-import.sh`
   - Import new migrations.
@@ -177,7 +177,7 @@ sudo docker compose up -d
 - `./script/management-05-vmangos-startup.sh`
   - Starts the container vmangos-mangos and configures it to automatically restart.
 
-### Monitoring (/script/monitoring/)
+### Monitoring
 
 - `./script/monitoring-01-mangos-uptime.sh`
   - Sends current uptime to discord.
