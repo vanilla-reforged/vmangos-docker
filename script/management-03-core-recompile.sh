@@ -10,7 +10,7 @@ readonly CORE_DIR="$PROJECT_ROOT/vol/core"
 readonly CORE_GITHUB_DIR="$PROJECT_ROOT/vol/core-github"
 readonly CCACHE_DIR="$PROJECT_ROOT/vol/ccache"
 
-readonly COMPILER_IMAGE="vmangos_build"
+readonly COMPILER_IMAGE="vmangos-build"
 readonly DOCKERFILE="$PROJECT_ROOT/docker/build/Dockerfile"
 readonly BUILD_ENV_FILE="$PROJECT_ROOT/.env-vmangos-build"
 readonly COMPOSE_FILE="$PROJECT_ROOT/docker-compose.yml"
@@ -27,22 +27,20 @@ log_message() {
 main() {
     log_message "INFO" "Script started"
 
-    # Stop the environment
     log_message "INFO" "Stopping Docker Compose environment"
 
     sudo docker compose \
         --project-directory "$PROJECT_ROOT" \
+        --env-file "$PROJECT_ROOT/.env" \
         -f "$COMPOSE_FILE" \
         down
 
-    # Remove old build files
     log_message "INFO" "Removing old core and build files"
 
     rm -rf \
         "$CORE_DIR" \
         "$CORE_GITHUB_DIR/build"
 
-    # Build compiler image
     log_message "INFO" "Building compiler image"
 
     sudo docker build \
@@ -52,7 +50,6 @@ main() {
         -f "$DOCKERFILE" \
         "$PROJECT_ROOT/docker/build"
 
-    # Compile VMaNGOS
     log_message "INFO" "Compiling VMaNGOS"
 
     sudo docker run \
@@ -65,11 +62,11 @@ main() {
 
     log_message "SUCCESS" "VMaNGOS compilation completed"
 
-    # Start the environment
     log_message "INFO" "Starting Docker Compose environment"
 
     sudo docker compose \
         --project-directory "$PROJECT_ROOT" \
+        --env-file "$PROJECT_ROOT/.env" \
         -f "$COMPOSE_FILE" \
         up --build -d
 
