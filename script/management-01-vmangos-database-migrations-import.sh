@@ -18,10 +18,13 @@ log_message() {
 main() {
     log_message "INFO" "Script started"
 
-    # Load environment variables
+    if [ ! -f "$PROJECT_ROOT/.env-script" ]; then
+        log_message "ERROR" "Environment file not found: $PROJECT_ROOT/.env-script"
+        return 1
+    fi
+
     source "$PROJECT_ROOT/.env-script"
 
-    # Import database migrations
     log_message "INFO" "Importing database migrations"
 
     sudo docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" -i vmangos-database \
@@ -42,16 +45,17 @@ main() {
 
     log_message "SUCCESS" "Database migrations imported successfully"
 
-    # Restart environment
     log_message "INFO" "Restarting Docker Compose environment"
 
     sudo docker compose \
         --project-directory "$PROJECT_ROOT" \
+        --env-file "$PROJECT_ROOT/.env" \
         -f "$PROJECT_ROOT/docker-compose.yml" \
         down
 
     sudo docker compose \
         --project-directory "$PROJECT_ROOT" \
+        --env-file "$PROJECT_ROOT/.env" \
         -f "$PROJECT_ROOT/docker-compose.yml" \
         up -d
 
