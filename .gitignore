@@ -3,4 +3,5 @@
 .env-vmangos-build
 vol/*
 backup/*
+script/*.log
 /.vs
