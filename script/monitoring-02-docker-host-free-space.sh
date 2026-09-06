@@ -1,78 +1,93 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Logger function for standardized logging
+set -Eeuo pipefail
+
+readonly SCRIPT_NAME="${0##*/}"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+readonly ENV_SCRIPT_FILE="$PROJECT_ROOT/.env-script"
+
 log_message() {
     local level="$1"
     local message="$2"
-    local script_name=$(basename "$0")
-    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-    
-    echo "[$timestamp] [$script_name] [$level] $message" >&2
+    local timestamp
+
+    timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    printf '[%s] [%s] [%s] %s\n' "$timestamp" "$SCRIPT_NAME" "$level" "$message"
 }
 
-# Change to the directory where the script is located
-cd "$(dirname "$0")" >/dev/null 2>&1
-log_message "INFO" "Script started"
+send_discord_message() {
+    local message="$1"
 
-# Load environment variables from .env-script
-log_message "INFO" "Loading environment variables"
-source ./../../.env-script >/dev/null 2>&1
+    if [ -z "${DISCORD_WEBHOOK:-}" ]; then
+        log_message "WARNING" \
+            "Discord webhook not configured, printing disk information"
 
-# Get disk space information
-log_message "INFO" "Getting disk space information"
+        printf '%s\n' "$message"
+        return
+    fi
 
-# Get disk usage for root filesystem (where Docker host typically stores data)
-disk_info=$(df -h / | tail -1)
-filesystem=$(echo "$disk_info" | awk '{print $1}')
-size=$(echo "$disk_info" | awk '{print $2}')
-used=$(echo "$disk_info" | awk '{print $3}')
-available=$(echo "$disk_info" | awk '{print $4}')
-use_percent=$(echo "$disk_info" | awk '{print $5}')
+    log_message "INFO" "Sending Discord notification"
 
-log_message "INFO" "Disk info - Size: $size, Used: $used, Available: $available, Use%: $use_percent"
+    if curl -fsS \
+        -H "Content-Type: application/json" \
+        -X POST \
+        -d "$(jq -nc --arg content "$message" '{content: $content}')" \
+        "$DISCORD_WEBHOOK" > /dev/null; then
 
-# Get current server time
-server_time=$(date "+%Y-%m-%d %H:%M:%S")
-log_message "INFO" "Server time: $server_time"
-
-# Send to Discord if webhook is configured
-if [ -n "$DISCORD_WEBHOOK" ]; then
-    log_message "INFO" "Sending to Discord"
-    
-    # Create Discord message with proper formatting
-    discord_message="**Docker Host Disk Space Report**\\n"
-    discord_message+="**Filesystem:** ${filesystem}\\n"
-    discord_message+="**Total Size:** ${size}\\n"
-    discord_message+="**Used:** ${used} (${use_percent})\\n"
-    discord_message+="**Available:** ${available}\\n"
-    discord_message+="**Server Time:** ${server_time}"
-    
-    # Create payload
-    payload="{\"content\":\"$discord_message\"}"
-    
-    # Write to temp file
-    echo "$payload" > /tmp/discord_payload.json
-    
-    # Send the message
-    if curl -s -H "Content-Type: application/json" \
-         -X POST \
-         --data @/tmp/discord_payload.json \
-         "$DISCORD_WEBHOOK" > /dev/null 2>&1; then
         log_message "SUCCESS" "Discord notification sent successfully"
     else
         log_message "ERROR" "Failed to send Discord notification"
     fi
-    
-    # Clean up
-    rm -f /tmp/discord_payload.json
-else
-    log_message "WARNING" "Discord webhook not configured, printing to console"
-    echo "Docker Host Disk Space Report"
-    echo "Filesystem: $filesystem"
-    echo "Total Size: $size"
-    echo "Used: $used ($use_percent)"
-    echo "Available: $available"
-    echo "Server Time: $server_time"
-fi
+}
 
-log_message "SUCCESS" "Script completed"
+main() {
+    local filesystem
+    local size
+    local used
+    local available
+    local use_percent
+    local server_time
+    local discord_message
+
+    log_message "INFO" "Script started"
+
+    # Load optional Discord configuration
+    if [ -f "$ENV_SCRIPT_FILE" ]; then
+        source "$ENV_SCRIPT_FILE"
+    else
+        log_message "WARNING" \
+            "Environment file not found: $ENV_SCRIPT_FILE"
+    fi
+
+    # Get disk space information for the root filesystem
+    log_message "INFO" "Getting disk space information"
+
+    read -r filesystem size used available use_percent < <(
+        df -hP / |
+        awk 'NR == 2 { print $1, $2, $3, $4, $5 }'
+    )
+
+    log_message "INFO" \
+        "Disk usage - Size: $size, Used: $used, Available: $available, Use: $use_percent"
+
+    server_time=$(date "+%Y-%m-%d %H:%M:%S")
+
+    discord_message=$(
+        printf \
+            '**Docker Host Disk Space Report**\n**Filesystem:** %s\n**Total Size:** %s\n**Used:** %s (%s)\n**Available:** %s\n**Server Time:** %s' \
+            "$filesystem" \
+            "$size" \
+            "$used" \
+            "$use_percent" \
+            "$available" \
+            "$server_time"
+    )
+
+    send_discord_message "$discord_message"
+
+    log_message "SUCCESS" "Script completed successfully"
+}
+
+main "$@"
