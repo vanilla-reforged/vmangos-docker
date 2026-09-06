@@ -42,6 +42,8 @@ main() {
         "logs"
     )
 
+    local import_files
+
     log_message "INFO" "Script started"
 
     if [ ! -f "$PROJECT_ROOT/.env-script" ]; then
@@ -81,7 +83,7 @@ main() {
 
     log_message "SUCCESS" "Database user created and privileges granted"
 
-    local import_files=(
+    import_files=(
         "mangos:$PROJECT_ROOT/vol/database-github/$VMANGOS_WORLD_DATABASE.sql"
         "realmd:$PROJECT_ROOT/vol/core-github/sql/logon.sql"
         "logs:$PROJECT_ROOT/vol/core-github/sql/logs.sql"
@@ -115,11 +117,6 @@ main() {
         log_message "SUCCESS" \
             "Imported ${sql_file##*/} into $database"
     done
-
-    log_message "INFO" "Configuring MariaDB binary logging"
-
-    sudo docker exec -i "$CONTAINER_NAME" \
-        sh -c "printf '\n[mysqld]\nlog-bin=mysql-bin\nexpire_logs_days=7\n' >> /etc/mysql/my.cnf"
 
     log_message "INFO" "Creating default realm"
 
