@@ -18,14 +18,17 @@ log_message() {
 main() {
     log_message "INFO" "Script started"
 
-    # Load environment variables
+    if [ ! -f "$PROJECT_ROOT/.env-script" ]; then
+        log_message "ERROR" "Environment file not found: $PROJECT_ROOT/.env-script"
+        return 1
+    fi
+
     source "$PROJECT_ROOT/.env-script"
 
     readonly DATABASE_CONTAINER="vmangos-database"
     readonly WORLD_DATABASE_FILE="$PROJECT_ROOT/vol/database-github/$VMANGOS_WORLD_DATABASE.sql"
     readonly WORLD_MIGRATIONS_FILE="$PROJECT_ROOT/vol/core-github/sql/migrations/world_db_updates.sql"
 
-    # Recreate world database
     log_message "INFO" "Recreating world database"
 
     sudo docker exec \
@@ -34,7 +37,6 @@ main() {
         mariadb -u root \
         -e "DROP DATABASE IF EXISTS mangos; CREATE DATABASE mangos DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"
 
-    # Import world database
     log_message "INFO" "Importing world database"
 
     sudo docker exec \
@@ -43,7 +45,6 @@ main() {
         mariadb -u root mangos \
         < "$WORLD_DATABASE_FILE"
 
-    # Import world migrations
     log_message "INFO" "Importing world database migrations"
 
     sudo docker exec \
@@ -54,16 +55,17 @@ main() {
 
     log_message "SUCCESS" "World database recreated successfully"
 
-    # Restart environment
     log_message "INFO" "Restarting Docker Compose environment"
 
     sudo docker compose \
         --project-directory "$PROJECT_ROOT" \
+        --env-file "$PROJECT_ROOT/.env" \
         -f "$PROJECT_ROOT/docker-compose.yml" \
         down
 
     sudo docker compose \
         --project-directory "$PROJECT_ROOT" \
+        --env-file "$PROJECT_ROOT/.env" \
         -f "$PROJECT_ROOT/docker-compose.yml" \
         up -d
 
