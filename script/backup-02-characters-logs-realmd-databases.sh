@@ -18,16 +18,16 @@ log_message() {
     local timestamp
 
     timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-
-    printf '[%s] [%s] [%s] %s\n' \
-        "$timestamp" \
-        "$SCRIPT_NAME" \
-        "$level" \
-        "$message"
+    printf '[%s] [%s] [%s] %s\n' "$timestamp" "$SCRIPT_NAME" "$level" "$message"
 }
 
 send_discord_message() {
     local message="$1"
+
+    if [ -z "${DISCORD_WEBHOOK:-}" ]; then
+        log_message "WARNING" "Discord webhook not configured, skipping notification"
+        return
+    fi
 
     log_message "INFO" "Sending Discord notification"
 
@@ -50,24 +50,18 @@ main() {
 
     log_message "INFO" "Script started"
 
-    # Load environment variables
-    if [ ! -f "$PROJECT_ROOT/.env-script" ]; then
-        log_message "ERROR" "Environment file not found: $PROJECT_ROOT/.env-script"
+    # Load optional Discord configuration
+    if [ -f "$PROJECT_ROOT/.env-script" ]; then
+        source "$PROJECT_ROOT/.env-script"
+    else
+        log_message "WARNING" "Environment file not found: $PROJECT_ROOT/.env-script"
+    fi
+
+    if [ ! -d "$BACKUP_DIR" ]; then
+        log_message "ERROR" "Backup directory not found: $BACKUP_DIR"
         return 1
     fi
 
-    source "$PROJECT_ROOT/.env-script"
-
-    # Validate required configuration
-    if [ -z "${DISCORD_WEBHOOK:-}" ]; then
-        log_message "ERROR" "DISCORD_WEBHOOK is not configured"
-        return 1
-    fi
-
-    # Ensure backup directory exists
-    mkdir -p "$BACKUP_DIR"
-
-    # Create database dump inside the container
     log_message "INFO" "Creating database backup"
 
     if ! sudo docker exec "$CONTAINER_NAME" "$CONTAINER_SCRIPT"; then
@@ -78,14 +72,12 @@ main() {
 
     log_message "SUCCESS" "Database backup created successfully"
 
-    # Verify that the database dump was created
     if [ ! -f "$SQL_FILE" ]; then
         log_message "ERROR" "SQL dump not found: $SQL_FILE"
         send_discord_message "Daily SQL dump backup failed: SQL dump was not created"
         return 1
     fi
 
-    # Compress database dump
     timestamp=$(date "+%Y%m%d_%H%M%S")
     archive_file="$BACKUP_DIR/full_backup_${timestamp}.7z"
 
@@ -99,11 +91,9 @@ main() {
 
     log_message "SUCCESS" "Database backup compressed successfully"
 
-    # Get archive size
     backup_size=$(du -h "$archive_file" | cut -f1)
     log_message "INFO" "Backup file size: $backup_size"
 
-    # Remove uncompressed database dump
     log_message "INFO" "Removing uncompressed database dump"
     rm -f "$SQL_FILE"
 
