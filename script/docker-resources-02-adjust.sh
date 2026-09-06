@@ -10,7 +10,7 @@ readonly ENV_SCRIPT_FILE="$PROJECT_ROOT/.env-script"
 readonly ENV_FILE="$PROJECT_ROOT/.env"
 readonly COMPOSE_FILE="$PROJECT_ROOT/docker-compose.yml"
 
-readonly LOG_DIR="$PROJECT_ROOT/vol/docker-resources"
+readonly LOG_DIR="$PROJECT_ROOT/data/docker-resources"
 readonly DB_LOG="$LOG_DIR/db_usage.log"
 readonly MANGOS_LOG="$LOG_DIR/mangos_usage.log"
 readonly REALMD_LOG="$LOG_DIR/realmd_usage.log"
@@ -69,7 +69,8 @@ update_env_variable() {
     local temp_file
 
     if [ -z "$variable_value" ]; then
-        log_message "WARNING" "Skipping empty value for $variable_name"
+        log_message "WARNING" \
+            "Skipping empty value for $variable_name"
         return
     fi
 
@@ -80,6 +81,7 @@ update_env_variable() {
             "$ENV_FILE" > "$temp_file"
     else
         cat "$ENV_FILE" > "$temp_file"
+
         printf '%s=%s\n' \
             "$variable_name" \
             "$variable_value" >> "$temp_file"
@@ -89,13 +91,17 @@ update_env_variable() {
     # This preserves ownership, permissions, and inode.
     if ! cat "$temp_file" > "$ENV_FILE"; then
         rm -f "$temp_file"
-        log_message "ERROR" "Failed to update $variable_name in $ENV_FILE"
+
+        log_message "ERROR" \
+            "Failed to update $variable_name in $ENV_FILE"
+
         return 1
     fi
 
     rm -f "$temp_file"
 
-    log_message "DEBUG" "Updated $variable_name=$variable_value"
+    log_message "DEBUG" \
+        "Updated $variable_name=$variable_value"
 }
 
 cleanup_log() {
@@ -107,7 +113,8 @@ cleanup_log() {
     local removed_count
 
     if [ ! -f "$log_file" ]; then
-        log_message "WARNING" "Log file not found, skipping cleanup: $log_file"
+        log_message "WARNING" \
+            "Log file not found, skipping cleanup: $log_file"
         return
     fi
 
@@ -119,7 +126,9 @@ cleanup_log() {
 
         rm -f "$temp_file"
 
-        log_message "ERROR" "Failed to clean log file: $log_file"
+        log_message "ERROR" \
+            "Failed to clean log file: $log_file"
+
         return 1
     fi
 
@@ -131,7 +140,9 @@ cleanup_log() {
     if ! cat "$temp_file" > "$log_file"; then
         rm -f "$temp_file"
 
-        log_message "ERROR" "Failed to rewrite log file: $log_file"
+        log_message "ERROR" \
+            "Failed to rewrite log file: $log_file"
+
         return 1
     fi
 
@@ -160,9 +171,11 @@ send_discord_message() {
         -d "$(jq -nc --arg content "$message" '{content: $content}')" \
         "$DISCORD_WEBHOOK" > /dev/null; then
 
-        log_message "SUCCESS" "Discord notification sent successfully"
+        log_message "SUCCESS" \
+            "Discord notification sent successfully"
     else
-        log_message "ERROR" "Failed to send Discord notification"
+        log_message "ERROR" \
+            "Failed to send Discord notification"
     fi
 }
 
@@ -185,7 +198,8 @@ EOF
 announce_restart() {
     local time_remaining
 
-    log_message "INFO" "Starting restart announcement sequence"
+    log_message "INFO" \
+        "Starting restart announcement sequence"
 
     for time_remaining in 15 10 5 4 3 2 1; do
         log_message "INFO" \
@@ -211,17 +225,21 @@ announce_restart() {
         esac
     done
 
-    log_message "INFO" "Announcing immediate restart"
+    log_message "INFO" \
+        "Announcing immediate restart"
 
     if announce_message "Server Restarting Now!"; then
-        log_message "SUCCESS" "Final restart announcement sent"
+        log_message "SUCCESS" \
+            "Final restart announcement sent"
     else
-        log_message "ERROR" "Failed to send final restart announcement"
+        log_message "ERROR" \
+            "Failed to send final restart announcement"
     fi
 }
 
 restart_services() {
-    log_message "INFO" "Stopping Docker Compose services"
+    log_message "INFO" \
+        "Stopping Docker Compose services"
 
     if ! sudo docker compose \
         --project-directory "$PROJECT_ROOT" \
@@ -229,12 +247,17 @@ restart_services() {
         -f "$COMPOSE_FILE" \
         down; then
 
-        log_message "ERROR" "Failed to stop Docker Compose services"
+        log_message "ERROR" \
+            "Failed to stop Docker Compose services"
+
         return 1
     fi
 
-    log_message "SUCCESS" "Docker Compose services stopped"
-    log_message "INFO" "Starting Docker Compose services"
+    log_message "SUCCESS" \
+        "Docker Compose services stopped"
+
+    log_message "INFO" \
+        "Starting Docker Compose services"
 
     if ! sudo docker compose \
         --project-directory "$PROJECT_ROOT" \
@@ -242,11 +265,14 @@ restart_services() {
         -f "$COMPOSE_FILE" \
         up -d; then
 
-        log_message "ERROR" "Failed to start Docker Compose services"
+        log_message "ERROR" \
+            "Failed to start Docker Compose services"
+
         return 1
     fi
 
-    log_message "SUCCESS" "Docker Compose services started"
+    log_message "SUCCESS" \
+        "Docker Compose services started"
 }
 
 main() {
@@ -283,12 +309,6 @@ main() {
     log_message "INFO" "Script started"
 
     # Validate required files and directories
-    if [ ! -f "$ENV_SCRIPT_FILE" ]; then
-        log_message "ERROR" \
-            "Environment file not found: $ENV_SCRIPT_FILE"
-        return 1
-    fi
-
     if [ ! -f "$ENV_FILE" ]; then
         log_message "ERROR" \
             "Compose environment file not found: $ENV_FILE"
@@ -307,10 +327,14 @@ main() {
         return 1
     fi
 
-    # Load environment variables
-    source "$ENV_SCRIPT_FILE"
+    # Load optional Discord configuration
+    if [ -f "$ENV_SCRIPT_FILE" ]; then
+        source "$ENV_SCRIPT_FILE"
+    else
+        log_message "WARNING" \
+            "Environment file not found: $ENV_SCRIPT_FILE"
+    fi
 
-    # Calculate resource data threshold
     threshold=$(date -d "$DATA_WINDOW_DAYS days ago" +%s)
 
     # Get total host memory in GiB
@@ -368,6 +392,7 @@ main() {
     if [ "$(echo "$remaining_memory <= 0" | bc)" -eq 1 ]; then
         log_message "ERROR" \
             "Available memory is lower than the configured minimum reservations"
+
         return 1
     fi
 
