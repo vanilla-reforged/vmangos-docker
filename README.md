@@ -293,10 +293,10 @@ script/*.log
 
 ## Cron Jobs
 
-Edit root's crontab:
+Edit users's crontab:
 
 ```sh
-sudo crontab -e
+crontab -e
 ```
 
 Change `/home/user/vmangos-docker` to match your installation path.
