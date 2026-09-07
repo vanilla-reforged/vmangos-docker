@@ -15,7 +15,12 @@ log_message() {
     local timestamp
 
     timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-    printf '[%s] [%s] [%s] %s\n' "$timestamp" "$SCRIPT_NAME" "$level" "$message"
+
+    printf '[%s] [%s] [%s] %s\n' \
+        "$timestamp" \
+        "$SCRIPT_NAME" \
+        "$level" \
+        "$message"
 }
 
 send_discord_message() {
@@ -37,9 +42,11 @@ send_discord_message() {
         -d "$(jq -nc --arg content "$message" '{content: $content}')" \
         "$DISCORD_WEBHOOK" > /dev/null; then
 
-        log_message "SUCCESS" "Discord notification sent successfully"
+        log_message "SUCCESS" \
+            "Discord notification sent successfully"
     else
-        log_message "ERROR" "Failed to send Discord notification"
+        log_message "ERROR" \
+            "Failed to send Discord notification"
     fi
 }
 
@@ -81,7 +88,9 @@ send "\x11"
 expect eof
 EOF
     ); then
-        log_message "ERROR" "Failed to get server information"
+        log_message "ERROR" \
+            "Failed to get server information"
+
         return 1
     fi
 
@@ -93,11 +102,14 @@ EOF
     )
 
     if [ -z "$server_uptime" ]; then
-        log_message "ERROR" "Failed to extract server uptime"
+        log_message "ERROR" \
+            "Failed to extract server uptime"
+
         server_uptime="Server uptime: Unknown"
         last_restart="Unknown"
     else
-        log_message "INFO" "Got server uptime: $server_uptime"
+        log_message "INFO" \
+            "Got server uptime: $server_uptime"
 
         # Extract uptime components
         if [[ "$server_uptime" =~ ([0-9]+)[[:space:]]+Day[s]? ]]; then
@@ -116,31 +128,36 @@ EOF
             seconds="${BASH_REMATCH[1]}"
         fi
 
-        total_seconds=$(
-            (
-                days * 86400 +
-                hours * 3600 +
-                minutes * 60 +
-                seconds
-            )
-        )
+        total_seconds=$(( \
+            days * 86400 +
+            hours * 3600 +
+            minutes * 60 +
+            seconds
+        ))
 
         restart_timestamp=$(($(date +%s) - total_seconds))
-        last_restart=$(date -d "@$restart_timestamp" "+%Y-%m-%d %H:%M:%S")
 
-        log_message "INFO" "Calculated last restart: $last_restart"
+        last_restart=$(
+            date -d "@$restart_timestamp" \
+                "+%Y-%m-%d %H:%M:%S"
+        )
+
+        log_message "INFO" \
+            "Calculated last restart: $last_restart"
     fi
 
     server_time=$(date "+%Y-%m-%d %H:%M:%S")
 
     send_discord_message "$(
-        printf '%s\nLast restart: %s\nServer time: %s' \
+        printf \
+            '%s\nLast restart: %s\nServer time: %s' \
             "$server_uptime" \
             "$last_restart" \
             "$server_time"
     )"
 
-    log_message "SUCCESS" "Script completed successfully"
+    log_message "SUCCESS" \
+        "Script completed successfully"
 }
 
 main "$@"
