@@ -339,10 +339,9 @@ main() {
 
     # Get total host memory in GiB
     total_host_memory=$(
-        free -b |
-        awk '/^Mem:/ {
-            printf "%.2f", $2 / 1024 / 1024 / 1024
-        }'
+        awk '/^MemTotal:/ {
+            printf "%.2f", $2 / 1024 / 1024
+        }' /proc/meminfo
     )
 
     available_memory=$(
@@ -392,6 +391,17 @@ main() {
     if [ "$(echo "$remaining_memory <= 0" | bc)" -eq 1 ]; then
         log_message "ERROR" \
             "Available memory is lower than the configured minimum reservations"
+
+        discord_message=$(
+            printf \
+                '**Resource Allocation Failed:**\nTotal Host Memory: %sGB\nAvailable for containers (%s%%): %sGB\nMinimum reservations required: %sGB' \
+                "$total_host_memory" \
+                "$MEMORY_ALLOCATION_PERCENT" \
+                "$available_memory" \
+                "$total_minimum_reservation"
+        )
+
+        send_discord_message "$discord_message"
 
         return 1
     fi
