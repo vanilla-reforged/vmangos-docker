@@ -532,7 +532,7 @@ main() {
     cleanup_log "$MANGOS_LOG" "$threshold"
     cleanup_log "$REALMD_LOG" "$threshold"
 
-    # Summary
+    # Summary and restart notification
     log_message "INFO" "Memory allocation summary"
     log_message "INFO" "DB: ${mem_reservation_db}GB"
     log_message "INFO" "Mangos: ${mem_reservation_mangos}GB"
@@ -540,7 +540,7 @@ main() {
 
     discord_message=$(
         printf \
-            '**Resource Allocation Summary:**\nTotal Host Memory: %sGB\nAvailable (%s%%): %sGB\n\n**Memory Allocations:**\nDB: %sGB\nMangos: %sGB\nRealmd: %sGB' \
+            '**Resource Allocation Summary:**\nTotal Host Memory: %sGB\nAvailable (%s%%): %sGB\n\n**Memory Allocations:**\nDB: %sGB\nMangos: %sGB\nRealmd: %sGB\n\n**Docker stack will restart in 15 minutes.**' \
             "$total_host_memory" \
             "$MEMORY_ALLOCATION_PERCENT" \
             "$available_memory" \
@@ -554,6 +554,9 @@ main() {
     # Announce and restart
     announce_restart
     restart_services
+
+    send_discord_message \
+        "**Docker Stack Restarted:** Resource allocations applied successfully and all services were started."
 
     log_message "SUCCESS" "Script completed successfully"
 }
