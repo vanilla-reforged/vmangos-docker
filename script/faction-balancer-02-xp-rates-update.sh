@@ -14,6 +14,9 @@ readonly CONFIG_FILE="$PROJECT_ROOT/vol/configuration/mangosd.conf"
 readonly DATA_WINDOW_DAYS=7
 readonly MANGOS_CONTAINER="vmangos-mangos"
 
+readonly RESTART_DELAY=900
+readonly RESTART_BUFFER=10
+
 log_message() {
     local level="$1"
     local message="$2"
@@ -45,9 +48,11 @@ send_discord_message() {
         -d "$(jq -nc --arg content "$message" '{content: $content}')" \
         "$DISCORD_WEBHOOK" > /dev/null; then
 
-        log_message "SUCCESS" "Discord notification sent successfully"
+        log_message "SUCCESS" \
+            "Discord notification sent successfully"
     else
-        log_message "ERROR" "Failed to send Discord notification"
+        log_message "ERROR" \
+            "Failed to send Discord notification"
     fi
 }
 
@@ -89,7 +94,9 @@ update_xp_rates() {
 
         rm -f "$temp_file"
 
-        log_message "ERROR" "Failed to prepare configuration update"
+        log_message "ERROR" \
+            "Failed to prepare configuration update"
+
         return 1
     fi
 
@@ -98,7 +105,9 @@ update_xp_rates() {
     if ! cat "$temp_file" > "$CONFIG_FILE"; then
         rm -f "$temp_file"
 
-        log_message "ERROR" "Failed to update configuration file"
+        log_message "ERROR" \
+            "Failed to update configuration file"
+
         return 1
     fi
 
@@ -129,7 +138,9 @@ cleanup_population_data() {
 
         rm -f "$temp_file"
 
-        log_message "ERROR" "Failed to clean population data"
+        log_message "ERROR" \
+            "Failed to clean population data"
+
         return 1
     fi
 
@@ -141,7 +152,9 @@ cleanup_population_data() {
     if ! cat "$temp_file" > "$POPULATION_DATA_FILE"; then
         rm -f "$temp_file"
 
-        log_message "ERROR" "Failed to update population data file"
+        log_message "ERROR" \
+            "Failed to update population data file"
+
         return 1
     fi
 
@@ -153,13 +166,13 @@ cleanup_population_data() {
 
 restart_server() {
     log_message "INFO" \
-        "Scheduling server restart with a 15 minute countdown"
+        "Scheduling server restart with a $RESTART_DELAY second countdown"
 
     if expect <<EOF
 set timeout -1
 spawn sudo docker attach $MANGOS_CONTAINER
 sleep 2
-send "server restart 900\r"
+send "server restart $RESTART_DELAY\r"
 sleep 5
 send "\x10"
 sleep 1
@@ -172,8 +185,32 @@ EOF
     else
         log_message "ERROR" \
             "Failed to schedule server restart"
+
         return 1
     fi
+}
+
+wait_for_restart() {
+    log_message "INFO" \
+        "Waiting for server restart to complete"
+
+    sleep $((RESTART_DELAY + RESTART_BUFFER))
+
+    if sudo docker container inspect \
+        --format '{{.State.Running}}' \
+        "$MANGOS_CONTAINER" 2>/dev/null |
+        grep -qx 'true'; then
+
+        log_message "SUCCESS" \
+            "VMaNGOS container is running after restart"
+
+        return
+    fi
+
+    log_message "ERROR" \
+        "VMaNGOS container is not running after restart"
+
+    return 1
 }
 
 main() {
@@ -187,6 +224,7 @@ main() {
     local alliance_rate
     local horde_rate
     local update_message
+    local discord_message
 
     log_message "INFO" "Script started"
 
@@ -202,6 +240,7 @@ main() {
     if [ ! -f "$CONFIG_FILE" ]; then
         log_message "ERROR" \
             "Configuration file not found: $CONFIG_FILE"
+
         return 1
     fi
 
@@ -292,16 +331,40 @@ main() {
         "$alliance_rate" \
         "$horde_rate"
 
-    send_discord_message \
-        "Population balance: Alliance: ${alliance_percent}%, Horde: ${horde_percent}%. $update_message"
-
-    log_message "INFO" "Cleaning old population data"
+    log_message "INFO" \
+        "Cleaning old population data"
 
     cleanup_population_data "$cutoff_date"
 
-    restart_server
+    discord_message=$(
+        printf \
+            '**Faction Balance Update:**\nAlliance: %s%%\nHorde: %s%%\n\n%s\n\n**VMaNGOS will restart in 15 minutes to apply the updated configuration.**' \
+            "$alliance_percent" \
+            "$horde_percent" \
+            "$update_message"
+    )
 
-    log_message "SUCCESS" "Script completed successfully"
+    send_discord_message "$discord_message"
+
+    if ! restart_server; then
+        send_discord_message \
+            "**Faction Balance Update Failed:** Unable to schedule the VMaNGOS restart."
+
+        return 1
+    fi
+
+    if ! wait_for_restart; then
+        send_discord_message \
+            "**VMaNGOS Restart Failed:** The VMaNGOS container is not running after the scheduled restart."
+
+        return 1
+    fi
+
+    send_discord_message \
+        "**VMaNGOS Restart Completed:** The faction balance configuration was applied and the VMaNGOS container is running."
+
+    log_message "SUCCESS" \
+        "Script completed successfully"
 }
 
 main "$@"
